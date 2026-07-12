@@ -15,18 +15,60 @@ spec:
       labels:
         app.kubernetes.io/name: echo-server
     spec:
+      securityContext:
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: whoami
           image: traefik/whoami:v1.11.0
+          args:
+            - --port=8080
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
+          env:
+            - name: DATABASE_HOST
+              value: echo-postgres-rw.echo-server.svc.cluster.local
+            - name: DATABASE_NAME
+              value: echo
+            - name: DATABASE_USER
+              value: echo
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: echo-postgres-app
+                  key: password
+            - name: REDIS_HOST
+              value: echo-redis.echo-server.svc.cluster.local
+            - name: REDIS_PORT
+              value: "6379"
+          volumeMounts:
+            - name: nfs-data
+              mountPath: /mnt/nfs
+            - name: local-data
+              mountPath: /mnt/local
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            runAsGroup: 65532
+            runAsNonRoot: true
+            runAsUser: 65532
           resources:
             requests:
               cpu: 5m
               memory: 16Mi
             limits:
               memory: 64Mi
+      volumes:
+        - name: nfs-data
+          persistentVolumeClaim:
+            claimName: echo-nfs-data
+        - name: local-data
+          persistentVolumeClaim:
+            claimName: echo-local-data
 ---
 apiVersion: v1
 kind: Service

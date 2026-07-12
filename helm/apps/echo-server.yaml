@@ -22,3 +22,4 @@ spec:
       limit: 5
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
