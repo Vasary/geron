@@ -24,7 +24,7 @@ spec:
             enabled: true
             ingressClassName: traefik
             hosts:
-              - prometheus.geron.cfv3.org
+              - prometheus-geron.cfv3.org
             paths:
               - /
             pathType: Prefix

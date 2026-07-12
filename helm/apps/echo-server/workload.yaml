@@ -51,7 +51,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: echo.geron.cfv3.org
+    - host: echo-geron.cfv3.org
       http:
         paths:
           - path: /
