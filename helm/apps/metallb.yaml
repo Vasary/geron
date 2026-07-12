@@ -23,6 +23,8 @@ spec:
               release: kube-prometheus-stack
         frrk8s:
           enabled: false
+        speaker:
+          ignoreExcludeLB: true
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
