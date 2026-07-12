@@ -1,0 +1,13 @@
+machine:
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - 10.10.0.0/24
+
+cluster:
+  allowSchedulingOnControlPlanes: true
+  network:
+    dnsDomain: cluster.cfv3.org
+  etcd:
+    advertisedSubnets:
+      - 10.10.0.0/24

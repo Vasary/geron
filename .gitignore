@@ -1,0 +1,5 @@
+secrets/
+manifests/
+talos/secrets/
+talos/manifests/
+.env

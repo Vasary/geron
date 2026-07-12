@@ -1,0 +1,16 @@
+machine:
+  network:
+    nameservers:
+      - 10.10.0.2
+    interfaces:
+      - interface: enp89s0
+        dhcp: false
+        addresses:
+          - 10.10.0.251/24
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 10.10.0.1
+      - interface: enp2s0f0np0
+        dhcp: false
+        addresses:
+          - 10.10.10.200/24
