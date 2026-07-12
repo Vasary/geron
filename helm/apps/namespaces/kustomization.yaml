@@ -10,5 +10,6 @@ resources:
   - metallb-system.yaml
   - monitoring.yaml
   - nfs-csi.yaml
+  - redis-operator.yaml
   - reloader.yaml
   - traefik.yaml
