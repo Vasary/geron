@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
   - namespaces
   - cert-manager.yaml
+  - cloudnative-pg.yaml
+  - echo-server.yaml
   - external-dns.yaml
   - external-secrets.yaml
   - local-path-provisioner.yaml
