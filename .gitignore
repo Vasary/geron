@@ -2,4 +2,8 @@ secrets/
 manifests/
 talos/secrets/
 talos/manifests/
+!helm/secrets/
+!helm/secrets/**
+helm/secrets/*.yaml
+!helm/secrets/kustomization.yaml
 .env

@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: local-path-provisioner
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: geron
+  source:
+    repoURL: https://charts.containeroo.ch
+    chart: local-path-provisioner
+    targetRevision: 0.0.37
+    helm:
+      releaseName: local-path-provisioner
+      values: |
+        storageClass:
+          create: true
+          name: local-path
+          defaultClass: true
+          reclaimPolicy: Delete
+          volumeBindingMode: WaitForFirstConsumer
+        nodePathMap:
+          - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+            paths:
+              - /var/mnt/local-path-provisioner
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: local-path-storage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true

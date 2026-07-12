@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"
+spec:
+  project: geron
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns
+    chart: external-dns
+    targetRevision: 1.21.1
+    helm:
+      releaseName: external-dns
+      values: |
+        provider:
+          name: pihole
+        sources:
+          - service
+          - ingress
+        policy: upsert-only
+        registry: noop
+        extraArgs:
+          pihole-server: http://10.10.0.2
+        env:
+          - name: EXTERNAL_DNS_PIHOLE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: pihole-password
+                key: EXTERNAL_DNS_PIHOLE_PASSWORD
+                optional: true
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: kube-prometheus-stack
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true

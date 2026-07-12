@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: geron
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 41.0.2
+    helm:
+      releaseName: traefik
+      values: |
+        deployment:
+          replicas: 1
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+        providers:
+          kubernetesCRD:
+            enabled: true
+          kubernetesIngress:
+            enabled: true
+        service:
+          enabled: true
+          single: true
+          spec:
+            type: LoadBalancer
+            loadBalancerIP: 10.10.0.250
+        metrics:
+          prometheus:
+            service:
+              enabled: true
+            serviceMonitor:
+              enabled: true
+              additionalLabels:
+                release: kube-prometheus-stack
+        logs:
+          general:
+            level: INFO
+          access:
+            enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true

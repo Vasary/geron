@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespaces
+  - cert-manager.yaml
+  - external-dns.yaml
+  - external-secrets.yaml
+  - local-path-provisioner.yaml
+  - metallb.yaml
+  - metallb-config
+  - nfs-csi.yaml
+  - kube-prometheus-stack.yaml
+  - metrics-server.yaml
+  - reloader.yaml
+  - traefik.yaml
