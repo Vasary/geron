@@ -38,11 +38,10 @@ spec:
               enabled: true
               additionalLabels:
                 release: kube-prometheus-stack
-        logs:
-          general:
-            level: INFO
-          access:
-            enabled: true
+        log:
+          level: INFO
+        accessLog:
+          enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik
