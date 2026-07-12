@@ -31,7 +31,7 @@ validate:
 
 deploy: validate
 	@printf '%s\n' 'Installing Argo CD bootstrap manifests...'
-	@kubectl apply -k bootstrap/argocd
+	@kubectl apply --server-side --force-conflicts -k bootstrap/argocd
 	@printf '%s\n' 'Waiting for Argo CD to become ready...'
 	@kubectl -n "$(ARGOCD_NAMESPACE)" rollout status deploy/argocd-redis --timeout="$(ARGOCD_WAIT_TIMEOUT)"
 	@kubectl -n "$(ARGOCD_NAMESPACE)" rollout status deploy/argocd-repo-server --timeout="$(ARGOCD_WAIT_TIMEOUT)"
@@ -62,4 +62,5 @@ deploy: validate
 		'Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
 
 deploy-secrets:
+	@kubectl apply -k apps/namespaces
 	@kubectl apply -k secrets
