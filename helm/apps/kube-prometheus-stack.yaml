@@ -16,13 +16,18 @@ spec:
       values: |
         fullnameOverride: kube-prometheus-stack
         grafana:
-          enabled: true
-          defaultDashboardsEnabled: true
-          service:
-            type: ClusterIP
+          enabled: false
         alertmanager:
           enabled: true
         prometheus:
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            hosts:
+              - prometheus.geron.cfv3.org
+            paths:
+              - /
+            pathType: Prefix
           prometheusSpec:
             retention: 14d
             scrapeInterval: 30s
