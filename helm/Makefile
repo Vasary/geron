@@ -1,7 +1,8 @@
 SHELL := bash
 
 ARGOCD_NAMESPACE ?= argocd
-ARGOCD_REPO_URL ?= $(shell git config --get remote.origin.url)
+GIT_ORIGIN ?= $(shell git config --get remote.origin.url)
+ARGOCD_REPO_URL ?= $(shell printf '%s\n' '$(GIT_ORIGIN)' | sed -E 's#^git@github.com:(.*)\.git$$#https://github.com/\1.git#')
 ARGOCD_REVISION ?= $(shell git rev-parse --abbrev-ref HEAD)
 ARGOCD_ROOT_PATH ?= helm/cluster
 ARGOCD_WAIT_TIMEOUT ?= 300s
@@ -18,6 +19,7 @@ help:
 		'  make deploy-secrets  Apply local ignored Kubernetes secrets' \
 		'' \
 		'Variables:' \
+		'  GIT_ORIGIN=$(GIT_ORIGIN)' \
 		'  ARGOCD_REPO_URL=$(ARGOCD_REPO_URL)' \
 		'  ARGOCD_REVISION=$(ARGOCD_REVISION)' \
 		'  ARGOCD_ROOT_PATH=$(ARGOCD_ROOT_PATH)' \
