@@ -23,6 +23,7 @@ spec:
         registry: noop
         extraArgs:
           pihole-server: http://10.10.0.2
+          pihole-api-version: "6"
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
             valueFrom:
