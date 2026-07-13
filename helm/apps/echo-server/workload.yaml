@@ -90,8 +90,15 @@ kind: Ingress
 metadata:
   name: echo-server
   namespace: echo-server
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
   ingressClassName: traefik
+  tls:
+    - secretName: echo-geron-tls
+      hosts:
+        - echo.geron.cfv3.org
   rules:
     - host: echo.geron.cfv3.org
       http:
