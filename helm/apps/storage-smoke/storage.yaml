@@ -10,16 +10,3 @@ spec:
   resources:
     requests:
       storage: 512Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: echo-local-data
-  namespace: echo-server
-spec:
-  storageClassName: local-path
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 512Mi
