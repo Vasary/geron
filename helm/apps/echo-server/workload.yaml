@@ -27,27 +27,6 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-          env:
-            - name: DATABASE_HOST
-              value: echo-postgres-rw.echo-server.svc.cluster.cfv3.org
-            - name: DATABASE_NAME
-              value: echo
-            - name: DATABASE_USER
-              value: echo
-            - name: DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: echo-postgres-app
-                  key: password
-            - name: REDIS_HOST
-              value: echo-redis.echo-server.svc.cluster.cfv3.org
-            - name: REDIS_PORT
-              value: "6379"
-          volumeMounts:
-            - name: nfs-data
-              mountPath: /mnt/nfs
-            - name: local-data
-              mountPath: /mnt/local
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -62,13 +41,6 @@ spec:
               memory: 16Mi
             limits:
               memory: 64Mi
-      volumes:
-        - name: nfs-data
-          persistentVolumeClaim:
-            claimName: echo-nfs-data
-        - name: local-data
-          persistentVolumeClaim:
-            claimName: echo-local-data
 ---
 apiVersion: v1
 kind: Service

@@ -17,4 +17,5 @@ resources:
   - metrics-server.yaml
   - redis-operator.yaml
   - reloader.yaml
+  - storage-smoke.yaml
   - traefik.yaml
