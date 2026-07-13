@@ -4,7 +4,7 @@ CONFIG ?= cluster.ini
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check netcheck status secrets config validate apply bootstrap kubeconfig install-configs disks disks-auth dashboard health talosconfig talosconfig-install clean-manifests
+.PHONY: help check netcheck status secrets config validate apply apply-auth apply-auth-confirm bootstrap kubeconfig install-configs disks disks-auth dashboard health talosconfig talosconfig-install clean-manifests
 
 help:
 	@printf '%s\n' \
@@ -18,6 +18,8 @@ help:
 		'  make disks            List disks over the insecure maintenance API' \
 		'  make disks-auth       List disks using repo talosconfig after install' \
 		'  make apply            Apply control plane config to the node in maintenance mode' \
+		'  make apply-auth       Apply control plane config using authenticated Talos API' \
+		'  make apply-auth-confirm  Confirm authenticated Talos config without reboot' \
 		'  make bootstrap        Bootstrap the single-node control plane' \
 		'  make kubeconfig       Merge Kubernetes kubeconfig into ~/.kube/config' \
 		'  make install-configs  Install talosconfig and kubeconfig into home' \
@@ -49,6 +51,18 @@ validate: config
 
 apply: config
 	@playbooks/apply.sh "$(CONFIG)"
+
+apply-auth: config
+	@talosctl --talosconfig manifests/talosconfig \
+		--endpoints "$$(awk -F= '/^[[:space:]]*endpoint_ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
+		--nodes "$$(awk -F= '/^[[:space:]]*ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
+		apply-config --mode try --timeout 2m --file manifests/controlplane.yaml
+
+apply-auth-confirm: config
+	@talosctl --talosconfig manifests/talosconfig \
+		--endpoints "$$(awk -F= '/^[[:space:]]*endpoint_ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
+		--nodes "$$(awk -F= '/^[[:space:]]*ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
+		apply-config --mode no-reboot --file manifests/controlplane.yaml
 
 bootstrap:
 	@playbooks/bootstrap.sh "$(CONFIG)"
