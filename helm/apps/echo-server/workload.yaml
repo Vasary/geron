@@ -29,7 +29,7 @@ spec:
               containerPort: 8080
           env:
             - name: DATABASE_HOST
-              value: echo-postgres-rw.echo-server.svc.cluster.local
+              value: echo-postgres-rw.echo-server.svc.cluster.cfv3.org
             - name: DATABASE_NAME
               value: echo
             - name: DATABASE_USER
@@ -40,7 +40,7 @@ spec:
                   name: echo-postgres-app
                   key: password
             - name: REDIS_HOST
-              value: echo-redis.echo-server.svc.cluster.local
+              value: echo-redis.echo-server.svc.cluster.cfv3.org
             - name: REDIS_PORT
               value: "6379"
           volumeMounts:

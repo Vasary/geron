@@ -37,7 +37,7 @@ make dashboard
 - `patches/controlplane/10-install.yaml` sets `/dev/nvme0n1` and `wipe: true`.
 - `patches/controlplane/20-network.yaml` sets `eth0` on `10.10.0.251/24`, default gateway `10.10.0.1`, DNS `10.10.0.2`, and the optical/NAS interface `eth1` on `10.10.10.200/24`.
 - `patches/controlplane/25-time.yaml` sets NTP to `10.10.0.2`.
-- `patches/controlplane/30-single-node.yaml` allows workloads on the control plane and sets `cluster.local`.
+- `patches/controlplane/30-single-node.yaml` allows workloads on the control plane and sets `cluster.cfv3.org`.
 
 `make secrets` creates `secrets/talos-secrets.yaml`.
 
