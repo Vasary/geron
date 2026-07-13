@@ -27,14 +27,14 @@ spec:
               cert-manager.io/cluster-issuer: letsencrypt-prod
               traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
             hosts:
-              - prometheus.geron.cfv3.org
+              - prometheus.vasary.org
             paths:
               - /
             pathType: Prefix
             tls:
-              - secretName: prometheus-geron-tls
+              - secretName: prometheus-vasary-tls
                 hosts:
-                  - prometheus.geron.cfv3.org
+                  - prometheus.vasary.org
           prometheusSpec:
             retention: 14d
             scrapeInterval: 30s

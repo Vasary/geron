@@ -4,14 +4,14 @@ metadata:
   name: letsencrypt-prod
 spec:
   acme:
-    email: admin@geron.cfv3.org
+    email: admin@vasary.org
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-prod-account-key
     solvers:
       - selector:
           dnsZones:
-            - cfv3.org
+            - vasary.org
         dns01:
           cloudflare:
             apiTokenSecretRef:

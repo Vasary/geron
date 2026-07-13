@@ -7,7 +7,7 @@ machine:
 cluster:
   allowSchedulingOnControlPlanes: true
   network:
-    dnsDomain: cluster.cfv3.org
+    dnsDomain: cluster.vasary.org
   etcd:
     advertisedSubnets:
       - 10.10.0.0/24

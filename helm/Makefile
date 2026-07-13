@@ -59,7 +59,7 @@ deploy: validate
 	@printf '%s\n' \
 		'' \
 		'Argo CD is bootstrapped. It will reconcile helm/cluster from git.' \
-		'UI: http://geron.cfv3.org' \
+		'UI: http://vasary.org' \
 		'Login: admin' \
 		'Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
 

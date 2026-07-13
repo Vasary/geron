@@ -68,11 +68,11 @@ metadata:
 spec:
   ingressClassName: traefik
   tls:
-    - secretName: echo-geron-tls
+    - secretName: echo-vasary-tls
       hosts:
-        - echo.geron.cfv3.org
+        - echo.vasary.org
   rules:
-    - host: echo.geron.cfv3.org
+    - host: echo.vasary.org
       http:
         paths:
           - path: /
