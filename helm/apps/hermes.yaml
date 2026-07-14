@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudflared
+  name: hermes
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "25"
+    argocd.argoproj.io/sync-wave: "30"
 spec:
-  project: platform
+  project: applications
   source:
     repoURL: https://github.com/Vasary/geron.git
     targetRevision: master
-    path: helm/apps/cloudflared
+    path: helm/apps/hermes
   destination:
     server: https://kubernetes.default.svc
-    namespace: cloudflared
+    namespace: hermes
   syncPolicy:
     automated:
       prune: true

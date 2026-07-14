@@ -1,12 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: geron
+  name: monitoring
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
-  description: Geron single-node cluster applications
+  description: Cluster observability and metrics applications
   sourceRepos:
     - '*'
   destinations:

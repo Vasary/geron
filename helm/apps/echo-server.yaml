@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "30"
 spec:
-  project: geron
+  project: demo
   source:
     repoURL: https://github.com/Vasary/geron.git
     targetRevision: master

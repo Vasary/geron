@@ -1,0 +1,50 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cloudflare-basic-auth
+  namespace: hermes
+spec:
+  basicAuth:
+    secret: cloudflare-basic-auth
+    realm: geron
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hermes-cloudflare-auth
+  namespace: hermes
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`hermes.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+      kind: Rule
+      priority: 100000
+      middlewares:
+        - name: cloudflare-basic-auth
+          namespace: hermes
+      services:
+        - name: hermes-dashboard
+          port: http
+  tls:
+    secretName: hermes-vasary-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hermes-cloudflare-auth-web
+  namespace: hermes
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`hermes.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+      kind: Rule
+      priority: 100000
+      middlewares:
+        - name: cloudflare-basic-auth
+          namespace: hermes
+      services:
+        - name: hermes-dashboard
+          port: http

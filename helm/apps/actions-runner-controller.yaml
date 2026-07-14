@@ -1,29 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudnative-pg
+  name: actions-runner-controller
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "15"
 spec:
   project: platform
   source:
-    repoURL: https://cloudnative-pg.github.io/charts
-    chart: cloudnative-pg
-    targetRevision: 0.29.0
+    repoURL: ghcr.io/actions/actions-runner-controller-charts
+    chart: gha-runner-scale-set-controller
+    targetRevision: "*"
     helm:
-      releaseName: cloudnative-pg
+      releaseName: arc
       values: |
-        fullnameOverride: cloudnative-pg
-        monitoring:
-          podMonitorEnabled: true
-          podMonitorAdditionalLabels:
-            release: kube-prometheus-stack
-          grafanaDashboard:
-            create: false
+        fullnameOverride: arc
   destination:
     server: https://kubernetes.default.svc
-    namespace: cnpg-system
+    namespace: arc-systems
   syncPolicy:
     automated:
       prune: true
