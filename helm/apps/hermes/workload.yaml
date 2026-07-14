@@ -43,10 +43,18 @@ spec:
             - gateway
             - run
           env:
+            - name: HERMES_HOME
+              value: /opt/data
             - name: HERMES_UID
               value: "10000"
             - name: HERMES_GID
               value: "10000"
+            - name: HERMES_TIMEZONE
+              value: Europe/Berlin
+            - name: HERMES_TELEGRAM_DISABLE_FALLBACK_IPS
+              value: "true"
+            - name: HERMES_GATEWAY_BOOTSTRAP_STATE
+              value: running
           envFrom:
             - secretRef:
                 name: hermes-secrets
@@ -102,10 +110,16 @@ spec:
             - name: http
               containerPort: 9119
           env:
+            - name: HERMES_HOME
+              value: /opt/data
             - name: HERMES_UID
               value: "10000"
             - name: HERMES_GID
               value: "10000"
+            - name: HERMES_TIMEZONE
+              value: Europe/Berlin
+            - name: HERMES_DASHBOARD_PUBLIC_URL
+              value: https://hermes.vasary.org
           envFrom:
             - secretRef:
                 name: hermes-secrets

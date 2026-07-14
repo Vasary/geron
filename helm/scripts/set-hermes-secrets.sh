@@ -15,6 +15,11 @@ command -v sops >/dev/null || {
   exit 1
 }
 
+command -v openssl >/dev/null || {
+  printf '%s\n' 'Missing openssl.' >&2
+  exit 1
+}
+
 test -f "$age_key_file" || {
   printf 'Missing SOPS age key: %s\n' "$age_key_file" >&2
   exit 1
@@ -30,11 +35,37 @@ IFS= read -rs telegram_bot_token
 printf '\n'
 printf '%s' 'Telegram allowed users (comma-separated, optional): '
 IFS= read -r telegram_allowed_users
+printf '%s' 'Hermes dashboard username [admin]: '
+IFS= read -r dashboard_username
+dashboard_username="${dashboard_username:-admin}"
+printf '%s' 'Hermes dashboard password: '
+IFS= read -rs dashboard_password
+printf '\n'
+printf '%s' 'Repeat dashboard password: '
+IFS= read -rs dashboard_password_repeat
+printf '\n'
 
 if [ -z "$telegram_bot_token" ]; then
   printf '%s\n' 'Telegram bot token must not be empty.' >&2
   exit 1
 fi
+
+if [ -z "$dashboard_username" ]; then
+  printf '%s\n' 'Hermes dashboard username must not be empty.' >&2
+  exit 1
+fi
+
+if [ -z "$dashboard_password" ]; then
+  printf '%s\n' 'Hermes dashboard password must not be empty.' >&2
+  exit 1
+fi
+
+if [ "$dashboard_password" != "$dashboard_password_repeat" ]; then
+  printf '%s\n' 'Hermes dashboard passwords do not match.' >&2
+  exit 1
+fi
+
+dashboard_auth_secret="$(openssl rand -hex 32)"
 
 tmp_file="$(mktemp)"
 encrypted_tmp_file="$(mktemp)"
@@ -52,6 +83,9 @@ type: Opaque
 stringData:
   TELEGRAM_BOT_TOKEN: "$telegram_bot_token"
   TELEGRAM_ALLOWED_USERS: "$telegram_allowed_users"
+  HERMES_DASHBOARD_BASIC_AUTH_USERNAME: "$dashboard_username"
+  HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: "$dashboard_password"
+  HERMES_DASHBOARD_BASIC_AUTH_SECRET: "$dashboard_auth_secret"
 EOF
 
 SOPS_AGE_KEY_FILE="$age_key_file" sops \
