@@ -2,39 +2,35 @@ SHELL := bash
 
 TALOS_DIR := talos
 HELM_DIR := helm
+FIRST_GOAL := $(firstword $(MAKECMDGOALS))
+SUBCOMMANDS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 .DEFAULT_GOAL := help
 
-.PHONY: help talos helm helm-% validate deploy deploy-secrets
+.PHONY: help talos helm
 
 help:
-	@$(MAKE) -C "$(TALOS_DIR)" help
 	@printf '%s\n' \
+		'Usage:' \
+		'  make talos [target]    Run a target from talos/Makefile' \
+		'  make helm [target]     Run a target from helm/Makefile' \
 		'' \
-		'Structure:' \
-		'  talos/   Talos configs, patches, scripts, generated manifests, secrets' \
-		'  helm/    Argo CD bootstrap, projects and cluster applications' \
+		'Examples:' \
+		'  make talos config' \
+		'  make talos apply-auth' \
+		'  make helm validate' \
+		'  make helm deploy' \
+		'  make helm deploy-secrets' \
 		'' \
-		'Cluster app targets:' \
-		'  make helm                 Show Argo CD / Helm app targets' \
-		'  make validate             Validate Argo CD platform manifests' \
-		'  make deploy               Install Argo CD and bootstrap from git origin' \
-		'  make deploy-secrets       Decrypt and apply SOPS Kubernetes secrets' \
-		'  make helm-validate        Validate Argo CD platform manifests' \
-		'  make helm-deploy          Install Argo CD and bootstrap from git origin' \
-		'  make helm-deploy-secrets  Decrypt and apply SOPS Kubernetes secrets'
+		'Without a nested target, make talos or make helm shows that Makefile help.'
 
 talos:
-	@$(MAKE) -C "$(TALOS_DIR)" help
+	@$(MAKE) -C "$(TALOS_DIR)" $(SUBCOMMANDS)
 
 helm:
-	@$(MAKE) -C "$(HELM_DIR)" help
+	@$(MAKE) -C "$(HELM_DIR)" $(SUBCOMMANDS)
 
-helm-%:
-	@$(MAKE) -C "$(HELM_DIR)" $*
-
-validate deploy deploy-secrets:
-	@$(MAKE) -C "$(HELM_DIR)" $@
-
-%:
-	@$(MAKE) -C "$(TALOS_DIR)" $@
+ifneq ($(filter talos helm,$(FIRST_GOAL)),)
+$(eval .PHONY: $(SUBCOMMANDS))
+$(eval $(SUBCOMMANDS):; @true)
+endif
