@@ -17,7 +17,7 @@ help:
 		'Targets:' \
 		'  make validate        Validate Argo CD platform manifests' \
 		'  make deploy          Install Argo CD and bootstrap from git origin' \
-		'  make deploy-secrets  Apply local ignored Kubernetes secrets' \
+		'  make deploy-secrets  Decrypt and apply SOPS Kubernetes secrets' \
 		'' \
 		'Variables:' \
 		'  GIT_ORIGIN=$(GIT_ORIGIN)' \
