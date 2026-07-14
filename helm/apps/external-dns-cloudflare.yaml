@@ -25,8 +25,8 @@ spec:
         domainFilters:
           - vasary.org
         extraArgs:
-          annotation-filter: geron.io/dns-scope=public
-          cloudflare-proxied: "true"
+          - --annotation-filter=geron.io/dns-scope=public
+          - --cloudflare-proxied
         env:
           - name: CF_API_TOKEN
             valueFrom:
