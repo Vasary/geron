@@ -18,7 +18,7 @@ spec:
     - web
     - websecure
   routes:
-    - match: Host(`argo.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+    - match: Host(`vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
       kind: Rule
       priority: 100000
       middlewares:
@@ -28,7 +28,7 @@ spec:
         - name: argocd-server
           port: http
   tls:
-    secretName: argocd-argo-vasary-tls
+    secretName: argocd-vasary-tls
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -39,7 +39,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`argo.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+    - match: Host(`vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
       kind: Rule
       priority: 100000
       middlewares:

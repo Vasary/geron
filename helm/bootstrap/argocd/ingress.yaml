@@ -5,17 +5,17 @@ metadata:
   namespace: argocd
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: argo.vasary.org
+    external-dns.alpha.kubernetes.io/hostname: vasary.org
     geron.io/dns-scope: internal
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
   ingressClassName: traefik
   tls:
-    - secretName: argocd-argo-vasary-tls
+    - secretName: argocd-vasary-tls
       hosts:
-        - argo.vasary.org
+        - vasary.org
   rules:
-    - host: argo.vasary.org
+    - host: vasary.org
       http:
         paths:
           - path: /

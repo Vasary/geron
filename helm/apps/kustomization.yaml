@@ -8,8 +8,6 @@ resources:
   - cloudnative-pg.yaml
   - echo-server.yaml
   - external-dns.yaml
-  - external-dns-cloudflare.yaml
-  - cloudflare-dns-records.yaml
   - external-secrets.yaml
   - local-path-provisioner.yaml
   - metallb.yaml
