@@ -64,6 +64,7 @@ metadata:
   namespace: echo-server
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
   ingressClassName: traefik

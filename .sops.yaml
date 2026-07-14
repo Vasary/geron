@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: ^helm/secrets/.*\.sops\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1x03lwvqa0ped3wgmmrg9yaph6e7ljvs4ztnqkm62wfccwpjm7vjsptkkfl

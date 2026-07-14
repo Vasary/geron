@@ -5,5 +5,6 @@ talos/manifests/
 !helm/secrets/
 !helm/secrets/**
 helm/secrets/*.yaml
+!helm/secrets/*.sops.yaml
 !helm/secrets/kustomization.yaml
 .env

@@ -1,0 +1,30 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cloudflare-basic-auth
+  namespace: argocd
+spec:
+  basicAuth:
+    secret: cloudflare-basic-auth
+    realm: geron
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server-cloudflare-auth
+  namespace: argocd
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+      kind: Rule
+      priority: 1000
+      middlewares:
+        - name: cloudflare-basic-auth
+      services:
+        - name: argocd-server
+          port: http
+  tls:
+    secretName: argocd-vasary-tls

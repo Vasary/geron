@@ -19,7 +19,7 @@ help:
 		'  make helm                 Show Argo CD / Helm app targets' \
 		'  make helm-validate        Validate Argo CD platform manifests' \
 		'  make helm-deploy          Install Argo CD and bootstrap from git origin' \
-		'  make helm-deploy-secrets  Apply local ignored Kubernetes secrets'
+		'  make helm-deploy-secrets  Decrypt and apply SOPS Kubernetes secrets'
 
 talos:
 	@$(MAKE) -C "$(TALOS_DIR)" help

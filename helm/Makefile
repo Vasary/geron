@@ -6,6 +6,7 @@ ARGOCD_REPO_URL ?= $(shell printf '%s\n' '$(GIT_ORIGIN)' | sed -E 's#^git@github
 ARGOCD_REVISION ?= $(shell git rev-parse --abbrev-ref HEAD)
 ARGOCD_ROOT_PATH ?= helm/cluster
 ARGOCD_WAIT_TIMEOUT ?= 300s
+SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
 
 .DEFAULT_GOAL := help
 
@@ -23,7 +24,8 @@ help:
 		'  ARGOCD_REPO_URL=$(ARGOCD_REPO_URL)' \
 		'  ARGOCD_REVISION=$(ARGOCD_REVISION)' \
 		'  ARGOCD_ROOT_PATH=$(ARGOCD_ROOT_PATH)' \
-		'  ARGOCD_WAIT_TIMEOUT=$(ARGOCD_WAIT_TIMEOUT)'
+		'  ARGOCD_WAIT_TIMEOUT=$(ARGOCD_WAIT_TIMEOUT)' \
+		'  SOPS_AGE_KEY_FILE=$(SOPS_AGE_KEY_FILE)'
 
 validate:
 	@command -v kubectl >/dev/null
@@ -64,5 +66,12 @@ deploy: validate
 		'Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
 
 deploy-secrets:
+	@command -v sops >/dev/null
+	@test -f "$(SOPS_AGE_KEY_FILE)" || { printf 'Missing SOPS age key: %s\n' "$(SOPS_AGE_KEY_FILE)" >&2; exit 1; }
 	@kubectl apply -k apps/namespaces
-	@kubectl apply -k secrets
+	@set -e; \
+	for secret in secrets/*.sops.yaml; do \
+		[ -e "$$secret" ] || { printf '%s\n' 'No SOPS secrets found in helm/secrets/*.sops.yaml'; exit 1; }; \
+		printf 'Applying %s\n' "$$secret"; \
+		SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" sops -d "$$secret" | kubectl apply -f -; \
+	done

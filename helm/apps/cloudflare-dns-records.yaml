@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudflare-dns-records
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "26"
+spec:
+  project: geron
+  source:
+    repoURL: https://github.com/Vasary/geron.git
+    targetRevision: master
+    path: helm/apps/cloudflare-dns-records
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
