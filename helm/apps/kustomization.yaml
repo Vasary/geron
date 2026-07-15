@@ -16,6 +16,7 @@ resources:
   - metallb.yaml
   - metallb-config.yaml
   - nfs-csi.yaml
+  - n8n.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml
   - public-basic-auth.yaml
