@@ -10,6 +10,7 @@ resources:
   - external-dns.yaml
   - external-secrets.yaml
   - local-path-storage.yaml
+  - media.yaml
   - metallb-system.yaml
   - monitoring.yaml
   - nfs-csi.yaml
