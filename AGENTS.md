@@ -5,6 +5,7 @@ These instructions apply to the whole repository.
 ## Collaboration Rules
 
 - Do not add `Co-authored-by` lines to commits.
+- Keep commits atomic: one commit should contain one logical change.
 - Do not apply changes to the Kubernetes cluster unless the user explicitly asks for it.
 - Do not start implementation work unless the user explicitly asks to begin. When the user is discussing or asking for options, explain and plan first.
 - Break large tasks into small, understandable steps and keep the user updated as each step is completed.
