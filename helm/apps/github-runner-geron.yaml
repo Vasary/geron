@@ -19,7 +19,7 @@ spec:
         controllerServiceAccount:
           namespace: arc-systems
           name: arc
-        minRunners: 0
+        minRunners: 1
         maxRunners: 2
   destination:
     server: https://kubernetes.default.svc
