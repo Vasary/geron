@@ -10,7 +10,7 @@ SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets argocd-password github-runner-token hermes-secrets
+.PHONY: help validate deploy deploy-secrets argocd-password github-runner-token
 
 help:
 	@printf '%s\n' \
@@ -20,7 +20,6 @@ help:
 		'  make deploy-secrets  Decrypt and apply SOPS Kubernetes secrets' \
 		'  make argocd-password Generate encrypted Argo CD admin password secret' \
 		'  make github-runner-token Generate encrypted GitHub runner token secret' \
-		'  make hermes-secrets Generate encrypted Hermes Telegram secret' \
 		'' \
 		'Variables:' \
 		'  GIT_ORIGIN=$(GIT_ORIGIN)' \
@@ -84,6 +83,3 @@ argocd-password:
 
 github-runner-token:
 	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-github-runner-token.sh secrets/github-runner-auth.sops.yaml
-
-hermes-secrets:
-	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-hermes-secrets.sh secrets/hermes.sops.yaml
