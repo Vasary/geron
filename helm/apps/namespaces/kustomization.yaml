@@ -15,6 +15,7 @@ resources:
   - monitoring.yaml
   - n8n.yaml
   - nfs-csi.yaml
+  - openproject.yaml
   - redis-operator.yaml
   - reloader.yaml
   - traefik.yaml

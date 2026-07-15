@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openproject
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: applications
+  source:
+    repoURL: https://charts.openproject.org
+    chart: openproject
+    targetRevision: 13.9.0
+    helm:
+      releaseName: openproject
+      values: |
+        fullnameOverride: openproject
+
+        ingress:
+          enabled: true
+          ingressClassName: traefik
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+            geron.io/dns-scope: internal
+            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+          host: openproject.vasary.org
+          path: /
+          pathType: Prefix
+          tls:
+            enabled: true
+            secretName: openproject-vasary-tls
+
+        openproject:
+          https: true
+          host: openproject.vasary.org
+          hsts: true
+          extraEnvVarsSecret: openproject-secrets
+          secretKeyBase:
+            existingSecret: openproject-secrets
+            secretKey: secret-key-base
+          admin_user:
+            password_reset: "false"
+            name: OpenProject Admin
+            mail: admin@vasary.org
+
+        persistence:
+          enabled: true
+          accessModes:
+            - ReadWriteMany
+          size: 50Gi
+          storageClassName: nfs
+
+        postgresql:
+          bundled: false
+          connection:
+            host: openproject-postgres-rw
+            port: 5432
+          auth:
+            existingSecret: openproject-postgres-app
+            secretKeys:
+              userPasswordKey: password
+            username: openproject
+            database: openproject
+
+        memcached:
+          bundled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openproject
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

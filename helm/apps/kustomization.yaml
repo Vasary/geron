@@ -17,6 +17,8 @@ resources:
   - metallb-config.yaml
   - nfs-csi.yaml
   - n8n.yaml
+  - openproject-postgres.yaml
+  - openproject.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml
   - public-basic-auth.yaml
