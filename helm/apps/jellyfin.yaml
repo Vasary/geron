@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: media
+  name: jellyfin
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "30"
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Vasary/geron.git
     targetRevision: master
-    path: helm/apps/media
+    path: helm/apps/jellyfin
   destination:
     server: https://kubernetes.default.svc
     namespace: media

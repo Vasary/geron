@@ -11,13 +11,13 @@ resources:
   - external-dns.yaml
   - external-secrets.yaml
   - github-runner-geron.yaml
+  - jellyfin.yaml
   - local-path-provisioner.yaml
-  - media.yaml
   - metallb.yaml
   - metallb-config.yaml
+  - navidrome.yaml
   - nfs-csi.yaml
   - n8n.yaml
-  - openproject-postgres.yaml
   - openproject.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml
