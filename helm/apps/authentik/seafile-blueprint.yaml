@@ -16,6 +16,13 @@ data:
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
+      - model: authentik_core.group
+        id: seafile-users-group
+        state: present
+        identifiers:
+          name: seafile-users
+        attrs:
+          name: seafile-users
       - model: authentik_providers_oauth2.oauth2provider
         id: seafile-oauth-provider
         state: present
@@ -48,7 +55,18 @@ data:
         attrs:
           name: Seafile
           slug: seafile
-          protocol_provider: !KeyOf seafile-oauth-provider
+          provider: !KeyOf seafile-oauth-provider
           policy_engine_mode: any
           meta_launch_url: https://seafile.vasary.org/
           open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: seafile-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf seafile-application
+          group: !KeyOf seafile-users-group
+          order: 0
+        attrs:
+          target: !KeyOf seafile-application
+          group: !KeyOf seafile-users-group
+          order: 0
