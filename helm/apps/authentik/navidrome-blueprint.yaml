@@ -32,7 +32,7 @@ data:
           name: navidrome
           mode: forward_single
           external_host: https://navidrome.vasary.org
-          internal_host: http://navidrome.media.svc.cluster.local
+          internal_host: http://navidrome.media.svc.cluster.cfv3.org
           internal_host_ssl_validation: false
           authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
