@@ -1,0 +1,199 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-configs
+  namespace: stirling-pdf
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-tessdata
+  namespace: stirling-pdf
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-logs
+  namespace: stirling-pdf
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-pipeline
+  namespace: stirling-pdf
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: stirling-pdf-custom-files
+  namespace: stirling-pdf
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stirling-pdf
+  namespace: stirling-pdf
+  labels:
+    app.kubernetes.io/name: stirling-pdf
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: stirling-pdf
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: stirling-pdf
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: stirling-pdf
+          image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: SECURITY_ENABLELOGIN
+              value: "true"
+            - name: DISABLE_ADDITIONAL_FEATURES
+              value: "false"
+            - name: SYSTEM_DEFAULTLOCALE
+              value: en-US
+            - name: SYSTEM_FRONTENDURL
+              value: https://stirling-pdf.vasary.org
+            - name: SECURITY_INITIALLOGIN_USERNAME
+              value: admin
+          envFrom:
+            - secretRef:
+                name: stirling-pdf-secrets
+          volumeMounts:
+            - name: configs
+              mountPath: /configs
+            - name: tessdata
+              mountPath: /usr/share/tessdata
+            - name: logs
+              mountPath: /logs
+            - name: pipeline
+              mountPath: /pipeline
+            - name: custom-files
+              mountPath: /customFiles
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              memory: 4Gi
+      volumes:
+        - name: configs
+          persistentVolumeClaim:
+            claimName: stirling-pdf-configs
+        - name: tessdata
+          persistentVolumeClaim:
+            claimName: stirling-pdf-tessdata
+        - name: logs
+          persistentVolumeClaim:
+            claimName: stirling-pdf-logs
+        - name: pipeline
+          persistentVolumeClaim:
+            claimName: stirling-pdf-pipeline
+        - name: custom-files
+          persistentVolumeClaim:
+            claimName: stirling-pdf-custom-files
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stirling-pdf
+  namespace: stirling-pdf
+spec:
+  selector:
+    app.kubernetes.io/name: stirling-pdf
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stirling-pdf
+  namespace: stirling-pdf
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: stirling-pdf-vasary-tls
+      hosts:
+        - stirling-pdf.vasary.org
+  rules:
+    - host: stirling-pdf.vasary.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: stirling-pdf
+                port:
+                  name: http
