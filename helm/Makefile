@@ -7,6 +7,7 @@ ARGOCD_REVISION ?= $(shell git rev-parse --abbrev-ref HEAD)
 ARGOCD_ROOT_PATH ?= helm/cluster
 ARGOCD_WAIT_TIMEOUT ?= 300s
 SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
+ARGOCD_SECRET_FILE ?= secrets/argocd-admin-password.sops.yaml
 
 .DEFAULT_GOAL := help
 
@@ -27,7 +28,8 @@ help:
 		'  ARGOCD_REVISION=$(ARGOCD_REVISION)' \
 		'  ARGOCD_ROOT_PATH=$(ARGOCD_ROOT_PATH)' \
 		'  ARGOCD_WAIT_TIMEOUT=$(ARGOCD_WAIT_TIMEOUT)' \
-		'  SOPS_AGE_KEY_FILE=$(SOPS_AGE_KEY_FILE)'
+		'  SOPS_AGE_KEY_FILE=$(SOPS_AGE_KEY_FILE)' \
+		'  ARGOCD_SECRET_FILE=$(ARGOCD_SECRET_FILE)'
 
 validate:
 	@command -v kubectl >/dev/null
@@ -38,6 +40,14 @@ validate:
 deploy: validate
 	@printf '%s\n' 'Installing Argo CD bootstrap manifests...'
 	@kubectl apply --server-side --force-conflicts -k bootstrap/argocd
+	@if command -v sops >/dev/null && [ -f "$(SOPS_AGE_KEY_FILE)" ] && [ -f "$(ARGOCD_SECRET_FILE)" ]; then \
+		printf 'Restoring Argo CD SOPS secret from %s...\n' "$(ARGOCD_SECRET_FILE)"; \
+		SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" sops -d "$(ARGOCD_SECRET_FILE)" | kubectl apply -f -; \
+	else \
+		printf '%s\n' 'Skipping Argo CD SOPS secret restore; run make deploy-secrets if SSO/admin secrets changed.'; \
+	fi
+	@printf '%s\n' 'Restarting Argo CD API and Dex to reload bootstrap settings...'
+	@kubectl -n "$(ARGOCD_NAMESPACE)" rollout restart deploy/argocd-server deploy/argocd-dex-server >/dev/null
 	@printf '%s\n' 'Waiting for Argo CD to become ready...'
 	@kubectl -n "$(ARGOCD_NAMESPACE)" rollout status deploy/argocd-redis --timeout="$(ARGOCD_WAIT_TIMEOUT)"
 	@kubectl -n "$(ARGOCD_NAMESPACE)" rollout status deploy/argocd-repo-server --timeout="$(ARGOCD_WAIT_TIMEOUT)"
