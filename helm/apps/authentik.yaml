@@ -29,6 +29,7 @@ spec:
             configMaps:
               - authentik-blueprint-argocd
               - authentik-blueprint-immich
+              - authentik-blueprint-navidrome
               - authentik-blueprint-seafile
 
           postgresql:

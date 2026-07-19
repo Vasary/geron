@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-navidrome
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  navidrome.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-navidrome-proxy
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_core.group
+        id: navidrome-users-group
+        state: present
+        identifiers:
+          name: navidrome-users
+        attrs:
+          name: navidrome-users
+      - model: authentik_providers_proxy.proxyprovider
+        id: navidrome-proxy-provider
+        state: present
+        identifiers:
+          name: navidrome
+        attrs:
+          name: navidrome
+          mode: forward_single
+          external_host: https://navidrome.vasary.org
+          internal_host: http://navidrome.media.svc.cluster.local
+          internal_host_ssl_validation: false
+          authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+      - model: authentik_core.application
+        id: navidrome-application
+        state: present
+        identifiers:
+          slug: navidrome
+        attrs:
+          name: Navidrome
+          slug: navidrome
+          provider: !KeyOf navidrome-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://navidrome.vasary.org/
+          open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: navidrome-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf navidrome-application
+          group: !KeyOf navidrome-users-group
+          order: 0
+        attrs:
+          target: !KeyOf navidrome-application
+          group: !KeyOf navidrome-users-group
+          order: 0
+      - model: authentik_outposts.outpost
+        id: embedded-outpost
+        state: present
+        identifiers:
+          name: authentik Embedded Outpost
+        attrs:
+          providers:
+            - !KeyOf navidrome-proxy-provider
