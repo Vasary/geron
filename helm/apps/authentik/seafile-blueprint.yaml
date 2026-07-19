@@ -25,7 +25,7 @@ data:
           name: seafile
           client_type: confidential
           client_id: seafile
-          client_secret: !Env [SEAFILE_OAUTH_CLIENT_SECRET]
+          client_secret: !Env [SEAFILE_OAUTH_CLIENT_SECRET, ""]
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           property_mappings:
