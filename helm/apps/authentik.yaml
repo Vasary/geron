@@ -17,6 +17,10 @@ spec:
       helm:
         releaseName: authentik
         values: |
+          global:
+            podAnnotations:
+              secret.reloader.stakater.com/reload: authentik-secrets
+
           authentik:
             existingSecret:
               secretName: authentik-secrets

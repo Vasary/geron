@@ -15,6 +15,7 @@ data:
       name: vasary-immich-oauth
       labels:
         blueprints.goauthentik.io/instantiate: "true"
+        geron.io/revision: "2"
     entries:
       - model: authentik_core.group
         id: immich-users-group
