@@ -27,6 +27,7 @@ spec:
 
           blueprints:
             configMaps:
+              - authentik-blueprint-argocd
               - authentik-blueprint-immich
               - authentik-blueprint-seafile
 

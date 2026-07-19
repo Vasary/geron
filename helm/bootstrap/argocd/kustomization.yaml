@@ -6,4 +6,6 @@ resources:
   - ingress.yaml
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 patches:
+  - path: patch-argocd-cm.yaml
   - path: patch-cmd-params.yaml
+  - path: patch-argocd-rbac-cm.yaml
