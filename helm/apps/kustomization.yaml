@@ -26,6 +26,7 @@ resources:
   - public-basic-auth.yaml
   - redis-operator.yaml
   - reloader.yaml
+  - seafile.yaml
   - storage-smoke.yaml
   - stirling-pdf.yaml
   - traefik.yaml

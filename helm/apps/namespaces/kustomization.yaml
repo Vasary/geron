@@ -20,5 +20,6 @@ resources:
   - openproject.yaml
   - redis-operator.yaml
   - reloader.yaml
+  - seafile.yaml
   - stirling-pdf.yaml
   - traefik.yaml
