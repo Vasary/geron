@@ -23,6 +23,7 @@ spec:
 
           blueprints:
             configMaps:
+              - authentik-blueprint-immich
               - authentik-blueprint-seafile
 
           postgresql:

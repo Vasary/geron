@@ -47,6 +47,8 @@ spec:
                           key: password
 
           immich:
+            configurationKind: Secret
+            existingConfiguration: immich-config
             metrics:
               enabled: true
             persistence:
