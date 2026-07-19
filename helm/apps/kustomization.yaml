@@ -14,6 +14,7 @@ resources:
   - github-runner-geron.yaml
   - immich.yaml
   - jellyfin.yaml
+  - kubernetes-dashboard.yaml
   - local-path-provisioner.yaml
   - metallb.yaml
   - metallb-config.yaml

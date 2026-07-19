@@ -11,6 +11,7 @@ resources:
   - external-dns.yaml
   - external-secrets.yaml
   - immich.yaml
+  - kubernetes-dashboard.yaml
   - local-path-storage.yaml
   - media.yaml
   - metallb-system.yaml

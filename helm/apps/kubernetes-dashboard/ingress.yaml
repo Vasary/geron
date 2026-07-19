@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.middlewares: kubernetes-dashboard-dashboard-basic-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: dashboard-vasary-tls
+      hosts:
+        - dashboard.vasary.org
+  rules:
+    - host: dashboard.vasary.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard-kong-proxy
+                port:
+                  number: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-basic-auth
+  namespace: kubernetes-dashboard
+spec:
+  basicAuth:
+    secret: dashboard-basic-auth
+    realm: kubernetes-dashboard
