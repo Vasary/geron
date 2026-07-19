@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespaces
   - actions-runner-controller.yaml
+  - authentik.yaml
   - cert-manager.yaml
   - cert-manager-config.yaml
   - cloudflared.yaml

@@ -1,0 +1,82 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: platform
+  sources:
+    - repoURL: https://github.com/Vasary/geron.git
+      targetRevision: master
+      path: helm/apps/authentik
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.5.5
+      helm:
+        releaseName: authentik
+        values: |
+          authentik:
+            existingSecret:
+              secretName: authentik-secrets
+
+          blueprints:
+            configMaps:
+              - authentik-blueprint-seafile
+
+          postgresql:
+            enabled: false
+
+          server:
+            ingress:
+              enabled: true
+              ingressClassName: traefik
+              annotations:
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+                geron.io/dns-scope: internal
+                traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+              hosts:
+                - auth.vasary.org
+              tls:
+                - secretName: authentik-vasary-tls
+                  hosts:
+                    - auth.vasary.org
+            metrics:
+              enabled: true
+              serviceMonitor:
+                enabled: true
+                labels:
+                  release: kube-prometheus-stack
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+
+          worker:
+            metrics:
+              enabled: true
+              serviceMonitor:
+                enabled: true
+                labels:
+                  release: kube-prometheus-stack
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

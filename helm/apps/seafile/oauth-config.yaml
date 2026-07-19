@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seafile-oauth-config
+  namespace: seafile
+data:
+  seahub_settings.py: |
+    import os
+
+    SECRET_KEY = os.environ["JWT_PRIVATE_KEY"]
+
+    ENABLE_OAUTH = True
+    OAUTH_CREATE_UNKNOWN_USER = True
+    OAUTH_ACTIVATE_USER_AFTER_CREATION = True
+    CLIENT_SSO_VIA_LOCAL_BROWSER = True
+
+    OAUTH_CLIENT_ID = "seafile"
+    OAUTH_CLIENT_SECRET = os.environ["SEAFILE_OAUTH_CLIENT_SECRET"]
+    OAUTH_REDIRECT_URL = "https://seafile.vasary.org/oauth/callback/"
+
+    OAUTH_PROVIDER_DOMAIN = "auth.vasary.org"
+    OAUTH_AUTHORIZATION_URL = "https://auth.vasary.org/application/o/authorize/"
+    OAUTH_TOKEN_URL = "https://auth.vasary.org/application/o/token/"
+    OAUTH_USER_INFO_URL = "https://auth.vasary.org/application/o/userinfo/"
+    OAUTH_SCOPE = ["openid", "profile", "email"]
+    OAUTH_ATTRIBUTE_MAP = {
+        "email": (True, "uid"),
+        "name": (False, "name"),
+    }
+
+    LOGOUT_REDIRECT_URL = "https://auth.vasary.org/application/o/seafile/end-session/"

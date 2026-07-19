@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - arc-runners.yaml
   - arc-systems.yaml
+  - authentik.yaml
   - cert-manager.yaml
   - cloudflared.yaml
   - cnpg-system.yaml

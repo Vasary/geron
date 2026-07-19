@@ -31,6 +31,16 @@ spec:
         app.kubernetes.io/name: seafile
     spec:
       enableServiceLinks: false
+      initContainers:
+        - name: prepare-config-dir
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - mkdir -p /shared/seafile/conf
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
       containers:
         - name: seafile
           image: seafileltd/seafile-mc:13.0.25
@@ -87,6 +97,9 @@ spec:
           volumeMounts:
             - name: shared
               mountPath: /shared
+            - name: oauth-config
+              mountPath: /shared/seafile/conf/seahub_settings.py
+              subPath: seahub_settings.py
           startupProbe:
             tcpSocket:
               port: http
@@ -113,6 +126,9 @@ spec:
         - name: shared
           persistentVolumeClaim:
             claimName: seafile-shared
+        - name: oauth-config
+          configMap:
+            name: seafile-oauth-config
 ---
 apiVersion: v1
 kind: Service
