@@ -131,7 +131,7 @@ metadata:
   namespace: media
 spec:
   forwardAuth:
-    address: http://authentik-server.authentik.svc.cluster.cfv3.org/outpost.goauthentik.io/auth/traefik
+    address: http://authentik-server.authentik.svc.cluster.vasary.org/outpost.goauthentik.io/auth/traefik
     trustForwardHeader: true
     authResponseHeaders:
       - X-Authentik-Username
