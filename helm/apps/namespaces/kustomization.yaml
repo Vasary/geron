@@ -9,6 +9,7 @@ resources:
   - echo-server.yaml
   - external-dns.yaml
   - external-secrets.yaml
+  - immich.yaml
   - local-path-storage.yaml
   - media.yaml
   - metallb-system.yaml
