@@ -20,6 +20,7 @@ resources:
   - navidrome.yaml
   - nfs-csi.yaml
   - n8n.yaml
+  - outline.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml
   - public-basic-auth.yaml
