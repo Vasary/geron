@@ -46,15 +46,15 @@ data:
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           cookie_domain: vasary.org
       - model: authentik_providers_proxy.proxyprovider
-        id: argocd-public-proxy-provider
+        id: echo-public-proxy-provider
         state: present
         identifiers:
-          name: argocd-public
+          name: echo-public
         attrs:
-          name: argocd-public
+          name: echo-public
           mode: forward_single
-          external_host: https://vasary.org
-          internal_host: http://argocd-server.argocd.svc.cluster.vasary.org
+          external_host: https://echo.vasary.org
+          internal_host: http://echo-server.echo-server.svc.cluster.vasary.org
           internal_host_ssl_validation: false
           authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
@@ -88,16 +88,16 @@ data:
           meta_launch_url: https://navidrome.vasary.org/
           open_in_new_tab: true
       - model: authentik_core.application
-        id: argocd-public-application
+        id: echo-public-application
         state: present
         identifiers:
-          slug: argocd-public
+          slug: echo-public
         attrs:
-          name: Argo CD Public Gate
-          slug: argocd-public
-          provider: !KeyOf argocd-public-proxy-provider
+          name: Echo Public Gate
+          slug: echo-public
+          provider: !KeyOf echo-public-proxy-provider
           policy_engine_mode: any
-          meta_launch_url: https://vasary.org/
+          meta_launch_url: https://echo.vasary.org/
           open_in_new_tab: true
       - model: authentik_core.application
         id: prometheus-public-application
@@ -123,14 +123,14 @@ data:
           group: !KeyOf navidrome-users-group
           order: 0
       - model: authentik_policies.policybinding
-        id: argocd-public-users-policy-binding
+        id: echo-public-users-policy-binding
         state: present
         identifiers:
-          target: !KeyOf argocd-public-application
+          target: !KeyOf echo-public-application
           group: !KeyOf public-cloudflare-users-group
           order: 0
         attrs:
-          target: !KeyOf argocd-public-application
+          target: !KeyOf echo-public-application
           group: !KeyOf public-cloudflare-users-group
           order: 0
       - model: authentik_policies.policybinding
@@ -152,5 +152,5 @@ data:
         attrs:
           providers:
             - !KeyOf navidrome-proxy-provider
-            - !KeyOf argocd-public-proxy-provider
+            - !KeyOf echo-public-proxy-provider
             - !KeyOf prometheus-public-proxy-provider

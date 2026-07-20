@@ -2,7 +2,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: cloudflare-authentik-auth
-  namespace: argocd
+  namespace: echo-server
 spec:
   forwardAuth:
     address: http://authentik-server.authentik.svc.cluster.vasary.org/outpost.goauthentik.io/auth/traefik
@@ -17,40 +17,40 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: argocd-server-cloudflare-auth
-  namespace: argocd
+  name: echo-server-cloudflare-auth
+  namespace: echo-server
 spec:
   entryPoints:
     - web
     - websecure
   routes:
-    - match: Host(`vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+    - match: Host(`echo.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
       kind: Rule
       priority: 100000
       middlewares:
         - name: cloudflare-authentik-auth
-          namespace: argocd
+          namespace: echo-server
       services:
-        - name: argocd-server
-          port: http
+        - name: echo-server
+          port: 80
   tls:
-    secretName: argocd-vasary-tls
+    secretName: echo-vasary-tls
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: argocd-server-cloudflare-auth-web
-  namespace: argocd
+  name: echo-server-cloudflare-auth-web
+  namespace: echo-server
 spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+    - match: Host(`echo.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
       kind: Rule
       priority: 100000
       middlewares:
         - name: cloudflare-authentik-auth
-          namespace: argocd
+          namespace: echo-server
       services:
-        - name: argocd-server
-          port: http
+        - name: echo-server
+          port: 80

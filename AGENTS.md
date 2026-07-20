@@ -18,3 +18,5 @@ These instructions apply to the whole repository.
 - Prefer declarative changes under `helm/` and `talos/`.
 - Secrets under `helm/secrets/*.sops.yaml` must stay encrypted with SOPS.
 - Generated Talos manifests and local secrets must not be committed unless they are intentionally encrypted and meant for GitOps.
+- For public Cloudflare access, use Authentik ForwardAuth by default only for services that do not provide their own authentication or OIDC. Keep those services reachable without extra authentication from the internal network.
+- Do not add the Cloudflare public ForwardAuth layer to services that already have their own OIDC/SSO integration, unless the user explicitly asks for defense-in-depth.
