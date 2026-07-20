@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-secret_file="${1:-secrets/argocd-admin-password.sops.yaml}"
+secret_file="${1:-secrets/argocd.sops.yaml}"
 age_key_file="${SOPS_AGE_KEY_FILE:-$HOME/.config/sops/age/keys.txt}"
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 helm_dir="$(cd -- "$script_dir/.." && pwd)"
@@ -21,6 +21,11 @@ command -v sops >/dev/null || {
   exit 1
 }
 
+command -v jq >/dev/null || {
+  printf '%s\n' 'Missing jq.' >&2
+  exit 1
+}
+
 test -f "$age_key_file" || {
   printf 'Missing SOPS age key: %s\n' "$age_key_file" >&2
   exit 1
@@ -28,6 +33,11 @@ test -f "$age_key_file" || {
 
 test -f "$sops_config" || {
   printf 'Missing SOPS config: %s\n' "$sops_config" >&2
+  exit 1
+}
+
+test -f "$secret_output" || {
+  printf 'Missing Argo CD SOPS secret: %s\n' "$secret_rel_to_repo" >&2
   exit 1
 }
 
@@ -50,30 +60,15 @@ fi
 password_hash="$(printf '%s' "$password" | mkpasswd -m bcrypt -s)"
 password_mtime="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-tmp_file="$(mktemp)"
-encrypted_tmp_file="$(mktemp)"
-trap 'rm -f "$tmp_file" "$encrypted_tmp_file"' EXIT
-
-cat >"$tmp_file" <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: argocd-secret
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "5"
-type: Opaque
-stringData:
-  admin.password: "$password_hash"
-  admin.passwordMtime: "$password_mtime"
-EOF
+SOPS_AGE_KEY_FILE="$age_key_file" sops \
+  --config "$sops_config" \
+  --filename-override "$secret_rel_to_repo" \
+  set "$secret_output" '["stringData"]["admin.password"]' "$(jq -Rn --arg value "$password_hash" '$value')"
 
 SOPS_AGE_KEY_FILE="$age_key_file" sops \
   --config "$sops_config" \
-  --filename-override "$secret_output" \
-  --encrypt "$tmp_file" >"$encrypted_tmp_file"
+  --filename-override "$secret_rel_to_repo" \
+  set "$secret_output" '["stringData"]["admin.passwordMtime"]' "$(jq -Rn --arg value "$password_mtime" '$value')"
 
-mkdir -p "$(dirname "$secret_output")"
-mv "$encrypted_tmp_file" "$secret_output"
 printf 'Wrote %s\n' "$secret_rel_to_repo"
 printf '%s\n' 'Run make deploy-secrets to apply it.'

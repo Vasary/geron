@@ -7,11 +7,13 @@ ARGOCD_REVISION ?= $(shell git rev-parse --abbrev-ref HEAD)
 ARGOCD_ROOT_PATH ?= helm/cluster
 ARGOCD_WAIT_TIMEOUT ?= 300s
 SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
-ARGOCD_SECRET_FILE ?= secrets/argocd-admin-password.sops.yaml
+ARGOCD_SECRET_FILE ?= secrets/argocd.sops.yaml
+AUTHENTIK_SECRET_FILE ?= secrets/authentik.sops.yaml
+AUTHENTIK_ADMIN_USER ?= akadmin
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets argocd-password github-runner-token
+.PHONY: help validate deploy deploy-secrets argocd-password authentik-bootstrap-password authentik-password github-runner-token
 
 help:
 	@printf '%s\n' \
@@ -19,7 +21,9 @@ help:
 		'  make validate        Validate Argo CD platform manifests' \
 		'  make deploy          Install Argo CD and bootstrap from git origin' \
 		'  make deploy-secrets  Decrypt and apply SOPS Kubernetes secrets' \
-		'  make argocd-password Generate encrypted Argo CD admin password secret' \
+		'  make argocd-password Generate encrypted break-glass Argo CD admin password' \
+		'  make authentik-bootstrap-password Generate encrypted Authentik bootstrap admin password' \
+		'  make authentik-password Reset live Authentik admin password and update bootstrap secret' \
 		'  make github-runner-token Generate encrypted GitHub runner token secret' \
 		'' \
 		'Variables:' \
@@ -29,7 +33,9 @@ help:
 		'  ARGOCD_ROOT_PATH=$(ARGOCD_ROOT_PATH)' \
 		'  ARGOCD_WAIT_TIMEOUT=$(ARGOCD_WAIT_TIMEOUT)' \
 		'  SOPS_AGE_KEY_FILE=$(SOPS_AGE_KEY_FILE)' \
-		'  ARGOCD_SECRET_FILE=$(ARGOCD_SECRET_FILE)'
+		'  ARGOCD_SECRET_FILE=$(ARGOCD_SECRET_FILE)' \
+		'  AUTHENTIK_SECRET_FILE=$(AUTHENTIK_SECRET_FILE)' \
+		'  AUTHENTIK_ADMIN_USER=$(AUTHENTIK_ADMIN_USER)'
 
 validate:
 	@command -v kubectl >/dev/null
@@ -74,8 +80,8 @@ deploy: validate
 		'' \
 		'Argo CD is bootstrapped. It will reconcile helm/cluster from git.' \
 		'UI: https://vasary.org' \
-		'Login: admin' \
-		'Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
+		'Primary login: Continue with Authentik' \
+		'Break-glass local login: admin, password from make argocd-password'
 
 deploy-secrets:
 	@command -v sops >/dev/null
@@ -89,7 +95,13 @@ deploy-secrets:
 	done
 
 argocd-password:
-	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-argocd-admin-password.sh secrets/argocd-admin-password.sops.yaml
+	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-argocd-admin-password.sh "$(ARGOCD_SECRET_FILE)"
+
+authentik-bootstrap-password:
+	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-authentik-admin-password.sh --sops-only "$(AUTHENTIK_SECRET_FILE)" "$(AUTHENTIK_ADMIN_USER)"
+
+authentik-password:
+	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-authentik-admin-password.sh "$(AUTHENTIK_SECRET_FILE)" "$(AUTHENTIK_ADMIN_USER)"
 
 github-runner-token:
 	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-github-runner-token.sh secrets/github-runner-auth.sops.yaml
