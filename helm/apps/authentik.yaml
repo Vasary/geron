@@ -30,7 +30,6 @@ spec:
               - authentik-blueprint-argocd
               - authentik-blueprint-immich
               - authentik-blueprint-navidrome
-              - authentik-blueprint-openproject
               - authentik-blueprint-seafile
               - authentik-blueprint-stirling-pdf
 
