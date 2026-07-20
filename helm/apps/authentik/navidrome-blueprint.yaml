@@ -23,6 +23,13 @@ data:
           name: navidrome-users
         attrs:
           name: navidrome-users
+      - model: authentik_core.group
+        id: public-cloudflare-users-group
+        state: present
+        identifiers:
+          name: public-cloudflare-users
+        attrs:
+          name: public-cloudflare-users
       - model: authentik_providers_proxy.proxyprovider
         id: navidrome-proxy-provider
         state: present
@@ -33,6 +40,36 @@ data:
           mode: forward_single
           external_host: https://navidrome.vasary.org
           internal_host: http://navidrome.media.svc.cluster.vasary.org
+          internal_host_ssl_validation: false
+          authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+      - model: authentik_providers_proxy.proxyprovider
+        id: argocd-public-proxy-provider
+        state: present
+        identifiers:
+          name: argocd-public
+        attrs:
+          name: argocd-public
+          mode: forward_single
+          external_host: https://vasary.org
+          internal_host: http://argocd-server.argocd.svc.cluster.vasary.org
+          internal_host_ssl_validation: false
+          authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+      - model: authentik_providers_proxy.proxyprovider
+        id: prometheus-public-proxy-provider
+        state: present
+        identifiers:
+          name: prometheus-public
+        attrs:
+          name: prometheus-public
+          mode: forward_single
+          external_host: https://prometheus.vasary.org
+          internal_host: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090
           internal_host_ssl_validation: false
           authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
@@ -50,6 +87,30 @@ data:
           policy_engine_mode: any
           meta_launch_url: https://navidrome.vasary.org/
           open_in_new_tab: true
+      - model: authentik_core.application
+        id: argocd-public-application
+        state: present
+        identifiers:
+          slug: argocd-public
+        attrs:
+          name: Argo CD Public Gate
+          slug: argocd-public
+          provider: !KeyOf argocd-public-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://vasary.org/
+          open_in_new_tab: true
+      - model: authentik_core.application
+        id: prometheus-public-application
+        state: present
+        identifiers:
+          slug: prometheus-public
+        attrs:
+          name: Prometheus Public Gate
+          slug: prometheus-public
+          provider: !KeyOf prometheus-public-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://prometheus.vasary.org/
+          open_in_new_tab: true
       - model: authentik_policies.policybinding
         id: navidrome-users-policy-binding
         state: present
@@ -61,6 +122,28 @@ data:
           target: !KeyOf navidrome-application
           group: !KeyOf navidrome-users-group
           order: 0
+      - model: authentik_policies.policybinding
+        id: argocd-public-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf argocd-public-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 0
+        attrs:
+          target: !KeyOf argocd-public-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 0
+      - model: authentik_policies.policybinding
+        id: prometheus-public-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf prometheus-public-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 0
+        attrs:
+          target: !KeyOf prometheus-public-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 0
       - model: authentik_outposts.outpost
         id: embedded-outpost
         state: present
@@ -69,3 +152,5 @@ data:
         attrs:
           providers:
             - !KeyOf navidrome-proxy-provider
+            - !KeyOf argocd-public-proxy-provider
+            - !KeyOf prometheus-public-proxy-provider
