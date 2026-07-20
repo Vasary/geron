@@ -5,5 +5,7 @@ resources:
   - database.yaml
   - immich-blueprint.yaml
   - navidrome-blueprint.yaml
+  - openproject-blueprint.yaml
   - redis.yaml
   - seafile-blueprint.yaml
+  - stirling-pdf-blueprint.yaml

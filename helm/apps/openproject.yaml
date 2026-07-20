@@ -38,6 +38,22 @@ spec:
             host: openproject.vasary.org
             hsts: true
             extraEnvVarsSecret: openproject-secrets
+            oidc:
+              enabled: true
+              provider: authentik
+              displayName: Authentik
+              host: auth.vasary.org
+              existingSecret: openproject-secrets
+              authorizationEndpoint: https://auth.vasary.org/application/o/authorize/
+              tokenEndpoint: https://auth.vasary.org/application/o/token/
+              userinfoEndpoint: https://auth.vasary.org/application/o/userinfo/
+              endSessionEndpoint: https://auth.vasary.org/application/o/openproject/end-session/
+              scope: "[openid profile email]"
+              attribute_map:
+                login: preferred_username
+                email: email
+                first_name: given_name
+                last_name: family_name
             secretKeyBase:
               existingSecret: openproject-secrets
               secretKey: secret-key-base

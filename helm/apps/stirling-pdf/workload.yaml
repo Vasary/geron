@@ -97,14 +97,32 @@ spec:
               value: Europe/Berlin
             - name: SECURITY_ENABLELOGIN
               value: "true"
+            - name: SECURITY_LOGINMETHOD
+              value: all
             - name: DISABLE_ADDITIONAL_FEATURES
               value: "false"
             - name: SYSTEM_DEFAULTLOCALE
               value: en-US
             - name: SYSTEM_FRONTENDURL
               value: https://stirling-pdf.vasary.org
+            - name: SYSTEM_BACKENDURL
+              value: https://stirling-pdf.vasary.org
             - name: SECURITY_INITIALLOGIN_USERNAME
               value: admin
+            - name: SECURITY_OAUTH2_ENABLED
+              value: "true"
+            - name: SECURITY_OAUTH2_PROVIDER
+              value: authentik
+            - name: SECURITY_OAUTH2_AUTOCREATEUSER
+              value: "true"
+            - name: SECURITY_OAUTH2_ISSUER
+              value: https://auth.vasary.org/application/o/stirling-pdf/
+            - name: SECURITY_OAUTH2_CLIENTID
+              value: stirling-pdf
+            - name: SECURITY_OAUTH2_SCOPES
+              value: openid,profile,email
+            - name: SECURITY_OAUTH2_USEASUSERNAME
+              value: email
           envFrom:
             - secretRef:
                 name: stirling-pdf-secrets
