@@ -15,7 +15,6 @@ resources:
   - media.yaml
   - metallb-system.yaml
   - monitoring.yaml
-  - n8n.yaml
   - nfs-csi.yaml
   - outline.yaml
   - redis-operator.yaml
