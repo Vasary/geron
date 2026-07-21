@@ -4,6 +4,7 @@ resources:
   - argocd-blueprint.yaml
   - database.yaml
   - immich-blueprint.yaml
+  - jellyfin-blueprint.yaml
   - navidrome-blueprint.yaml
   - outline-blueprint.yaml
   - redis.yaml

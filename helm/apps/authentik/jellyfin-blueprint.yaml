@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-jellyfin
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  jellyfin.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-jellyfin-oauth
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_core.group
+        id: jellyfin-users-group
+        state: present
+        identifiers:
+          name: jellyfin-users
+        attrs:
+          name: jellyfin-users
+      - model: authentik_core.group
+        id: jellyfin-admins-group
+        state: present
+        identifiers:
+          name: jellyfin-admins
+        attrs:
+          name: jellyfin-admins
+      - model: authentik_core.group
+        id: jellyfin-kids-group
+        state: present
+        identifiers:
+          name: jellyfin-kids
+        attrs:
+          name: jellyfin-kids
+      - model: authentik_providers_oauth2.oauth2provider
+        id: jellyfin-oauth-provider
+        state: present
+        identifiers:
+          name: jellyfin
+        attrs:
+          name: jellyfin
+          client_type: confidential
+          client_id: jellyfin
+          client_secret: !Env [JELLYFIN_OAUTH_CLIENT_SECRET, ""]
+          grant_types:
+            - authorization_code
+            - refresh_token
+          include_claims_in_id_token: true
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+          redirect_uris:
+            - matching_mode: strict
+              url: https://jellyfin.vasary.org/sso/OIDC/Callback/authentik
+          sub_mode: user_email
+          issuer_mode: per_provider
+      - model: authentik_core.application
+        id: jellyfin-application
+        state: present
+        identifiers:
+          slug: jellyfin
+        attrs:
+          name: Jellyfin
+          slug: jellyfin
+          provider: !KeyOf jellyfin-oauth-provider
+          policy_engine_mode: any
+          meta_launch_url: https://jellyfin.vasary.org/
+          open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: jellyfin-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-users-group
+          order: 0
+        attrs:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-users-group
+          order: 0
+      - model: authentik_policies.policybinding
+        id: jellyfin-admins-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-admins-group
+          order: 1
+        attrs:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-admins-group
+          order: 1
+      - model: authentik_policies.policybinding
+        id: jellyfin-kids-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-kids-group
+          order: 2
+        attrs:
+          target: !KeyOf jellyfin-application
+          group: !KeyOf jellyfin-kids-group
+          order: 2
