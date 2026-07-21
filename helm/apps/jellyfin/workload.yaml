@@ -17,9 +17,9 @@ metadata:
   name: jellyfin-config
   namespace: media
 spec:
-  storageClassName: nfs
+  storageClassName: local-path
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
@@ -30,9 +30,9 @@ metadata:
   name: jellyfin-cache
   namespace: media
 spec:
-  storageClassName: nfs
+  storageClassName: local-path
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 20Gi
@@ -90,8 +90,7 @@ spec:
             - name: media
               mountPath: /media
             - name: seasonvar-media
-              mountPath: /media/seasonvar
-              readOnly: true
+              mountPath: /seasonvar
           readinessProbe:
             httpGet:
               path: /health
