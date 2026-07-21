@@ -50,6 +50,19 @@ spec:
     requests:
       storage: 200Gi
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-music
+  namespace: media
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,6 +102,8 @@ spec:
               mountPath: /cache
             - name: media
               mountPath: /media
+            - name: music
+              mountPath: /music
             - name: seasonvar-media
               mountPath: /seasonvar
           readinessProbe:
@@ -121,6 +136,9 @@ spec:
         - name: media
           persistentVolumeClaim:
             claimName: jellyfin-media
+        - name: music
+          persistentVolumeClaim:
+            claimName: jellyfin-music
         - name: seasonvar-media
           persistentVolumeClaim:
             claimName: seasonvar-media
