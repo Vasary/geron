@@ -338,9 +338,9 @@ spec:
                 - name: SYNC_REQUEST_DELAY_MIN
                   value: 300ms
                 - name: SYNC_REQUEST_DELAY_MAX
-                  value: 2s
+                  value: 1500ms
                 - name: SYNC_WORKERS
-                  value: "2"
+                  value: "3"
                 - name: SYNC_TIMEOUT
                   value: 30m
                 - name: PLAYBACK_CACHE_TTL
