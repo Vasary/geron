@@ -191,7 +191,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: seasonvar
-          image: ghcr.io/vasary/go-seasonvar:v0.1.0
+          image: ghcr.io/vasary/go-seasonvar:v0.1.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -284,7 +284,7 @@ metadata:
     app.kubernetes.io/name: seasonvar
     app.kubernetes.io/component: sync
 spec:
-  schedule: "0 */8 * * *"
+  schedule: "0 * * * *"
   timeZone: Europe/Berlin
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
@@ -305,7 +305,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:v0.1.0
+              image: ghcr.io/vasary/go-seasonvar:v0.1.1
               imagePullPolicy: IfNotPresent
               args:
                 - sync
@@ -370,7 +370,7 @@ metadata:
     app.kubernetes.io/name: seasonvar
     app.kubernetes.io/component: generate
 spec:
-  schedule: "0 1-23/8 * * *"
+  schedule: "30 * * * *"
   timeZone: Europe/Berlin
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
@@ -391,7 +391,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:v0.1.0
+              image: ghcr.io/vasary/go-seasonvar:v0.1.1
               imagePullPolicy: IfNotPresent
               args:
                 - generate
