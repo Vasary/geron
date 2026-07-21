@@ -24,6 +24,13 @@ data:
         attrs:
           name: navidrome-users
       - model: authentik_core.group
+        id: seasonvar-users-group
+        state: present
+        identifiers:
+          name: seasonvar-users
+        attrs:
+          name: seasonvar-users
+      - model: authentik_core.group
         id: public-cloudflare-users-group
         state: present
         identifiers:
@@ -40,6 +47,21 @@ data:
           mode: forward_single
           external_host: https://navidrome.vasary.org
           internal_host: http://navidrome.media.svc.cluster.vasary.org
+          internal_host_ssl_validation: false
+          authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+      - model: authentik_providers_proxy.proxyprovider
+        id: seasonvar-proxy-provider
+        state: present
+        identifiers:
+          name: seasonvar
+        attrs:
+          name: seasonvar
+          mode: forward_single
+          external_host: https://seasonvar.vasary.org
+          internal_host: http://seasonvar.media.svc.cluster.vasary.org
           internal_host_ssl_validation: false
           authentication_flow: !Find [authentik_flows.flow, [slug, default-authentication-flow]]
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
@@ -88,6 +110,18 @@ data:
           meta_launch_url: https://navidrome.vasary.org/
           open_in_new_tab: true
       - model: authentik_core.application
+        id: seasonvar-application
+        state: present
+        identifiers:
+          slug: seasonvar
+        attrs:
+          name: Seasonvar
+          slug: seasonvar
+          provider: !KeyOf seasonvar-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://seasonvar.vasary.org/
+          open_in_new_tab: true
+      - model: authentik_core.application
         id: echo-public-application
         state: present
         identifiers:
@@ -123,6 +157,28 @@ data:
           group: !KeyOf navidrome-users-group
           order: 0
       - model: authentik_policies.policybinding
+        id: seasonvar-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf seasonvar-users-group
+          order: 0
+        attrs:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf seasonvar-users-group
+          order: 0
+      - model: authentik_policies.policybinding
+        id: seasonvar-public-cloudflare-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 1
+        attrs:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf public-cloudflare-users-group
+          order: 1
+      - model: authentik_policies.policybinding
         id: echo-public-users-policy-binding
         state: present
         identifiers:
@@ -152,5 +208,6 @@ data:
         attrs:
           providers:
             - !KeyOf navidrome-proxy-provider
+            - !KeyOf seasonvar-proxy-provider
             - !KeyOf echo-public-proxy-provider
             - !KeyOf prometheus-public-proxy-provider
