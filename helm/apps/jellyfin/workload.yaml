@@ -192,7 +192,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: seasonvar
-          image: ghcr.io/vasary/go-seasonvar:sha-694ca24
+          image: ghcr.io/vasary/go-seasonvar:v0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -306,7 +306,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:sha-694ca24
+              image: ghcr.io/vasary/go-seasonvar:v0.1.0
               imagePullPolicy: IfNotPresent
               args:
                 - sync
@@ -392,7 +392,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:sha-694ca24
+              image: ghcr.io/vasary/go-seasonvar:v0.1.0
               imagePullPolicy: IfNotPresent
               args:
                 - generate
