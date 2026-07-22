@@ -91,6 +91,8 @@ spec:
               mountPath: /media
             - name: music
               mountPath: /nas/music
+            - name: movies
+              mountPath: /nas/movies
             - name: seasonvar-media
               mountPath: /seasonvar
           readinessProbe:
@@ -127,6 +129,10 @@ spec:
           nfs:
             server: 10.10.0.4
             path: /mnt/archive/media/music
+        - name: movies
+          nfs:
+            server: 10.10.0.4
+            path: /mnt/archive/media/movies
         - name: seasonvar-media
           persistentVolumeClaim:
             claimName: seasonvar-media
