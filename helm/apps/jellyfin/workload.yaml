@@ -197,7 +197,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: seasonvar
-          image: ghcr.io/vasary/go-seasonvar:v0.1.7
+          image: ghcr.io/vasary/go-seasonvar:v0.1.8
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -226,16 +226,6 @@ spec:
               value: https://stream.vasary.org
             - name: SERVER_ADDRESS
               value: 0.0.0.0:8080
-            - name: SEASONVAR_BASE_URL
-              value: https://seasonvar.ru
-            - name: SYNC_REQUEST_DELAY_MIN
-              value: 300ms
-            - name: SYNC_REQUEST_DELAY_MAX
-              value: 2s
-            - name: SYNC_WORKERS
-              value: "2"
-            - name: SYNC_TIMEOUT
-              value: 30m
             - name: PLAYBACK_CACHE_TTL
               value: 10m
             - name: TZ
@@ -311,7 +301,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:v0.1.7
+              image: ghcr.io/vasary/go-seasonvar:v0.1.8
               imagePullPolicy: IfNotPresent
               args:
                 - sync
@@ -333,12 +323,6 @@ spec:
                       key: dbname
                 - name: DATABASE_URL
                   value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
-                - name: LIBRARY_PATH
-                  value: /library
-                - name: PUBLIC_URL
-                  value: https://stream.vasary.org
-                - name: SERVER_ADDRESS
-                  value: 0.0.0.0:8080
                 - name: SEASONVAR_BASE_URL
                   value: https://seasonvar.ru
                 - name: SYNC_REQUEST_DELAY_MIN
@@ -349,8 +333,6 @@ spec:
                   value: "3"
                 - name: SYNC_TIMEOUT
                   value: 30m
-                - name: PLAYBACK_CACHE_TTL
-                  value: 10m
                 - name: TZ
                   value: Europe/Berlin
               volumeMounts:
@@ -397,7 +379,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: seasonvar
-              image: ghcr.io/vasary/go-seasonvar:v0.1.7
+              image: ghcr.io/vasary/go-seasonvar:v0.1.8
               imagePullPolicy: IfNotPresent
               args:
                 - generate
@@ -423,20 +405,6 @@ spec:
                   value: /library
                 - name: PUBLIC_URL
                   value: https://stream.vasary.org
-                - name: SERVER_ADDRESS
-                  value: 0.0.0.0:8080
-                - name: SEASONVAR_BASE_URL
-                  value: https://seasonvar.ru
-                - name: SYNC_REQUEST_DELAY_MIN
-                  value: 300ms
-                - name: SYNC_REQUEST_DELAY_MAX
-                  value: 1500ms
-                - name: SYNC_WORKERS
-                  value: "3"
-                - name: SYNC_TIMEOUT
-                  value: 30m
-                - name: PLAYBACK_CACHE_TTL
-                  value: 10m
                 - name: TZ
                   value: Europe/Berlin
               volumeMounts:
