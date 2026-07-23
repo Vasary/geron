@@ -76,8 +76,9 @@ fi
 printf '%s' "$password" | jq -Rs . | SOPS_AGE_KEY_FILE="$age_key_file" sops \
   --config "$sops_config" \
   --filename-override "$secret_rel_to_repo" \
+  set \
   --value-stdin \
-  set "$secret_output" '["stringData"]["AUTHENTIK_BOOTSTRAP_PASSWORD"]'
+  "$secret_output" '["stringData"]["AUTHENTIK_BOOTSTRAP_PASSWORD"]'
 
 printf 'Wrote %s\n' "$secret_rel_to_repo"
 
