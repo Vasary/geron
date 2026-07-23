@@ -4,12 +4,12 @@ metadata:
   name: seafile-redis-data
   namespace: seafile
 spec:
-  storageClassName: nfs
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 1Gi
 ---
 apiVersion: apps/v1
 kind: Deployment

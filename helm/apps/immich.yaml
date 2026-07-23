@@ -57,6 +57,11 @@ spec:
 
           valkey:
             enabled: true
+            primary:
+              persistence:
+                enabled: true
+                storageClass: local-path
+                size: 1Gi
 
           server:
             ingress:

@@ -17,7 +17,6 @@ resources:
   - local-path-provisioner.yaml
   - metallb.yaml
   - metallb-config.yaml
-  - navidrome.yaml
   - nfs-csi.yaml
   - outline.yaml
   - kube-prometheus-stack.yaml

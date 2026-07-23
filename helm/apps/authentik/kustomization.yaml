@@ -6,7 +6,6 @@ resources:
   - grafana-blueprint.yaml
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
-  - navidrome-blueprint.yaml
   - outline-blueprint.yaml
   - redis.yaml
   - seafile-blueprint.yaml

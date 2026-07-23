@@ -10,5 +10,5 @@ spec:
       database: outline
       owner: outline
   storage:
-    storageClass: nfs
-    size: 20Gi
+    storageClass: local-path
+    size: 6Gi

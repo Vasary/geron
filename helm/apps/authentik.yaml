@@ -31,7 +31,6 @@ spec:
               - authentik-blueprint-grafana
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
-              - authentik-blueprint-navidrome
               - authentik-blueprint-outline
               - authentik-blueprint-seafile
               - authentik-blueprint-stirling-pdf
