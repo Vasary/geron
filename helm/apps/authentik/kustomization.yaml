@@ -9,4 +9,5 @@ resources:
   - outline-blueprint.yaml
   - redis.yaml
   - seafile-blueprint.yaml
+  - seasonvar-blueprint.yaml
   - stirling-pdf-blueprint.yaml

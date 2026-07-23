@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-seasonvar
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  seasonvar.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-seasonvar-proxy
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_core.group
+        id: seasonvar-users-group
+        state: present
+        identifiers:
+          name: seasonvar-users
+        attrs:
+          name: seasonvar-users
+      - model: authentik_providers_proxy.proxyprovider
+        id: seasonvar-proxy-provider
+        state: present
+        identifiers:
+          name: seasonvar
+        attrs:
+          name: seasonvar
+          mode: forward_single
+          grant_types:
+            - authorization_code
+          external_host: https://seasonvar.vasary.org
+          internal_host: http://seasonvar.media.svc.cluster.vasary.org
+          internal_host_ssl_validation: true
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+          redirect_uris:
+            - matching_mode: strict
+              url: https://seasonvar.vasary.org/outpost.goauthentik.io/callback?X-authentik-auth-callback=true
+              redirect_uri_type: authorization
+            - matching_mode: strict
+              url: https://seasonvar.vasary.org?X-authentik-auth-callback=true
+              redirect_uri_type: authorization
+      - model: authentik_core.application
+        id: seasonvar-application
+        state: present
+        identifiers:
+          slug: seasonvar
+        attrs:
+          name: Seasonvar
+          slug: seasonvar
+          provider: !KeyOf seasonvar-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://seasonvar.vasary.org/
+          open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: seasonvar-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf seasonvar-users-group
+          order: 0
+        attrs:
+          target: !KeyOf seasonvar-application
+          group: !KeyOf seasonvar-users-group
+          order: 0
+      - model: authentik_outposts.outpost
+        id: authentik-embedded-outpost
+        state: present
+        identifiers:
+          name: authentik Embedded Outpost
+        attrs:
+          providers:
+            - !KeyOf seasonvar-proxy-provider

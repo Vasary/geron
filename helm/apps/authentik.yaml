@@ -33,6 +33,7 @@ spec:
               - authentik-blueprint-jellyfin
               - authentik-blueprint-outline
               - authentik-blueprint-seafile
+              - authentik-blueprint-seasonvar
               - authentik-blueprint-stirling-pdf
 
           postgresql:
