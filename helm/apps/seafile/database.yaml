@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: seafile-mariadb-data
+  name: seafile-mariadb-data-local
   namespace: seafile
 spec:
   storageClassName: local-path
@@ -106,7 +106,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: seafile-mariadb-data
+            claimName: seafile-mariadb-data-local
         - name: initdb
           configMap:
             name: seafile-mariadb-init

@@ -27,23 +27,23 @@ spec:
                     TZ: Europe/Berlin
                     REDIS_HOSTNAME: immich-valkey
                     IMMICH_MACHINE_LEARNING_URL: http://immich-machine-learning:3003
-                    DB_HOSTNAME: immich-database-rw
+                    DB_HOSTNAME: immich-database-local-rw
                     DB_PORT: "5432"
                     DB_VECTOR_EXTENSION: vectorchord
                     DB_DATABASE_NAME:
                       valueFrom:
                         secretKeyRef:
-                          name: immich-database-app
+                          name: immich-database-local-app
                           key: dbname
                     DB_USERNAME:
                       valueFrom:
                         secretKeyRef:
-                          name: immich-database-app
+                          name: immich-database-local-app
                           key: username
                     DB_PASSWORD:
                       valueFrom:
                         secretKeyRef:
-                          name: immich-database-app
+                          name: immich-database-local-app
                           key: password
 
           immich:

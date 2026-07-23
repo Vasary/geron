@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: outline-postgres
+  name: outline-postgres-local
   namespace: outline
 spec:
   instances: 1

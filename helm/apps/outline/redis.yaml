@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: outline-redis-data
+  name: outline-redis-data-local
   namespace: outline
 spec:
   storageClassName: local-path
@@ -67,7 +67,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: outline-redis-data
+            claimName: outline-redis-data-local
 ---
 apiVersion: v1
 kind: Service

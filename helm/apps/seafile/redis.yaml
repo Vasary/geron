@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: seafile-redis-data
+  name: seafile-redis-data-local
   namespace: seafile
 spec:
   storageClassName: local-path
@@ -59,7 +59,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: seafile-redis-data
+            claimName: seafile-redis-data-local
 ---
 apiVersion: v1
 kind: Service
