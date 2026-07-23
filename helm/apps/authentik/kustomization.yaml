@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - argocd-blueprint.yaml
   - database.yaml
+  - grafana-blueprint.yaml
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
   - navidrome-blueprint.yaml

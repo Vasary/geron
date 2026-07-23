@@ -16,9 +16,115 @@ spec:
       values: |
         fullnameOverride: kube-prometheus-stack
         grafana:
-          enabled: false
+          enabled: true
+          envValueFrom:
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+              secretKeyRef:
+                name: grafana-oauth
+                key: GRAFANA_OAUTH_CLIENT_SECRET
+          persistence:
+            enabled: true
+            storageClassName: local-path
+            accessModes:
+              - ReadWriteOnce
+            size: 5Gi
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              geron.io/dns-scope: internal
+              traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+            hosts:
+              - grafana.vasary.org
+            path: /
+            pathType: Prefix
+            tls:
+              - secretName: grafana-vasary-tls
+                hosts:
+                  - grafana.vasary.org
+          grafana.ini:
+            server:
+              root_url: https://grafana.vasary.org
+            auth:
+              oauth_auto_login: true
+              signout_redirect_url: https://auth.vasary.org/application/o/grafana/end-session/
+            auth.generic_oauth:
+              enabled: true
+              name: authentik
+              client_id: grafana
+              client_secret: $__env{GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
+              scopes: openid profile email entitlements
+              auth_url: https://auth.vasary.org/application/o/authorize/
+              token_url: https://auth.vasary.org/application/o/token/
+              api_url: https://auth.vasary.org/application/o/userinfo/
+              allow_sign_up: true
+              role_attribute_path: contains(entitlements[*], 'Grafana Admins') && 'Admin' || contains(entitlements[*], 'Grafana Editors') && 'Editor' || 'Viewer'
         alertmanager:
           enabled: true
+        additionalPrometheusRulesMap:
+          host-temperature:
+            groups:
+              - name: host-temperature
+                rules:
+                  - record: instance:node_cpu_package_temp_celsius:current
+                    expr: |
+                      max by (instance) (
+                        (
+                          node_hwmon_temp_celsius{chip=~".*coretemp.*"}
+                          * on (instance, chip, sensor) group_left(label)
+                            node_hwmon_sensor_label{label=~"Package.*"}
+                        )
+                        or
+                        node_thermal_zone_temp{type="x86_pkg_temp"}
+                      )
+                  - record: instance:node_nvme_temp_celsius:current
+                    expr: |
+                      max by (instance) (
+                        node_hwmon_temp_celsius{chip=~"nvme_.*"}
+                        * on (instance, chip, sensor) group_left(label)
+                          node_hwmon_sensor_label{label="Composite"}
+                      )
+                  - alert: HostCpuTemperatureHigh
+                    expr: instance:node_cpu_package_temp_celsius:current > 85
+                    for: 10m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: CPU package temperature is high on {{ $labels.instance }}
+                      description: CPU package temperature has been above 85 C for 10 minutes.
+                  - alert: HostCpuTemperatureCritical
+                    expr: instance:node_cpu_package_temp_celsius:current > 95
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: CPU package temperature is critical on {{ $labels.instance }}
+                      description: CPU package temperature has been above 95 C for 5 minutes.
+                  - alert: HostNvmeTemperatureHigh
+                    expr: instance:node_nvme_temp_celsius:current > 75
+                    for: 10m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: NVMe temperature is high on {{ $labels.instance }}
+                      description: NVMe composite temperature has been above 75 C for 10 minutes.
+                  - alert: HostNvmeTemperatureCritical
+                    expr: instance:node_nvme_temp_celsius:current > 83
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: NVMe temperature is critical on {{ $labels.instance }}
+                      description: NVMe composite temperature has been above 83 C for 5 minutes.
+                  - alert: HostCpuThermalThrottling
+                    expr: increase(node_cpu_package_throttles_total[15m]) > 0
+                    for: 5m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: CPU package is thermally throttling on {{ $labels.instance }}
+                      description: CPU package throttling counter increased during the last 15 minutes.
         prometheus:
           ingress:
             enabled: true

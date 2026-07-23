@@ -28,6 +28,7 @@ spec:
           blueprints:
             configMaps:
               - authentik-blueprint-argocd
+              - authentik-blueprint-grafana
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
               - authentik-blueprint-navidrome
