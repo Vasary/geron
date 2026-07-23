@@ -25,6 +25,5 @@ resources:
   - redis-operator.yaml
   - reloader.yaml
   - seafile.yaml
-  - storage-smoke.yaml
   - stirling-pdf.yaml
   - traefik.yaml
