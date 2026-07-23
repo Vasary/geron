@@ -212,20 +212,20 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: seasonvar-postgres-app
+                  name: seasonvar-postgres-local-app
                   key: username
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: seasonvar-postgres-app
+                  name: seasonvar-postgres-local-app
                   key: password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: seasonvar-postgres-app
+                  name: seasonvar-postgres-local-app
                   key: dbname
             - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
             - name: LIBRARY_PATH
               value: /library
             - name: PUBLIC_URL
@@ -315,20 +315,20 @@ spec:
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: username
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: password
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: dbname
                 - name: DATABASE_URL
-                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
                 - name: SEASONVAR_BASE_URL
                   value: https://seasonvar.ru
                 - name: SYNC_REQUEST_DELAY_MIN
@@ -393,20 +393,20 @@ spec:
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: username
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: password
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
-                      name: seasonvar-postgres-app
+                      name: seasonvar-postgres-local-app
                       key: dbname
                 - name: DATABASE_URL
-                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
                 - name: LIBRARY_PATH
                   value: /library
                 - name: PUBLIC_URL
