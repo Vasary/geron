@@ -11,6 +11,7 @@ These instructions apply to the whole repository.
 - Break large tasks into small, understandable steps and keep the user updated as each step is completed.
 - Keep code quality high: prefer simple, readable, maintainable changes over clever shortcuts.
 - Follow best practices for the relevant tool, platform, and repository conventions.
+- Keep in mind that the cluster name is cluster.vasary.org not cluster.local
 
 ## GitOps Notes
 
