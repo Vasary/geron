@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Berlin",
+  "dependencyDashboard": true,
+  "labels": ["dependencies", "helm"],
+  "enabledManagers": ["argocd"],
+  "argocd": {
+    "managerFilePatterns": ["/^helm/apps/[^/]+\\.ya?ml$/"]
+  },
+  "packageRules": [
+    {
+      "description": "Group Argo CD Helm chart updates",
+      "matchManagers": ["argocd"],
+      "matchDatasources": ["helm"],
+      "groupName": "helm charts",
+      "automerge": false
+    },
+    {
+      "description": "Keep this repository scoped to Helm chart versions only",
+      "matchManagers": ["argocd"],
+      "matchDatasources": ["docker", "git-tags"],
+      "enabled": false
+    }
+  ]
+}
