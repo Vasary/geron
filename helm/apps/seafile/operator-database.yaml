@@ -3,6 +3,8 @@ kind: MariaDB
 metadata:
   name: seafile-mariadb
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   rootPasswordSecretKeyRef:
     name: seafile-secrets

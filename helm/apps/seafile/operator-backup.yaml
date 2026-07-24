@@ -3,6 +3,8 @@ kind: Backup
 metadata:
   name: seafile-mariadb-daily
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   mariaDbRef:
     name: seafile-mariadb
@@ -10,7 +12,7 @@ spec:
     cron: "0 3 * * *"
     suspend: false
   timeZone: Europe/Berlin
-  maxRetention: 14d
+  maxRetention: 120h
   compression: gzip
   databases:
     - ccnet_db

@@ -3,6 +3,8 @@ kind: Database
 metadata:
   name: seafile-ccnet-db
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   mariaDbRef:
     name: seafile-mariadb
@@ -16,6 +18,8 @@ kind: Database
 metadata:
   name: seafile-seafile-db
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   mariaDbRef:
     name: seafile-mariadb
@@ -29,6 +33,8 @@ kind: Database
 metadata:
   name: seafile-seahub-db
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   mariaDbRef:
     name: seafile-mariadb

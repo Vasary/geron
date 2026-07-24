@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: seafile
   namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   labels:
     app.kubernetes.io/name: seafile
 spec:

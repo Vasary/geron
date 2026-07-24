@@ -4,3 +4,4 @@ resources:
   - database-cluster.yaml
   - database-logical.yaml
   - library.yaml
+  - postgres-backup.yaml
