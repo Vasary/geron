@@ -1,0 +1,162 @@
+# Geron
+
+Geron is the GitOps repository for the `vasary` single-node Kubernetes cluster.
+It contains the Talos machine configuration, Argo CD bootstrap manifests, and
+application manifests for the services running on the node.
+
+## Repository Layout
+
+- `talos/` contains Talos Linux configuration helpers for the bare-metal node.
+- `helm/bootstrap/` installs and configures Argo CD.
+- `helm/cluster/` is the root Argo CD application entry point.
+- `helm/apps/` contains Argo CD `Application` objects and per-app manifests.
+- `helm/projects/` defines Argo CD projects.
+- `helm/secrets/*.sops.yaml` stores encrypted Kubernetes secrets.
+
+Git is the source of truth for the cluster. Prefer changing manifests here and
+letting Argo CD reconcile them.
+
+## Cluster
+
+The cluster is a single-node Talos Kubernetes installation.
+
+- Cluster name: `vasary`
+- Kubernetes endpoint: `10.10.0.251:6443`
+- Main ingress/load balancer IP: `10.10.0.250`
+- Kubernetes DNS domain: `cluster.vasary.org`
+- Main public/internal domain: `vasary.org`
+
+The Talos node also has a storage/NAS network interface. See
+`talos/README.md` for the lower-level install workflow and node details.
+
+## Installed Components
+
+Core platform:
+
+- Argo CD for GitOps reconciliation.
+- Traefik as the ingress controller.
+- MetalLB for the local load balancer IP.
+- cert-manager with Let's Encrypt DNS-01 certificates.
+- external-dns for local DNS automation.
+- NFS CSI for NAS-backed persistent volumes.
+- local-path-provisioner for node-local storage.
+- CloudNativePG for PostgreSQL databases.
+- MariaDB Operator for MariaDB databases.
+- Redis Operator, metrics-server, reloader, and kube-prometheus-stack.
+
+Applications:
+
+- Authentik for SSO and OAuth/OIDC integration.
+- Grafana and Prometheus for monitoring.
+- Immich.
+- Jellyfin and Seasonvar.
+- Outline.
+- Seafile.
+- Stirling PDF.
+- Echo server for testing ingress/auth routing.
+- GitHub Actions runner controller and runner scale set.
+- Cloudflared tunnel deployment.
+
+## External Dependencies
+
+This cluster depends on a few services outside Kubernetes:
+
+- NAS/NFS server `10.10.10.4`
+  - General PVC storage: `/mnt/blaze/k8s/pvc`
+  - Backup storage: `/mnt/archive/backups`
+- Local DNS/Pi-hole at `10.10.0.2`
+  - Used by Talos DNS/NTP settings and external-dns.
+- Default gateway on `10.10.0.1`.
+- Cloudflare
+  - DNS-01 ACME challenges for certificates.
+  - Cloudflare tunnel token for `cloudflared`.
+- GitHub
+  - Argo CD reads this repository.
+  - Actions runner controller uses GitHub runner credentials.
+- SOPS age key at `~/.config/sops/age/keys.txt`
+  - Required to decrypt and apply secrets.
+
+The NFS backup storage class creates subdirectories under
+`10.10.10.4:/mnt/archive/backups` using the namespace, PVC name, and PV name.
+
+## Backups
+
+Database backups are plain Kubernetes `CronJob` resources that write compressed
+dumps to the `backup-nfs` storage class.
+
+- Authentik PostgreSQL
+- Immich PostgreSQL
+- Outline PostgreSQL
+- Seasonvar PostgreSQL
+- Seafile MariaDB
+
+The jobs run daily, keep successful and failed job history in Kubernetes, and
+delete dump files older than 120 hours from their backup directory.
+
+## Common Commands
+
+Top-level wrappers:
+
+```bash
+make talos check
+make talos config
+make talos apply-auth
+make talos health
+
+make helm validate
+make helm deploy
+make helm deploy-secrets
+```
+
+Talos:
+
+- `make talos check` verifies local tools and parses `talos/cluster.ini`.
+- `make talos secrets` generates local Talos secrets.
+- `make talos config` renders Talos machine config.
+- `make talos validate` validates the rendered config.
+- `make talos apply` applies config in maintenance mode.
+- `make talos apply-auth` applies config through the authenticated Talos API.
+- `make talos bootstrap` bootstraps the Kubernetes control plane.
+- `make talos kubeconfig` writes Kubernetes access config.
+- `make talos health` checks Talos/Kubernetes health.
+
+Helm/Argo CD:
+
+- `make helm validate` checks that `helm/cluster` renders.
+- `make helm deploy` installs Argo CD and the root application.
+- `make helm deploy-secrets` decrypts and applies all SOPS secrets.
+- `make helm argocd-password` generates the encrypted Argo CD admin secret.
+- `make helm authentik-bootstrap-password` updates the encrypted Authentik
+  bootstrap password.
+- `make helm authentik-password` resets the live Authentik admin password and
+  updates the encrypted secret.
+- `make helm github-runner-token` updates the encrypted GitHub runner token.
+
+Useful kubectl checks:
+
+```bash
+kubectl -n argocd get applications
+kubectl get nodes -o wide
+kubectl get ingress -A
+kubectl get certificates -A
+kubectl get pvc -A
+kubectl get cronjob -A
+```
+
+## Secrets
+
+Secrets under `helm/secrets/*.sops.yaml` must remain encrypted with SOPS. Do not
+commit decrypted secret files or generated Talos secrets. Local Talos material is
+generated under `talos/secrets/` or `talos/manifests/` and is intentionally not
+part of the GitOps state unless explicitly encrypted and committed.
+
+## Operational Notes
+
+- Do not apply Kubernetes cluster changes manually unless there is a reason to
+  bypass GitOps temporarily.
+- After changing manifests under `helm/apps`, commit and push so Argo CD can
+  reconcile from Git.
+- Services that already have OIDC/SSO should not also receive Cloudflare public
+  ForwardAuth unless explicitly desired.
+- MariaDB Operator must use `clusterName: cluster.vasary.org`; the cluster does
+  not use the default `cluster.local` DNS domain.
