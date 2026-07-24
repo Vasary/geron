@@ -1,39 +1,84 @@
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: seafile-mariadb-daily
+  name: seafile-mariadb-backups
   namespace: seafile
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
-  mariaDbRef:
-    name: seafile-mariadb
-  schedule:
-    cron: "0 3 * * *"
-    suspend: false
-  timeZone: Europe/Berlin
-  maxRetention: 120h
-  compression: gzip
-  databases:
-    - ccnet_db
-    - seafile_db
-    - seahub_db
-  storage:
-    persistentVolumeClaim:
-      storageClassName: backup-nfs
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 20Gi
-  args:
-    - --single-transaction
-    - --verbose
-  successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: backup-nfs
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      memory: 512Mi
+      storage: 20Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seafile-mariadb-backup
+  namespace: seafile
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  schedule: "0 3 * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: mariadb-dump
+              image: docker-registry1.mariadb.com/library/mariadb:11.8.5
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: MARIADB_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: seafile-secrets
+                      key: MARIADB_ROOT_PASSWORD
+              command:
+                - sh
+                - -ec
+                - |
+                  target_dir=/backups/seafile
+                  mkdir -p "$target_dir"
+                  MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-dump \
+                    --host=seafile-mariadb \
+                    --user=root \
+                    --single-transaction \
+                    --verbose \
+                    --databases ccnet_db seafile_db seahub_db \
+                    | gzip > "$target_dir/seafile-mariadb-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+                  find "$target_dir" -type f -name '*.sql.gz' -mmin +7200 -delete
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: seafile-mariadb-backups
