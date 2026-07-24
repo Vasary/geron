@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus-cloudflare-auth
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`prometheus.vasary.org`) && HeaderRegexp(`Cf-Ray`, `.+`)
+      kind: Rule
+      priority: 100000
+      middlewares:
+        - name: cloudflare-authentik-auth
+          namespace: monitoring
+      services:
+        - name: kube-prometheus-stack-prometheus
+          port: 9090
+  tls:
+    secretName: prometheus-vasary-tls

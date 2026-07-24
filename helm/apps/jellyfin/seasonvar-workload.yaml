@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seasonvar
+  namespace: media
+  labels:
+    app.kubernetes.io/name: seasonvar
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: seasonvar
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seasonvar
+    spec:
+      imagePullSecrets:
+        - name: ghcr-vasary
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: seasonvar
+          image: ghcr.io/vasary/go-seasonvar:v0.1.9
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: seasonvar-postgres-local-app
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seasonvar-postgres-local-app
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: seasonvar-postgres-local-app
+                  key: dbname
+            - name: DATABASE_URL
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+            - name: LIBRARY_PATH
+              value: /library
+            - name: PUBLIC_URL
+              value: https://stream.vasary.org
+            - name: SERVER_ADDRESS
+              value: 0.0.0.0:8080
+            - name: PLAYBACK_CACHE_TTL
+              value: 10m
+            - name: TZ
+              value: Europe/Berlin
+          volumeMounts:
+            - name: library
+              mountPath: /library
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: library
+          persistentVolumeClaim:
+            claimName: seasonvar-media
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seasonvar
+  namespace: media
+spec:
+  selector:
+    app.kubernetes.io/name: seasonvar
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

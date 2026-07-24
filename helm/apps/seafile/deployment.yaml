@@ -1,16 +1,3 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: seafile-shared
-  namespace: seafile
-spec:
-  storageClassName: nfs
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 500Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -52,7 +39,7 @@ spec:
             - name: TIME_ZONE
               value: Europe/Berlin
             - name: SEAFILE_LOG_TO_STDOUT
-              value: "true"
+              value: 'true'
             - name: SITE_ROOT
               value: /
             - name: SEAFILE_SERVER_HOSTNAME
@@ -64,7 +51,7 @@ spec:
             - name: SEAFILE_MYSQL_DB_HOST
               value: seafile-mariadb
             - name: SEAFILE_MYSQL_DB_PORT
-              value: "3306"
+              value: '3306'
             - name: SEAFILE_MYSQL_DB_USER
               value: seafile
             - name: SEAFILE_MYSQL_DB_CCNET_DB_NAME
@@ -78,17 +65,17 @@ spec:
             - name: REDIS_HOST
               value: seafile-redis
             - name: REDIS_PORT
-              value: "6379"
+              value: '6379'
             - name: ENABLE_NOTIFICATION_SERVER
-              value: "false"
+              value: 'false'
             - name: ENABLE_SEADOC
-              value: "false"
+              value: 'false'
             - name: ENABLE_SEAFILE_AI
-              value: "false"
+              value: 'false'
             - name: ENABLE_FACE_RECOGNITION
-              value: "false"
+              value: 'false'
             - name: MD_FILE_COUNT_LIMIT
-              value: "100000"
+              value: '100000'
             - name: INIT_SEAFILE_ADMIN_EMAIL
               value: admin@vasary.org
           envFrom:
@@ -129,43 +116,3 @@ spec:
         - name: oauth-config
           configMap:
             name: seafile-oauth-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: seafile
-  namespace: seafile
-spec:
-  selector:
-    app.kubernetes.io/name: seafile
-  ports:
-    - name: http
-      port: 80
-      targetPort: http
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: seafile
-  namespace: seafile
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-    geron.io/dns-scope: internal
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-spec:
-  ingressClassName: traefik
-  tls:
-    - secretName: seafile-vasary-tls
-      hosts:
-        - seafile.vasary.org
-  rules:
-    - host: seafile.vasary.org
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: seafile
-                port:
-                  name: http

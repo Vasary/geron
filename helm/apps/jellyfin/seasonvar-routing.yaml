@@ -1,0 +1,99 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: seasonvar-auth
+  namespace: media
+spec:
+  forwardAuth:
+    address: http://authentik-server.authentik.svc.cluster.vasary.org/outpost.goauthentik.io/auth/traefik
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-Authentik-Username
+      - X-Authentik-Groups
+      - X-Authentik-Email
+      - X-Authentik-Name
+      - X-Authentik-Uid
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: stream-vasary-tls
+  namespace: media
+spec:
+  secretName: stream-vasary-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - stream.vasary.org
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: seasonvar-stream
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`stream.vasary.org`) && PathRegexp(`^/stream/episodes/[0-9]+$`)
+      kind: Rule
+      services:
+        - name: seasonvar
+          port: 80
+  tls:
+    secretName: stream-vasary-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: seasonvar-stream-dns
+  namespace: media
+  annotations:
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: stream-vasary-tls
+      hosts:
+        - stream.vasary.org
+  rules:
+    - host: stream.vasary.org
+      http:
+        paths:
+          - path: /_external-dns-stream-placeholder
+            pathType: Exact
+            backend:
+              service:
+                name: seasonvar
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: seasonvar
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.middlewares: media-seasonvar-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: seasonvar-vasary-tls
+      hosts:
+        - seasonvar.vasary.org
+  rules:
+    - host: seasonvar.vasary.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: seasonvar
+                port:
+                  name: http

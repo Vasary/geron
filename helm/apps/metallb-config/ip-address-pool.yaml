@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: geron-lan
+  namespace: metallb-system
+  annotations:
+    argocd.argoproj.io/sync-wave: '30'
+spec:
+  addresses:
+    - 10.10.0.250/32

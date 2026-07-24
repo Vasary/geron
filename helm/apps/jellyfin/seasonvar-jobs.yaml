@@ -1,0 +1,149 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seasonvar-sync
+  namespace: media
+  labels:
+    app.kubernetes.io/name: seasonvar
+    app.kubernetes.io/component: sync
+spec:
+  schedule: "0 * * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: seasonvar
+            app.kubernetes.io/component: sync
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-vasary
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+          containers:
+            - name: seasonvar
+              image: ghcr.io/vasary/go-seasonvar:v0.1.9
+              imagePullPolicy: IfNotPresent
+              args:
+                - sync
+              env:
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: username
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: password
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: dbname
+                - name: DATABASE_URL
+                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+                - name: SEASONVAR_BASE_URL
+                  value: https://seasonvar.ru
+                - name: SYNC_REQUEST_DELAY_MIN
+                  value: 300ms
+                - name: SYNC_REQUEST_DELAY_MAX
+                  value: 1500ms
+                - name: SYNC_WORKERS
+                  value: "3"
+                - name: SYNC_TIMEOUT
+                  value: 30m
+                - name: TZ
+                  value: Europe/Berlin
+              volumeMounts:
+                - name: library
+                  mountPath: /library
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: library
+              persistentVolumeClaim:
+                claimName: seasonvar-media
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seasonvar-generate
+  namespace: media
+  labels:
+    app.kubernetes.io/name: seasonvar
+    app.kubernetes.io/component: generate
+spec:
+  schedule: "30 * * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: seasonvar
+            app.kubernetes.io/component: generate
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-vasary
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+          containers:
+            - name: seasonvar
+              image: ghcr.io/vasary/go-seasonvar:v0.1.9
+              imagePullPolicy: IfNotPresent
+              args:
+                - generate
+              env:
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: username
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: password
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: seasonvar-postgres-local-app
+                      key: dbname
+                - name: DATABASE_URL
+                  value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+                - name: LIBRARY_PATH
+                  value: /library
+                - name: PUBLIC_URL
+                  value: https://stream.vasary.org
+                - name: TZ
+                  value: Europe/Berlin
+              volumeMounts:
+                - name: library
+                  mountPath: /library
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: library
+              persistentVolumeClaim:
+                claimName: seasonvar-media

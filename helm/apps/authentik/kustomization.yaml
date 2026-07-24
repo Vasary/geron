@@ -7,7 +7,8 @@ resources:
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
   - outline-blueprint.yaml
-  - redis.yaml
+  - redis-storage.yaml
+  - redis-workload.yaml
   - seafile-blueprint.yaml
   - seasonvar-blueprint.yaml
   - stirling-pdf-blueprint.yaml

@@ -1,16 +1,3 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: outline-redis-data-local
-  namespace: outline
-spec:
-  storageClassName: local-path
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -37,7 +24,7 @@ spec:
           args:
             - redis-server
             - --appendonly
-            - "yes"
+            - 'yes'
           ports:
             - name: redis
               containerPort: 6379

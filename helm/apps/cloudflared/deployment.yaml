@@ -18,7 +18,7 @@ spec:
       securityContext:
         sysctls:
           - name: net.ipv4.ping_group_range
-            value: "65532 65532"
+            value: 65532 65532
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -71,34 +71,3 @@ spec:
               memory: 64Mi
             limits:
               memory: 128Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: cloudflared-metrics
-  namespace: cloudflared
-  labels:
-    app.kubernetes.io/name: cloudflared
-spec:
-  selector:
-    app.kubernetes.io/name: cloudflared
-  ports:
-    - name: metrics
-      port: 2000
-      targetPort: metrics
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: cloudflared
-  namespace: cloudflared
-  labels:
-    release: kube-prometheus-stack
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: cloudflared
-  endpoints:
-    - port: metrics
-      path: /metrics
-      interval: 30s
