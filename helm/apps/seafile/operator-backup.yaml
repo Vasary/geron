@@ -1,0 +1,37 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: seafile-mariadb-daily
+  namespace: seafile
+spec:
+  mariaDbRef:
+    name: seafile-mariadb
+  schedule:
+    cron: "0 3 * * *"
+    suspend: false
+  timeZone: Europe/Berlin
+  maxRetention: 14d
+  compression: gzip
+  databases:
+    - ccnet_db
+    - seafile_db
+    - seahub_db
+  storage:
+    persistentVolumeClaim:
+      storageClassName: backup-nfs
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+  args:
+    - --single-transaction
+    - --verbose
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi

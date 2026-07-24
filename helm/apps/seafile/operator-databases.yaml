@@ -1,0 +1,38 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: seafile-ccnet-db
+  namespace: seafile
+spec:
+  mariaDbRef:
+    name: seafile-mariadb
+  name: ccnet_db
+  characterSet: utf8mb4
+  collate: utf8mb4_unicode_ci
+  cleanupPolicy: Skip
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: seafile-seafile-db
+  namespace: seafile
+spec:
+  mariaDbRef:
+    name: seafile-mariadb
+  name: seafile_db
+  characterSet: utf8mb4
+  collate: utf8mb4_unicode_ci
+  cleanupPolicy: Skip
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: seafile-seahub-db
+  namespace: seafile
+spec:
+  mariaDbRef:
+    name: seafile-mariadb
+  name: seahub_db
+  characterSet: utf8mb4
+  collate: utf8mb4_unicode_ci
+  cleanupPolicy: Skip

@@ -15,9 +15,12 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - local-path-provisioner.yaml
+  - mariadb-operator-crds.yaml
+  - mariadb-operator.yaml
   - metallb.yaml
   - metallb-config.yaml
   - nfs-csi.yaml
+  - nfs-csi-config.yaml
   - outline.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml

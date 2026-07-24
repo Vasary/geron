@@ -1,0 +1,28 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: seafile-mariadb
+  namespace: seafile
+spec:
+  rootPasswordSecretKeyRef:
+    name: seafile-secrets
+    key: MARIADB_ROOT_PASSWORD
+    generate: false
+  port: 3306
+  storage:
+    storageClassName: local-path
+    size: 6Gi
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    character-set-server=utf8mb4
+    collation-server=utf8mb4_unicode_ci
+    max_allowed_packet=256M
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      memory: 2Gi
+  metrics:
+    enabled: true

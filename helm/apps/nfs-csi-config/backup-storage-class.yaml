@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: backup-nfs
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 10.10.10.4
+  share: /mnt/archive/backups
+  subDir: ${pvc.metadata.namespace}/${pvc.metadata.name}/${pv.metadata.name}
+  mountPermissions: "0770"
+  onDelete: archive
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=4.1
+  - hard
+  - noatime
