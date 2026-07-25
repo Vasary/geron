@@ -58,7 +58,7 @@ spec:
                 - name: SYNC_REQUEST_DELAY_MAX
                   value: 1500ms
                 - name: SYNC_WORKERS
-                  value: "3"
+                  value: "5"
                 - name: SYNC_TIMEOUT
                   value: 30m
                 - name: TZ
