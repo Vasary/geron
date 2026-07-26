@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: coins-inventory-redis
   namespace: coins-inventory
-  annotations:
-    argocd.argoproj.io/sync-wave: "-10"
   labels:
     app.kubernetes.io/name: coins-inventory-redis
 spec:
