@@ -4,9 +4,9 @@ metadata:
   name: mcp-memory-service-data
   namespace: mcp
 spec:
-  storageClassName: local-path
+  storageClassName: nfs
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
