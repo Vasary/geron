@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - applications.yaml
   - demo.yaml
+  - mcp.yaml
   - monitoring.yaml
   - platform.yaml

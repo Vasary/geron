@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-mikrotik
+  namespace: mcp
+  annotations:
+    secret.reloader.stakater.com/reload: mcp-credentials
+  labels:
+    app.kubernetes.io/name: mcp-mikrotik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-mikrotik
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mcp-mikrotik
+    spec:
+      containers:
+        - name: server
+          image: ghcr.io/jeff-nasseri/mikrotik-mcp:sha-791a80b
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: MIKROTIK_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: MIKROTIK_HOST
+                  optional: true
+            - name: MIKROTIK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: MIKROTIK_USERNAME
+                  optional: true
+            - name: MIKROTIK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: MIKROTIK_PASSWORD
+                  optional: true
+            - name: MIKROTIK_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: MIKROTIK_PORT
+                  optional: true
+            - name: MIKROTIK_MCP__TRANSPORT
+              value: streamable-http
+            - name: MIKROTIK_MCP__HOST
+              value: 0.0.0.0
+            - name: MIKROTIK_MCP__PORT
+              value: "8000"
+            - name: TZ
+              value: Europe/Berlin
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-mikrotik
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: mcp-mikrotik
+spec:
+  selector:
+    app.kubernetes.io/name: mcp-mikrotik
+  ports:
+    - name: http
+      port: 3105
+      targetPort: http

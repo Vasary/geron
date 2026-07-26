@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-pihole
+  namespace: mcp
+  annotations:
+    secret.reloader.stakater.com/reload: mcp-credentials
+  labels:
+    app.kubernetes.io/name: mcp-pihole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-pihole
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mcp-pihole
+    spec:
+      containers:
+        - name: server
+          image: sbarbett/pihole-mcp-server:latest
+          imagePullPolicy: Always
+          ports:
+            - name: sse
+              containerPort: 8000
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: PIHOLE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: PIHOLE_URL
+                  optional: true
+            - name: PIHOLE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: PIHOLE_PASSWORD
+                  optional: true
+          readinessProbe:
+            tcpSocket:
+              port: sse
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: sse
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+        - name: gateway
+          image: ghcr.io/supercorp-ai/supergateway:3.4.3
+          imagePullPolicy: IfNotPresent
+          args:
+            - --stdio
+            - npx -y mcp-remote http://127.0.0.1:8000/sse --allow-http
+            - --outputTransport
+            - streamableHttp
+            - --port
+            - "3100"
+            - --streamableHttpPath
+            - /mcp
+          ports:
+            - name: http
+              containerPort: 3100
+          env:
+            - name: TZ
+              value: Europe/Berlin
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-pihole
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: mcp-pihole
+spec:
+  selector:
+    app.kubernetes.io/name: mcp-pihole
+  ports:
+    - name: http
+      port: 3100
+      targetPort: http

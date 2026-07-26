@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-paperless
+  namespace: mcp
+  annotations:
+    secret.reloader.stakater.com/reload: mcp-credentials
+  labels:
+    app.kubernetes.io/name: mcp-paperless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-paperless
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mcp-paperless
+    spec:
+      initContainers:
+        - name: install-paperless-mcp
+          image: ghcr.io/freeformz/paperless-ngx-mcp:latest
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -c
+          args:
+            - cp /paperless-ngx-mcp /tools/paperless-ngx-mcp && chmod 0755 /tools/paperless-ngx-mcp
+          volumeMounts:
+            - name: tools
+              mountPath: /tools
+      containers:
+        - name: gateway
+          image: ghcr.io/supercorp-ai/supergateway:3.4.3
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+          args:
+            - supergateway --stdio '/tools/paperless-ngx-mcp mcp' --outputTransport streamableHttp --port 3101 --streamableHttpPath /mcp
+          ports:
+            - name: http
+              containerPort: 3101
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: PAPERLESS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: PAPERLESS_URL
+                  optional: true
+            - name: PAPERLESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-credentials
+                  key: PAPERLESS_TOKEN
+                  optional: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: tools
+              mountPath: /tools
+              readOnly: true
+      volumes:
+        - name: tools
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-paperless
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: mcp-paperless
+spec:
+  selector:
+    app.kubernetes.io/name: mcp-paperless
+  ports:
+    - name: http
+      port: 3101
+      targetPort: http

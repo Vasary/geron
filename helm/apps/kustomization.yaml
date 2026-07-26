@@ -19,6 +19,7 @@ resources:
   - mariadb-operator.yaml
   - metallb.yaml
   - metallb-config.yaml
+  - mcp.yaml
   - nfs-csi.yaml
   - nfs-csi-config.yaml
   - outline.yaml
