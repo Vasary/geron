@@ -8,6 +8,7 @@ resources:
   - cert-manager-config.yaml
   - cloudflared.yaml
   - cloudnative-pg.yaml
+  - coins-inventory.yaml
   - echo-server.yaml
   - external-dns.yaml
   - external-secrets.yaml

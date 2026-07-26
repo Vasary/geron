@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: coins-inventory
+  namespace: coins-inventory
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: coins-inventory-vasary-tls
+      hosts:
+        - coins-inventory.vasary.org
+  rules:
+    - host: coins-inventory.vasary.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: coins-inventory
+                port:
+                  name: http
