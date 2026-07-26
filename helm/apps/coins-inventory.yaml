@@ -22,9 +22,6 @@ spec:
           image:
             pullPolicy: Always
 
-          imagePullSecrets:
-            - name: ghcr-vasary
-
           podAnnotations:
             secret.reloader.stakater.com/reload: coins-inventory-config
 
