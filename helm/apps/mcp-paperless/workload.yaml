@@ -17,33 +17,22 @@ spec:
       labels:
         app.kubernetes.io/name: mcp-paperless
     spec:
-      initContainers:
-        - name: install-paperless-mcp
-          image: ghcr.io/freeformz/paperless-ngx-mcp:latest
-          imagePullPolicy: Always
-          command:
-            - sh
-            - -c
-          args:
-            - cp /paperless-ngx-mcp /tools/paperless-ngx-mcp && chmod 0755 /tools/paperless-ngx-mcp
-          volumeMounts:
-            - name: tools
-              mountPath: /tools
       containers:
-        - name: gateway
-          image: ghcr.io/supercorp-ai/supergateway:3.4.3
+        - name: server
+          image: docker.io/knucklessg1/paperless-ngx-mcp:mcp
           imagePullPolicy: IfNotPresent
-          command:
-            - sh
-            - -c
-          args:
-            - supergateway --stdio '/tools/paperless-ngx-mcp mcp' --outputTransport streamableHttp --port 3101 --streamableHttpPath /mcp
           ports:
             - name: http
               containerPort: 3101
           env:
             - name: TZ
               value: Europe/Berlin
+            - name: TRANSPORT
+              value: streamable-http
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "3101"
             - name: PAPERLESS_URL
               valueFrom:
                 secretKeyRef:
@@ -73,13 +62,6 @@ spec:
               memory: 128Mi
             limits:
               memory: 512Mi
-          volumeMounts:
-            - name: tools
-              mountPath: /tools
-              readOnly: true
-      volumes:
-        - name: tools
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
