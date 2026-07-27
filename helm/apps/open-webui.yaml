@@ -43,8 +43,20 @@ spec:
               value: open-webui
             - name: CORS_ALLOW_ORIGIN
               value: https://open-webui.vasary.org
-            - name: OLLAMA_BASE_URL
-              value: http://ollama.ollama.svc.cluster.vasary.org:11434
+            - name: ENABLE_OLLAMA_API
+              value: "false"
+            - name: ENABLE_OPENAI_API
+              value: "true"
+            - name: OPENAI_API_BASE_URLS
+              value: https://ollama.com/v1
+            - name: OPENAI_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: open-webui-secrets
+                  key: OLLAMA_API_KEY
+                  optional: true
+            - name: OPENAI_API_CONFIGS
+              value: '{"0":{"enable":true,"prefix_id":"ollama-cloud","tags":["ollama","cloud"],"connection_type":"external"}}'
             - name: ENABLE_OAUTH_SIGNUP
               value: "true"
             - name: ENABLE_OAUTH_PERSISTENT_CONFIG
