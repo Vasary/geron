@@ -7,79 +7,99 @@ metadata:
     argocd.argoproj.io/sync-wave: "30"
 spec:
   project: ai-platform
-  source:
-    repoURL: https://helm.openwebui.com
-    chart: open-webui
-    targetRevision: 14.6.0
-    helm:
-      releaseName: open-webui
-      values: |
-        fullnameOverride: open-webui
-        clusterDomain: cluster.vasary.org
+  sources:
+    - repoURL: https://github.com/Vasary/geron.git
+      targetRevision: master
+      path: helm/apps/open-webui
+    - repoURL: https://helm.openwebui.com
+      chart: open-webui
+      targetRevision: 14.6.0
+      helm:
+        releaseName: open-webui
+        values: |
+          fullnameOverride: open-webui
+          clusterDomain: cluster.vasary.org
 
-        ollama:
-          enabled: false
-        pipelines:
-          enabled: false
-        websocket:
-          enabled: true
-          manager: ""
-          redis:
+          ollama:
             enabled: false
+          pipelines:
+            enabled: false
+          websocket:
+            enabled: true
+            manager: redis
+            redis:
+              enabled: false
 
-        extraEnvVars:
-          - name: WEBUI_URL
-            value: https://open-webui.vasary.org
-          - name: WEBUI_SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: open-webui-secrets
-                key: WEBUI_SECRET_KEY
-          - name: ENABLE_OAUTH_SIGNUP
-            value: "true"
-          - name: ENABLE_OAUTH_PERSISTENT_CONFIG
-            value: "false"
-          - name: ENABLE_LOGIN_FORM
-            value: "false"
-          - name: OAUTH_AUTO_REDIRECT
-            value: "true"
-          - name: OAUTH_PROVIDER_NAME
-            value: Authentik
-          - name: OAUTH_CLIENT_ID
-            value: open-webui
-          - name: OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: open-webui-secrets
-                key: OAUTH_CLIENT_SECRET
-          - name: OPENID_PROVIDER_URL
-            value: https://auth.vasary.org/application/o/open-webui/.well-known/openid-configuration
-          - name: OPENID_REDIRECT_URI
-            value: https://open-webui.vasary.org/oauth/oidc/callback
-          - name: OAUTH_SCOPES
-            value: openid email profile
+          extraEnvVars:
+            - name: WEBUI_URL
+              value: https://open-webui.vasary.org
+            - name: WEBUI_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: open-webui-secrets
+                  key: WEBUI_SECRET_KEY
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: open-webui-secrets
+                  key: REDIS_PASSWORD
+            - name: REDIS_URL
+              value: redis://:$(REDIS_PASSWORD)@open-webui-redis.open-webui.svc.cluster.vasary.org:6379/0
+            - name: REDIS_KEY_PREFIX
+              value: open-webui
+            - name: ENABLE_WEBSOCKET_SUPPORT
+              value: "true"
+            - name: WEBSOCKET_MANAGER
+              value: redis
+            - name: WEBSOCKET_REDIS_URL
+              value: redis://:$(REDIS_PASSWORD)@open-webui-redis.open-webui.svc.cluster.vasary.org:6379/1
+            - name: CORS_ALLOW_ORIGIN
+              value: https://open-webui.vasary.org
+            - name: ENABLE_OAUTH_SIGNUP
+              value: "true"
+            - name: ENABLE_OAUTH_PERSISTENT_CONFIG
+              value: "false"
+            - name: ENABLE_LOGIN_FORM
+              value: "false"
+            - name: OAUTH_AUTO_REDIRECT
+              value: "true"
+            - name: OAUTH_PROVIDER_NAME
+              value: Authentik
+            - name: OAUTH_CLIENT_ID
+              value: open-webui
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: open-webui-secrets
+                  key: OAUTH_CLIENT_SECRET
+            - name: OPENID_PROVIDER_URL
+              value: https://auth.vasary.org/application/o/open-webui/.well-known/openid-configuration
+            - name: OPENID_REDIRECT_URI
+              value: https://open-webui.vasary.org/oauth/oidc/callback
+            - name: OAUTH_SCOPES
+              value: openid email profile
 
-        ingress:
-          enabled: true
-          class: traefik
-          annotations:
-            cert-manager.io/cluster-issuer: letsencrypt-prod
-            geron.io/dns-scope: internal
-            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-          host: open-webui.vasary.org
-          tls: true
-          existingSecret: open-webui-vasary-tls
+          ingress:
+            enabled: true
+            class: traefik
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              geron.io/dns-scope: internal
+              traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+            host: open-webui.vasary.org
+            tls: true
+            existingSecret: open-webui-vasary-tls
 
-        persistence:
-          enabled: true
-          size: 20Gi
+          persistence:
+            enabled: true
+            size: 20Gi
 
-        resources:
-          requests:
-            cpu: 250m
-            memory: 512Mi
-          limits:
-            memory: 2Gi
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: open-webui
@@ -91,3 +111,4 @@ spec:
       limit: 5
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
