@@ -7,9 +7,6 @@ spec:
   kubernetesConfig:
     image: quay.io/opstree/redis:v7.0.15
     imagePullPolicy: IfNotPresent
-    redisSecret:
-      name: open-webui-secrets
-      key: REDIS_PASSWORD
     resources:
       requests:
         cpu: 50m

@@ -27,6 +27,7 @@ spec:
           websocket:
             enabled: true
             manager: redis
+            url: redis://open-webui-redis.open-webui.svc.cluster.vasary.org:6379/0
             redis:
               enabled: false
 
@@ -38,21 +39,8 @@ spec:
                 secretKeyRef:
                   name: open-webui-secrets
                   key: WEBUI_SECRET_KEY
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: open-webui-secrets
-                  key: REDIS_PASSWORD
-            - name: REDIS_URL
-              value: redis://:$(REDIS_PASSWORD)@open-webui-redis.open-webui.svc.cluster.vasary.org:6379/0
             - name: REDIS_KEY_PREFIX
               value: open-webui
-            - name: ENABLE_WEBSOCKET_SUPPORT
-              value: "true"
-            - name: WEBSOCKET_MANAGER
-              value: redis
-            - name: WEBSOCKET_REDIS_URL
-              value: redis://:$(REDIS_PASSWORD)@open-webui-redis.open-webui.svc.cluster.vasary.org:6379/1
             - name: CORS_ALLOW_ORIGIN
               value: https://open-webui.vasary.org
             - name: ENABLE_OAUTH_SIGNUP
