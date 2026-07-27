@@ -26,6 +26,7 @@ resources:
   - mcp-pihole.yaml
   - nfs-csi.yaml
   - nfs-csi-config.yaml
+  - open-webui.yaml
   - outline.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml

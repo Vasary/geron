@@ -47,6 +47,7 @@ Core platform:
 Applications:
 
 - Authentik for SSO and OAuth/OIDC integration.
+- Open WebUI for the local LLM and MCP workspace, with Authentik OIDC login.
 - Grafana and Prometheus for monitoring.
 - Immich.
 - Jellyfin and Seasonvar.
@@ -56,6 +57,18 @@ Applications:
 - Echo server for testing ingress/auth routing.
 - GitHub Actions runner controller and runner scale set.
 - Cloudflared tunnel deployment.
+
+AI platform:
+
+- Argo CD project: `ai-platform`
+- Open WebUI: https://open-webui.vasary.org
+- MCP memory service: `http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp`
+- MCP Paperless: `http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp`
+- MCP MikroTik: `http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp`
+- MCP Pi-hole: `http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/mcp`
+
+In Open WebUI, add the MCP endpoints under Admin Settings -> External Tools
+with type `MCP (Streamable HTTP)`.
 
 ## External Dependencies
 
