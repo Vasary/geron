@@ -19,6 +19,7 @@ resources:
   - metallb-system.yaml
   - monitoring.yaml
   - nfs-csi.yaml
+  - ollama.yaml
   - open-webui.yaml
   - outline.yaml
   - redis-operator.yaml
