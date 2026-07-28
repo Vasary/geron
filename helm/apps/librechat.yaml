@@ -46,6 +46,9 @@ spec:
               socialLogins:
                 - openid
 
+            interface:
+              contextUsage: true
+
             endpoints:
               custom:
                 - name: "Ollama Cloud"
@@ -53,9 +56,13 @@ spec:
                   baseURL: "https://ollama.com/v1"
                   models:
                     default:
-                      - qwen3.6:35b
                       - gemma4:31b
                     fetch: false
+                  tokenConfig:
+                    gemma4:31b:
+                      prompt: 0
+                      completion: 0
+                      context: 256000
                   titleConvo: true
                   titleModel: gemma4:31b
                   summarize: false
@@ -82,8 +89,8 @@ spec:
                 url: http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp
                 timeout: 60000
               pihole:
-                type: streamable-http
-                url: http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/mcp
+                type: sse
+                url: http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/sse
                 timeout: 60000
           imageVolume:
             enabled: true

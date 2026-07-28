@@ -56,41 +56,6 @@ spec:
               memory: 128Mi
             limits:
               memory: 512Mi
-        - name: gateway
-          image: ghcr.io/supercorp-ai/supergateway:3.4.3
-          imagePullPolicy: IfNotPresent
-          args:
-            - --stdio
-            - npx -y mcp-remote http://127.0.0.1:8000/sse --allow-http
-            - --outputTransport
-            - streamableHttp
-            - --port
-            - "3100"
-            - --streamableHttpPath
-            - /mcp
-          ports:
-            - name: http
-              containerPort: 3100
-          env:
-            - name: TZ
-              value: Europe/Berlin
-          readinessProbe:
-            tcpSocket:
-              port: http
-            periodSeconds: 15
-            timeoutSeconds: 5
-          livenessProbe:
-            tcpSocket:
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 5
-          resources:
-            requests:
-              cpu: 50m
-              memory: 128Mi
-            limits:
-              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
@@ -103,6 +68,6 @@ spec:
   selector:
     app.kubernetes.io/name: mcp-pihole
   ports:
-    - name: http
+    - name: sse
       port: 3100
-      targetPort: http
+      targetPort: sse
