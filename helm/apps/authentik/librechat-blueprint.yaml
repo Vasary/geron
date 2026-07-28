@@ -45,7 +45,7 @@ data:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
           redirect_uris:
             - matching_mode: strict
-              url: https://librechat.vasary.org/oauth/openid/callback
+              url: https://chat.vasary.org/oauth/openid/callback
           sub_mode: user_email
           issuer_mode: per_provider
       - model: authentik_core.application
@@ -58,7 +58,7 @@ data:
           slug: librechat
           provider: !KeyOf librechat-oauth-provider
           policy_engine_mode: any
-          meta_launch_url: https://librechat.vasary.org/
+          meta_launch_url: https://chat.vasary.org/
           open_in_new_tab: true
       - model: authentik_policies.policybinding
         id: librechat-users-policy-binding

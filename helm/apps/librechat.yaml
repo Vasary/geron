@@ -23,8 +23,8 @@ spec:
         librechat:
           existingSecretName: librechat-credentials-env
           configEnv:
-            DOMAIN_CLIENT: https://librechat.vasary.org
-            DOMAIN_SERVER: https://librechat.vasary.org
+            DOMAIN_CLIENT: https://chat.vasary.org
+            DOMAIN_SERVER: https://chat.vasary.org
             MEILI_HOST: http://librechat-meilisearch.librechat.svc.cluster.vasary.org:7700
             MONGO_URI: mongodb://librechat-mongodb.librechat.svc.cluster.vasary.org:27017/LibreChat
             ALLOW_EMAIL_LOGIN: "false"
@@ -83,14 +83,14 @@ spec:
             geron.io/dns-scope: internal
             traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
           hosts:
-            - host: librechat.vasary.org
+            - host: chat.vasary.org
               paths:
                 - path: /
                   pathType: Prefix
           tls:
-            - secretName: librechat-vasary-tls
+            - secretName: chat-vasary-tls
               hosts:
-                - librechat.vasary.org
+                - chat.vasary.org
 
         mongodb:
           enabled: true
