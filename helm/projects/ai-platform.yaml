@@ -6,15 +6,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
-  description: LLM, Open WebUI, MCP, and agent platform services
+  description: LibreChat, MCP, and agent platform services
   sourceRepos:
     - '*'
   destinations:
     - namespace: mcp
       server: https://kubernetes.default.svc
-    - namespace: ollama
-      server: https://kubernetes.default.svc
-    - namespace: open-webui
+    - namespace: librechat
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ''

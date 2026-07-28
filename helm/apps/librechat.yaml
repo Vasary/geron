@@ -1,0 +1,124 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: librechat
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: ai-platform
+  source:
+    repoURL: ghcr.io/danny-avila/librechat-chart
+    chart: librechat
+    targetRevision: 2.0.7
+    helm:
+      releaseName: librechat
+      values: |
+        fullnameOverride: librechat
+
+        global:
+          librechat:
+            existingSecretName: librechat-credentials-env
+
+        librechat:
+          existingSecretName: librechat-credentials-env
+          configEnv:
+            DOMAIN_CLIENT: https://librechat.vasary.org
+            DOMAIN_SERVER: https://librechat.vasary.org
+            ALLOW_EMAIL_LOGIN: "false"
+            ALLOW_REGISTRATION: "false"
+            ALLOW_SOCIAL_LOGIN: "true"
+            ALLOW_SOCIAL_REGISTRATION: "true"
+            OPENID_BUTTON_LABEL: Authentik
+            OPENID_ISSUER: https://auth.vasary.org/application/o/librechat/.well-known/openid-configuration
+            OPENID_CLIENT_ID: librechat
+            OPENID_CALLBACK_URL: /oauth/openid/callback
+            OPENID_SCOPE: "openid profile email"
+            OPENID_AUTO_REDIRECT: "true"
+            OPENID_GENERATE_NONCE: "true"
+          configYamlContent: |
+            version: 1.3.13
+            cache: true
+
+            registration:
+              socialLogins:
+                - openid
+
+            mcpSettings:
+              allowedAddresses:
+                - mcp-memory-service.mcp.svc.cluster.vasary.org:8765
+                - mcp-paperless.mcp.svc.cluster.vasary.org:3101
+                - mcp-mikrotik.mcp.svc.cluster.vasary.org:3105
+                - mcp-pihole.mcp.svc.cluster.vasary.org:3100
+
+            mcpServers:
+              memory:
+                type: streamable-http
+                url: http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp
+                timeout: 60000
+              paperless:
+                type: streamable-http
+                url: http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp
+                timeout: 60000
+              mikrotik:
+                type: streamable-http
+                url: http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp
+                timeout: 60000
+              pihole:
+                type: streamable-http
+                url: http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/mcp
+                timeout: 60000
+          imageVolume:
+            enabled: true
+            size: 20G
+            storageClassName: local-path
+
+        ingress:
+          enabled: true
+          className: traefik
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+            geron.io/dns-scope: internal
+            traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+          hosts:
+            - host: librechat.vasary.org
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: librechat-vasary-tls
+              hosts:
+                - librechat.vasary.org
+
+        mongodb:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClass: local-path
+            size: 8Gi
+
+        meilisearch:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClass: local-path
+            size: 5Gi
+
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            memory: 2Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: librechat
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

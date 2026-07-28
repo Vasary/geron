@@ -31,8 +31,8 @@ spec:
               - authentik-blueprint-grafana
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
+              - authentik-blueprint-librechat
               - authentik-blueprint-outline
-              - authentik-blueprint-open-webui
               - authentik-blueprint-seafile
               - authentik-blueprint-seasonvar
               - authentik-blueprint-stirling-pdf

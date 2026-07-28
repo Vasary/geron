@@ -16,6 +16,7 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - local-path-provisioner.yaml
+  - librechat.yaml
   - mariadb-operator-crds.yaml
   - mariadb-operator.yaml
   - metallb.yaml
@@ -26,8 +27,6 @@ resources:
   - mcp-pihole.yaml
   - nfs-csi.yaml
   - nfs-csi-config.yaml
-  - ollama.yaml
-  - open-webui.yaml
   - outline.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml

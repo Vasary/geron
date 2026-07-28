@@ -13,7 +13,7 @@ AUTHENTIK_ADMIN_USER ?= akadmin
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets argocd-password authentik-bootstrap-password authentik-password github-runner-token ollama-api-key
+.PHONY: help validate deploy deploy-secrets argocd-password authentik-bootstrap-password authentik-password github-runner-token
 
 help:
 	@printf '%s\n' \
@@ -25,7 +25,6 @@ help:
 		'  make authentik-bootstrap-password Generate encrypted Authentik bootstrap admin password' \
 		'  make authentik-password Reset live Authentik admin password and update bootstrap secret' \
 		'  make github-runner-token Generate encrypted GitHub runner token secret' \
-		'  make ollama-api-key   Store encrypted Ollama Cloud API key for Open WebUI' \
 		'' \
 		'Variables:' \
 		'  GIT_ORIGIN=$(GIT_ORIGIN)' \
@@ -106,6 +105,3 @@ authentik-password:
 
 github-runner-token:
 	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-github-runner-token.sh secrets/github-runner-auth.sops.yaml
-
-ollama-api-key:
-	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-ollama-api-key.sh secrets/open-webui.sops.yaml

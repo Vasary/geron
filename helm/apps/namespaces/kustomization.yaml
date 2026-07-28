@@ -12,6 +12,7 @@ resources:
   - external-dns.yaml
   - external-secrets.yaml
   - immich.yaml
+  - librechat.yaml
   - local-path-storage.yaml
   - mariadb-operator.yaml
   - media.yaml
@@ -19,8 +20,6 @@ resources:
   - metallb-system.yaml
   - monitoring.yaml
   - nfs-csi.yaml
-  - ollama.yaml
-  - open-webui.yaml
   - outline.yaml
   - redis-operator.yaml
   - reloader.yaml
