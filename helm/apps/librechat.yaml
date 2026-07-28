@@ -46,6 +46,21 @@ spec:
               socialLogins:
                 - openid
 
+            endpoints:
+              custom:
+                - name: "Ollama Cloud"
+                  apiKey: "${OLLAMA_API_KEY}"
+                  baseURL: "https://ollama.com/v1"
+                  models:
+                    default:
+                      - qwen3.6:35b
+                      - gemma4:31b
+                    fetch: false
+                  titleConvo: true
+                  titleModel: gemma4:31b
+                  summarize: false
+                  modelDisplayLabel: "Ollama Cloud"
+
             mcpSettings:
               allowedAddresses:
                 - mcp-memory-service.mcp.svc.cluster.vasary.org:8765
