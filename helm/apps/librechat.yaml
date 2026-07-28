@@ -95,6 +95,7 @@ spec:
                 timeout: 60000
               coins-inventory:
                 type: streamable-http
+                requiresOAuth: false
                 url: http://coins-inventory.coins-inventory.svc.cluster.vasary.org/_mcp
                 timeout: 60000
           imageVolume:
