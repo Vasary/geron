@@ -92,6 +92,10 @@ spec:
                 type: sse
                 url: http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/sse
                 timeout: 60000
+              coins-inventory:
+                type: streamable-http
+                url: http://coins-inventory.coins-inventory.svc.cluster.vasary.org/_mcp
+                timeout: 60000
           imageVolume:
             enabled: true
             size: 20G
