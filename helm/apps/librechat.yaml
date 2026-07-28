@@ -74,6 +74,7 @@ spec:
                 - mcp-paperless.mcp.svc.cluster.vasary.org:3101
                 - mcp-mikrotik.mcp.svc.cluster.vasary.org:3105
                 - mcp-pihole.mcp.svc.cluster.vasary.org:3100
+                - coins-inventory.coins-inventory.svc.cluster.vasary.org:80
 
             mcpServers:
               memory:
