@@ -23,6 +23,20 @@ data:
           name: vaultwarden-users
         attrs:
           name: vaultwarden-users
+      - model: authentik_providers_oauth2.scopemapping
+        id: vaultwarden-email-scope
+        state: present
+        identifiers:
+          name: vaultwarden-email-verified
+        attrs:
+          name: vaultwarden-email-verified
+          scope_name: email
+          description: Email scope for Vaultwarden with verified email claim
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
       - model: authentik_providers_oauth2.oauth2provider
         id: vaultwarden-oauth-provider
         state: present
@@ -41,7 +55,7 @@ data:
           signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
-            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !KeyOf vaultwarden-email-scope
             - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
           redirect_uris:
             - matching_mode: strict
