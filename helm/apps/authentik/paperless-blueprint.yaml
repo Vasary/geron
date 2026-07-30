@@ -15,6 +15,7 @@ data:
       name: vasary-paperless-oauth
       labels:
         blueprints.goauthentik.io/instantiate: "true"
+        geron.io/revision: paperless-client-secret-1
     entries:
       - model: authentik_core.group
         id: paperless-users-group
