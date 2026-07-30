@@ -38,6 +38,21 @@ spec:
               value: ssh-key-vault-item,ssh-agent
             - name: SIGNUPS_ALLOWED
               value: 'false'
+            - name: SSO_ENABLED
+              value: 'true'
+            - name: SSO_AUTHORITY
+              value: https://auth.vasary.org/application/o/vaultwarden/
+            - name: SSO_SCOPES
+              value: openid profile email offline_access
+            - name: SSO_SIGNUPS_MATCH_EMAIL
+              value: 'true'
+            - name: SSO_CLIENT_ID
+              value: vaultwarden
+            - name: SSO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-secrets
+                  key: SSO_CLIENT_SECRET
             - name: ADMIN_TOKEN
               valueFrom:
                 secretKeyRef:

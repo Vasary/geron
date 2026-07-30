@@ -15,3 +15,4 @@ resources:
   - seafile-blueprint.yaml
   - seasonvar-blueprint.yaml
   - stirling-pdf-blueprint.yaml
+  - vaultwarden-blueprint.yaml

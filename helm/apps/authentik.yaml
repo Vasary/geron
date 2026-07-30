@@ -38,6 +38,7 @@ spec:
               - authentik-blueprint-seafile
               - authentik-blueprint-seasonvar
               - authentik-blueprint-stirling-pdf
+              - authentik-blueprint-vaultwarden
 
           postgresql:
             enabled: false
