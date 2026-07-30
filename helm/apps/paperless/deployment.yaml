@@ -46,12 +46,8 @@ spec:
               value: https://docs.vasary.org,http://localhost:8000,http://paperless:80
             - name: PAPERLESS_USE_X_FORWARD_HOST
               value: 'true'
-            - name: PAPERLESS_ENABLE_HTTP_REMOTE_USER
-              value: 'true'
-            - name: PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME
-              value: HTTP_X_AUTHENTIK_USERNAME
             - name: PAPERLESS_LOGOUT_REDIRECT_URL
-              value: https://docs.vasary.org/outpost.goauthentik.io/sign_out
+              value: https://auth.vasary.org/application/o/paperless/end-session/
             - name: PAPERLESS_TIME_ZONE
               value: Europe/Berlin
             - name: PAPERLESS_OCR_LANGUAGE
@@ -103,7 +99,20 @@ spec:
                 secretKeyRef:
                   name: paperless-secrets
                   key: PAPERLESS_SECRET_KEY
+            - name: PAPERLESS_APPS
+              value: allauth.socialaccount.providers.openid_connect
+            - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+            - name: PAPERLESS_SOCIAL_AUTO_SIGNUP
+              value: 'true'
+            - name: PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS
+              value: 'true'
             - name: PAPERLESS_DISABLE_REGULAR_LOGIN
+              value: 'true'
+            - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
               value: 'true'
           volumeMounts:
             - name: data
