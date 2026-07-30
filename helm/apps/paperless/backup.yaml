@@ -1,0 +1,218 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-postgres-backups
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: backup-nfs
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paperless-export-backups
+  namespace: paperless
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: backup-nfs
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-postgres-backup
+  namespace: paperless
+spec:
+  schedule: "35 3 * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: pg-dump
+              image: postgres:18-trixie
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: dbname
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  target_dir=/backups/paperless/postgres
+                  mkdir -p "$target_dir"
+                  pg_dump --clean --if-exists --no-owner --no-privileges | gzip > "$target_dir/paperless-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+                  find "$target_dir" -type f -name '*.sql.gz' -mmin +7200 -delete
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: paperless-postgres-backups
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-export-backup
+  namespace: paperless
+spec:
+  schedule: "10 4 * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+          restartPolicy: OnFailure
+          containers:
+            - name: document-exporter
+              image: ghcr.io/paperless-ngx/paperless-ngx:3.0.4
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: USERMAP_UID
+                  value: '568'
+                - name: USERMAP_GID
+                  value: '568'
+                - name: PAPERLESS_TIME_ZONE
+                  value: Europe/Berlin
+                - name: PAPERLESS_DBENGINE
+                  value: postgresql
+                - name: PAPERLESS_DBHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: host
+                - name: PAPERLESS_DBPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: port
+                - name: PAPERLESS_DBNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: dbname
+                - name: PAPERLESS_DBUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: username
+                - name: PAPERLESS_DBPASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-postgres-local-app
+                      key: password
+                - name: PAPERLESS_REDIS
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-secrets
+                      key: PAPERLESS_REDIS
+                - name: PAPERLESS_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-secrets
+                      key: PAPERLESS_SECRET_KEY
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  target_dir="/backups/paperless/export-$stamp"
+                  mkdir -p "$target_dir"
+                  document_exporter --no-progress-bar "$target_dir"
+                  find /backups/paperless -mindepth 1 -maxdepth 1 -type d -name 'export-*' -mmin +7200 -exec rm -rf {} +
+              volumeMounts:
+                - name: data
+                  mountPath: /usr/src/paperless/data
+                - name: media
+                  mountPath: /usr/src/paperless/media
+                - name: consume
+                  mountPath: /usr/src/paperless/consume
+                - name: export
+                  mountPath: /usr/src/paperless/export
+                - name: backups
+                  mountPath: /backups
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+                limits:
+                  memory: 2Gi
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: paperless-data
+            - name: media
+              persistentVolumeClaim:
+                claimName: paperless-media
+            - name: consume
+              persistentVolumeClaim:
+                claimName: paperless-consume
+            - name: export
+              persistentVolumeClaim:
+                claimName: paperless-export
+            - name: backups
+              persistentVolumeClaim:
+                claimName: paperless-export-backups

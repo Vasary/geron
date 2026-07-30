@@ -21,8 +21,10 @@ resources:
   - monitoring.yaml
   - nfs-csi.yaml
   - outline.yaml
+  - paperless.yaml
   - redis-operator.yaml
   - reloader.yaml
   - seafile.yaml
   - stirling-pdf.yaml
   - traefik.yaml
+  - vaultwarden.yaml

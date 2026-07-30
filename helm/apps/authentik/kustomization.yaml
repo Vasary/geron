@@ -8,6 +8,7 @@ resources:
   - jellyfin-blueprint.yaml
   - librechat-blueprint.yaml
   - outline-blueprint.yaml
+  - paperless-blueprint.yaml
   - postgres-backup.yaml
   - redis-storage.yaml
   - redis-workload.yaml

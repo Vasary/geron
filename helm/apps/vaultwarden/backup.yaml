@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vaultwarden-backups
+  namespace: vaultwarden
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vaultwarden-backup
+  namespace: vaultwarden
+spec:
+  schedule: "15 3 * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: vaultwarden-backup
+              image: vaultwarden/server:1.37.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  target_dir=/backups/vaultwarden
+                  mkdir -p "$target_dir"
+
+                  before="$(mktemp)"
+                  after="$(mktemp)"
+                  find /data -maxdepth 1 -type f -name 'db_*.sqlite3' -print | sort > "$before"
+                  /vaultwarden backup
+                  find /data -maxdepth 1 -type f -name 'db_*.sqlite3' -print | sort > "$after"
+
+                  db_backup="$(comm -13 "$before" "$after" | tail -n 1)"
+                  test -n "$db_backup"
+                  mv "$db_backup" "$target_dir/vaultwarden-db-$stamp.sqlite3"
+
+                  tar \
+                    --exclude='./db.sqlite3' \
+                    --exclude='./db.sqlite3-shm' \
+                    --exclude='./db.sqlite3-wal' \
+                    --exclude='./db_*.sqlite3' \
+                    -czf "$target_dir/vaultwarden-data-$stamp.tar.gz" \
+                    -C /data .
+
+                  find "$target_dir" -type f \( -name '*.sqlite3' -o -name '*.tar.gz' \) -mmin +7200 -delete
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+                - name: backups
+                  mountPath: /backups
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: vaultwarden-data
+            - name: backups
+              persistentVolumeClaim:
+                claimName: vaultwarden-backups

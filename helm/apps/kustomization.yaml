@@ -28,6 +28,7 @@ resources:
   - nfs-csi.yaml
   - nfs-csi-config.yaml
   - outline.yaml
+  - paperless.yaml
   - kube-prometheus-stack.yaml
   - metrics-server.yaml
   - public-basic-auth.yaml
@@ -36,3 +37,4 @@ resources:
   - seafile.yaml
   - stirling-pdf.yaml
   - traefik.yaml
+  - vaultwarden.yaml
