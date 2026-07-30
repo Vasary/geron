@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-dex
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z argocd-dex-server 5556; do
+                echo "waiting for argocd-dex-server:5556"
+                sleep 2
+              done

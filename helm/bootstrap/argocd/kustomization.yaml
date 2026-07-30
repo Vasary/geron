@@ -9,3 +9,4 @@ patches:
   - path: patch-argocd-cm.yaml
   - path: patch-cmd-params.yaml
   - path: patch-argocd-rbac-cm.yaml
+  - path: patch-argocd-server-wait-dex.yaml
