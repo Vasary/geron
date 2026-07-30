@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: argocd-server
+  name: argocd-dex-server
 spec:
   template:
     spec:
       initContainers:
-        - name: wait-for-dex
+        - name: wait-for-authentik
           image: curlimages/curl:8.11.1
           command:
             - sh
             - -c
             - |
-              url="https://argocd-dex-server:5556/api/dex/.well-known/openid-configuration"
-              until curl -kfsS --connect-timeout 3 "$url" >/dev/null; do
-                echo "waiting for argocd-dex-server OIDC discovery"
-                sleep 2
+              url="https://auth.vasary.org/application/o/argocd/.well-known/openid-configuration"
+              until curl -fsS --connect-timeout 3 "$url" >/dev/null; do
+                echo "waiting for authentik OIDC discovery"
+                sleep 5
               done
           securityContext:
             allowPrivilegeEscalation: false
