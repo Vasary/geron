@@ -4,7 +4,7 @@ metadata:
   name: seafile-shared
   namespace: seafile
 spec:
-  storageClassName: nfs
+  storageClassName: archive-nfs
   accessModes:
     - ReadWriteMany
   resources:

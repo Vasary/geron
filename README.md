@@ -74,7 +74,8 @@ LibreChat connects the MCP endpoints declaratively from `librechat.yaml`.
 This cluster depends on a few services outside Kubernetes:
 
 - NAS/NFS server `10.10.10.4`
-  - General PVC storage: `/mnt/archive/kubernetes`
+  - Legacy PVC storage (`nfs`): `/mnt/blaze/k8s/pvc`
+  - General PVC storage (`archive-nfs`): `/mnt/archive/kubernetes`
   - Backup storage: `/mnt/archive/backups`
 - Local DNS/Pi-hole at `10.10.0.2`
   - Used by Talos DNS/NTP settings and external-dns.
