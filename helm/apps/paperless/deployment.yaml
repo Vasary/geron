@@ -123,18 +123,27 @@ spec:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: docs.vasary.org
             failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: docs.vasary.org
             periodSeconds: 15
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: docs.vasary.org
             initialDelaySeconds: 180
             periodSeconds: 30
             timeoutSeconds: 5
