@@ -28,7 +28,10 @@ if [[ ! -d "$patch_dir" ]]; then
   exit 1
 fi
 
-mapfile -t patch_files < <(find "$patch_dir" -maxdepth 1 -type f -name '*.yaml' | sort)
+patch_files=()
+while IFS= read -r patch_file; do
+  patch_files+=("$patch_file")
+done < <(find "$patch_dir" -maxdepth 1 -type f -name '*.yaml' | sort)
 if [[ "${#patch_files[@]}" -eq 0 ]]; then
   printf 'No patch files found in %s\n' "$patch_dir" >&2
   exit 1
