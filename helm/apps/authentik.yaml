@@ -19,7 +19,7 @@ spec:
         values: |
           global:
             podAnnotations:
-              geron.io/reload-revision: paperless-sso-1
+              geron.io/reload-revision: paperless-sso-2
               secret.reloader.stakater.com/reload: authentik-secrets
 
           authentik:
