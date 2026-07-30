@@ -3,14 +3,16 @@ machine:
     nameservers:
       - 10.10.0.2
     interfaces:
-      - interface: enp89s0
+      - deviceSelector:
+          hardwareAddr: "58:47:ca:77:e7:7d"
         dhcp: false
         addresses:
           - 10.10.0.251/24
         routes:
           - network: 0.0.0.0/0
             gateway: 10.10.0.1
-      - interface: enp2s0f0np0
+      - deviceSelector:
+          hardwareAddr: "58:47:ca:77:e7:7a"
         dhcp: false
         addresses:
           - 10.10.10.200/24
