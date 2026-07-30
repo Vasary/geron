@@ -64,14 +64,6 @@ spec:
           volumeMounts:
             - name: configs
               mountPath: /configs
-            - name: tessdata
-              mountPath: /usr/share/tessdata
-            - name: logs
-              mountPath: /logs
-            - name: pipeline
-              mountPath: /pipeline
-            - name: custom-files
-              mountPath: /customFiles
           startupProbe:
             tcpSocket:
               port: http
@@ -98,15 +90,3 @@ spec:
         - name: configs
           persistentVolumeClaim:
             claimName: stirling-pdf-configs
-        - name: tessdata
-          persistentVolumeClaim:
-            claimName: stirling-pdf-tessdata
-        - name: logs
-          persistentVolumeClaim:
-            claimName: stirling-pdf-logs
-        - name: pipeline
-          persistentVolumeClaim:
-            claimName: stirling-pdf-pipeline
-        - name: custom-files
-          persistentVolumeClaim:
-            claimName: stirling-pdf-custom-files
