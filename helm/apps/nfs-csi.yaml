@@ -18,20 +18,7 @@ spec:
           replicas: 1
           runOnControlPlane: true
         storageClass:
-          create: true
-          name: nfs
-          parameters:
-            server: 10.10.10.4
-            share: /mnt/blaze/k8s/pvc
-            subDir: ${pvc.metadata.namespace}/${pvc.metadata.name}/${pv.metadata.name}
-            mountPermissions: "0770"
-            onDelete: archive
-          reclaimPolicy: Delete
-          volumeBindingMode: Immediate
-          mountOptions:
-            - nfsvers=4.1
-            - hard
-            - noatime
+          create: false
   destination:
     server: https://kubernetes.default.svc
     namespace: nfs-csi
