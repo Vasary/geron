@@ -1,0 +1,9 @@
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: local-path-nvme
+volumeType: disk
+provisioning:
+  diskSelector:
+    match: disk.wwid == 'eui.002538599150efa2'
+filesystem:
+  type: xfs

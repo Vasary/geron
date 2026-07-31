@@ -16,6 +16,7 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - local-path-provisioner.yaml
+  - local-path-provisioner-nvme.yaml
   - librechat.yaml
   - mariadb-operator-crds.yaml
   - mariadb-operator.yaml

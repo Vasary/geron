@@ -4,9 +4,9 @@ metadata:
   name: immich-library
   namespace: immich
 spec:
-  storageClassName: archive-nfs
+  storageClassName: local-path-nvme
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 100Gi

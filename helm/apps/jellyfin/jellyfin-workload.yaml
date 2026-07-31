@@ -69,13 +69,17 @@ spec:
           persistentVolumeClaim:
             claimName: jellyfin-cache
         - name: music
-          nfs:
-            server: 10.10.0.4
-            path: /mnt/archive/media/music
+          # Temporary NAS outage fallback. Restore NFS:
+          # nfs:
+          #   server: 10.10.0.4
+          #   path: /mnt/archive/media/music
+          emptyDir: {}
         - name: movies
-          nfs:
-            server: 10.10.0.4
-            path: /mnt/archive/media/movies
+          # Temporary NAS outage fallback. Restore NFS:
+          # nfs:
+          #   server: 10.10.0.4
+          #   path: /mnt/archive/media/movies
+          emptyDir: {}
         - name: seasonvar-media
           persistentVolumeClaim:
             claimName: seasonvar-media

@@ -40,6 +40,8 @@ Core platform:
 - external-dns for local DNS automation.
 - NFS CSI for NAS-backed persistent volumes.
 - local-path-provisioner for node-local storage.
+- local-path-provisioner-nvme for node-local storage on the Talos
+  `local-path-nvme` user volume.
 - CloudNativePG for PostgreSQL databases.
 - MariaDB Operator for MariaDB databases.
 - Redis Operator, metrics-server, reloader, and kube-prometheus-stack.
@@ -76,6 +78,7 @@ This cluster depends on a few services outside Kubernetes:
 - NAS/NFS server `10.10.10.4`
   - Legacy PVC storage (`nfs`): `/mnt/blaze/k8s/pvc`
   - General PVC storage (`archive-nfs`): `/mnt/archive/kubernetes`
+  - NVMe local PVC storage (`local-path-nvme`): `/var/mnt/local-path-nvme`
   - Backup storage: `/mnt/archive/backups`
 - Local DNS/Pi-hole at `10.10.0.2`
   - Used by Talos DNS/NTP settings and external-dns.
