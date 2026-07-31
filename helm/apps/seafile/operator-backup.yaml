@@ -23,6 +23,7 @@ metadata:
 spec:
   schedule: "0 3 * * *"
   timeZone: Europe/Berlin
+  suspend: false
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -39,7 +40,10 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile:
               type: RuntimeDefault
+          dnsPolicy: ClusterFirst
           restartPolicy: OnFailure
+          schedulerName: default-scheduler
+          terminationGracePeriodSeconds: 30
           containers:
             - name: mariadb-dump
               image: docker-registry1.mariadb.com/library/mariadb:11.8.5
