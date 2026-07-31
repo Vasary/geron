@@ -26,7 +26,7 @@ spec:
           command:
             - sh
             - -c
-            - mkdir -p /shared/seafile/conf
+            - mkdir -p /shared/seafile/conf && chmod -R a+rwx /shared/seafile
           volumeMounts:
             - name: shared
               mountPath: /shared
@@ -41,6 +41,8 @@ spec:
             - name: TIME_ZONE
               value: Europe/Berlin
             - name: SEAFILE_LOG_TO_STDOUT
+              value: 'true'
+            - name: NON_ROOT
               value: 'true'
             - name: SITE_ROOT
               value: /
