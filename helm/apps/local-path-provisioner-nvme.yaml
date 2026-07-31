@@ -24,6 +24,8 @@ spec:
           - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
             paths:
               - /var/mnt/local-path-nvme
+        configmap:
+          name: local-path-config-nvme
   destination:
     server: https://kubernetes.default.svc
     namespace: local-path-storage
