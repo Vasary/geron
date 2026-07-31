@@ -13,6 +13,7 @@ resources:
   - external-secrets.yaml
   - immich.yaml
   - librechat.yaml
+  - llm-proxy.yaml
   - local-path-storage.yaml
   - mariadb-operator.yaml
   - media.yaml

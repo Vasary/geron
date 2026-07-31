@@ -18,6 +18,7 @@ resources:
   - local-path-provisioner.yaml
   - local-path-provisioner-nvme.yaml
   - librechat.yaml
+  - llm-proxy.yaml
   - mariadb-operator-crds.yaml
   - mariadb-operator.yaml
   - metallb.yaml
