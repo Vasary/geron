@@ -113,7 +113,7 @@ Top-level wrappers:
 ```bash
 make talos check
 make talos config
-make talos apply-auth
+make talos apply-try
 make talos health
 
 make helm validate
@@ -128,10 +128,13 @@ Talos:
 - `make talos config` renders Talos machine config.
 - `make talos validate` validates the rendered config.
 - `make talos apply` applies config in maintenance mode.
-- `make talos apply-auth` applies config through the authenticated Talos API.
+- `make talos apply-try` applies config through the authenticated Talos API in try mode.
+- `make talos apply-no-reboot` applies config through the authenticated Talos API without rebooting.
 - `make talos bootstrap` bootstraps the Kubernetes control plane.
 - `make talos kubeconfig` writes Kubernetes access config.
 - `make talos health` checks Talos/Kubernetes health.
+- `make talos reboot` drains and reboots the Talos node.
+- `make talos shutdown` drains and powers off the Talos node.
 
 Helm/Argo CD:
 

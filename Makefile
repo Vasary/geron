@@ -4,6 +4,7 @@ TALOS_DIR := talos
 HELM_DIR := helm
 FIRST_GOAL := $(firstword $(MAKECMDGOALS))
 SUBCOMMANDS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+FORWARDED_SUBCOMMANDS := $(filter-out help talos helm,$(SUBCOMMANDS))
 
 .DEFAULT_GOAL := help
 
@@ -17,7 +18,8 @@ help:
 		'' \
 		'Examples:' \
 		'  make talos config' \
-		'  make talos apply-auth' \
+		'  make talos apply-try' \
+		'  make talos reboot' \
 		'  make helm validate' \
 		'  make helm deploy' \
 		'  make helm deploy-secrets' \
@@ -31,6 +33,6 @@ helm:
 	@$(MAKE) -C "$(HELM_DIR)" $(SUBCOMMANDS)
 
 ifneq ($(filter talos helm,$(FIRST_GOAL)),)
-$(eval .PHONY: $(SUBCOMMANDS))
-$(eval $(SUBCOMMANDS):; @true)
+$(eval .PHONY: $(FORWARDED_SUBCOMMANDS))
+$(eval $(FORWARDED_SUBCOMMANDS):; @true)
 endif

@@ -27,6 +27,7 @@ make config
 make validate
 make disks
 make apply
+make apply-try
 make bootstrap
 make health
 make dashboard
@@ -45,9 +46,13 @@ make dashboard
 
 `make apply` uses the Talos maintenance API and applies `secrets/generated/controlplane.yaml`. That config installs Talos to the NVMe disk declared in `patches/controlplane/10-install.yaml` with `wipe: true`.
 
+After install, use `make apply-try` to apply authenticated config with Talos try-mode rollback, or `make apply-no-reboot` to apply authenticated config without rebooting.
+
 `make disks` is intended before installation and uses the insecure Talos maintenance API. After Talos is installed and the generated `talosconfig` works, use `make disks-auth`.
 
 `make dashboard` opens an authenticated interactive terminal UI and works after Talos is installed/configured. In maintenance mode use `make disks`, `make status`, and `make apply`; the dashboard command does not support the insecure maintenance API.
+
+Use `make reboot` to drain and reboot the installed node. Use `make shutdown` to drain and power it off. The `reboot-force` and `shutdown-force` targets skip graceful draining.
 
 After the node installs and reboots, run `make bootstrap`. The kubeconfig will be written to `secrets/kubeconfig`.
 
