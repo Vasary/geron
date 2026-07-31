@@ -26,10 +26,26 @@ spec:
           command:
             - sh
             - -c
-            - mkdir -p /shared/seafile/conf && chmod -R a+rwx /shared/seafile
+            - |
+              set -eu
+              mkdir -p /shared/seafile/conf
+              settings=/shared/seafile/conf/seahub_settings.py
+              tmp=/tmp/seahub_settings.py
+              touch "$settings"
+              awk '
+                /^# BEGIN VASARY OAUTH$/ { skip = 1; next }
+                /^# END VASARY OAUTH$/ { skip = 0; next }
+                !skip { print }
+              ' "$settings" > "$tmp"
+              sed '/^import os$/,/^LOGOUT_REDIRECT_URL = /d' "$tmp" > "$settings"
+              cat /oauth-config/seahub_settings.py >> "$settings"
+              rm -f "$tmp"
+              chmod -R a+rwx /shared/seafile
           volumeMounts:
             - name: shared
               mountPath: /shared
+            - name: oauth-config
+              mountPath: /oauth-config
       containers:
         - name: seafile
           image: seafileltd/seafile-mc:13.0.25
@@ -114,3 +130,6 @@ spec:
         - name: shared
           persistentVolumeClaim:
             claimName: seafile-shared
+        - name: oauth-config
+          configMap:
+            name: seafile-oauth-config

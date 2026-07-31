@@ -5,9 +5,8 @@ metadata:
   namespace: seafile
 data:
   seahub_settings.py: |
+    # BEGIN VASARY OAUTH
     import os
-
-    SECRET_KEY = os.environ["JWT_PRIVATE_KEY"]
 
     ENABLE_OAUTH = True
     OAUTH_CREATE_UNKNOWN_USER = True
@@ -28,4 +27,5 @@ data:
         "name": (False, "name"),
     }
 
-    LOGOUT_REDIRECT_URL = "https://auth.vasary.org/application/o/seafile/end-session/"
+    OAUTH_LOGOUT_URL = "https://auth.vasary.org/application/o/seafile/end-session/"
+    # END VASARY OAUTH
