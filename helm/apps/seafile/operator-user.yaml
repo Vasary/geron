@@ -11,7 +11,7 @@ spec:
     waitForIt: true
   name: seafile
   host: "%"
-  maxUserConnections: 10
+  maxUserConnections: 100
   passwordSecretKeyRef:
     name: seafile-secrets
     key: SEAFILE_MYSQL_DB_PASSWORD
