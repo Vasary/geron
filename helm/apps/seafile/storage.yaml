@@ -4,9 +4,9 @@ metadata:
   name: seafile-shared
   namespace: seafile
 spec:
-  storageClassName: local-path
+  storageClassName: archive-nfs
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 500Gi
