@@ -86,9 +86,6 @@ spec:
           volumeMounts:
             - name: shared
               mountPath: /shared
-            - name: oauth-config
-              mountPath: /shared/seafile/conf/seahub_settings.py
-              subPath: seahub_settings.py
           startupProbe:
             tcpSocket:
               port: http
@@ -115,6 +112,3 @@ spec:
         - name: shared
           persistentVolumeClaim:
             claimName: seafile-shared
-        - name: oauth-config
-          configMap:
-            name: seafile-oauth-config
