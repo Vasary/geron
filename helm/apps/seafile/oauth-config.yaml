@@ -4,6 +4,20 @@ metadata:
   name: seafile-oauth-config
   namespace: seafile
 data:
+  apply-oauth.sh: |
+    #!/bin/sh
+    set -eu
+    settings=/shared/seafile/conf/seahub_settings.py
+    tmp=/tmp/seahub_settings.py
+    mkdir -p "$(dirname "$settings")"
+    touch "$settings"
+    awk '
+      /^# BEGIN VASARY OAUTH$/ { skip = 1; next }
+      /^# END VASARY OAUTH$/ { skip = 0; next }
+      !skip { print }
+    ' "$settings" > "$tmp"
+    cat "$tmp" /oauth-config/seahub_settings.py > "$settings"
+    rm -f "$tmp"
   seahub_settings.py: |
     # BEGIN VASARY OAUTH
     import os

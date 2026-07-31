@@ -37,8 +37,7 @@ spec:
                 /^# END VASARY OAUTH$/ { skip = 0; next }
                 !skip { print }
               ' "$settings" > "$tmp"
-              sed '/^import os$/,/^LOGOUT_REDIRECT_URL = /d' "$tmp" > "$settings"
-              cat /oauth-config/seahub_settings.py >> "$settings"
+              cat "$tmp" /oauth-config/seahub_settings.py > "$settings"
               rm -f "$tmp"
               chmod -R a+rwx /shared/seafile
           volumeMounts:
@@ -50,6 +49,16 @@ spec:
         - name: seafile
           image: seafileltd/seafile-mc:13.0.25
           imagePullPolicy: IfNotPresent
+          command:
+            - /usr/bin/python3
+            - -u
+            - /sbin/my_init
+            - --
+            - /bin/bash
+            - -ec
+            - |
+              sed -i '/^[[:space:]]*init_seafile_server()$/a\    call("sh /oauth-config/apply-oauth.sh")' /scripts/start.py
+              exec /scripts/enterpoint.sh
           ports:
             - name: http
               containerPort: 80
@@ -104,6 +113,8 @@ spec:
           volumeMounts:
             - name: shared
               mountPath: /shared
+            - name: oauth-config
+              mountPath: /oauth-config
           startupProbe:
             tcpSocket:
               port: http
