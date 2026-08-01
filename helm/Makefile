@@ -10,10 +10,11 @@ SOPS_AGE_KEY_FILE ?= $(HOME)/.config/sops/age/keys.txt
 ARGOCD_SECRET_FILE ?= secrets/argocd.sops.yaml
 AUTHENTIK_SECRET_FILE ?= secrets/authentik.sops.yaml
 AUTHENTIK_ADMIN_USER ?= akadmin
+AUTHENTIK_BLUEPRINT_PATH ?= /blueprints/mounted/cm-authentik-blueprint-llm-proxy/llm-proxy.yaml
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets argocd-password authentik-bootstrap-password authentik-password github-runner-token
+.PHONY: help validate deploy deploy-secrets authentik-blueprints argocd-password authentik-bootstrap-password authentik-password github-runner-token
 
 help:
 	@printf '%s\n' \
@@ -21,6 +22,7 @@ help:
 		'  make validate        Validate Argo CD platform manifests' \
 		'  make deploy          Install Argo CD and bootstrap from git origin' \
 		'  make deploy-secrets  Decrypt and apply SOPS Kubernetes secrets' \
+		'  make authentik-blueprints Apply Authentik SSO blueprints manually' \
 		'  make argocd-password Generate encrypted break-glass Argo CD admin password' \
 		'  make authentik-bootstrap-password Generate encrypted Authentik bootstrap admin password' \
 		'  make authentik-password Reset live Authentik admin password and update bootstrap secret' \
@@ -35,7 +37,8 @@ help:
 		'  SOPS_AGE_KEY_FILE=$(SOPS_AGE_KEY_FILE)' \
 		'  ARGOCD_SECRET_FILE=$(ARGOCD_SECRET_FILE)' \
 		'  AUTHENTIK_SECRET_FILE=$(AUTHENTIK_SECRET_FILE)' \
-		'  AUTHENTIK_ADMIN_USER=$(AUTHENTIK_ADMIN_USER)'
+		'  AUTHENTIK_ADMIN_USER=$(AUTHENTIK_ADMIN_USER)' \
+		'  AUTHENTIK_BLUEPRINT_PATH=$(AUTHENTIK_BLUEPRINT_PATH)'
 
 validate:
 	@command -v kubectl >/dev/null
@@ -93,6 +96,11 @@ deploy-secrets:
 		printf 'Applying %s\n' "$$secret"; \
 		SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" sops -d "$$secret" | kubectl apply -f -; \
 	done
+
+authentik-blueprints:
+	@command -v kubectl >/dev/null
+	@kubectl apply -k apps/authentik
+	@kubectl -n authentik exec deploy/authentik-worker -- ak apply_blueprint "$(AUTHENTIK_BLUEPRINT_PATH)"
 
 argocd-password:
 	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-argocd-admin-password.sh "$(ARGOCD_SECRET_FILE)"
