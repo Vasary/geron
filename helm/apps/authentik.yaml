@@ -33,6 +33,7 @@ spec:
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
               - authentik-blueprint-librechat
+              - authentik-blueprint-llm-proxy
               - authentik-blueprint-outline
               - authentik-blueprint-paperless
               - authentik-blueprint-seafile

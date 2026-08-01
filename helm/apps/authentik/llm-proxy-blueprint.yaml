@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-llm-proxy
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  llm-proxy.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-llm-proxy-oauth
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_core.group
+        id: llm-proxy-admins-group
+        state: present
+        identifiers:
+          name: llm-proxy-admins
+        attrs:
+          name: llm-proxy-admins
+      - model: authentik_providers_oauth2.scopemapping
+        id: llm-proxy-role-scope
+        state: present
+        identifiers:
+          name: llm-proxy-role
+        attrs:
+          name: llm-proxy-role
+          scope_name: litellm_role
+          description: LiteLLM admin role claim
+          expression: |
+            return {
+                "litellm_role": "proxy_admin",
+            }
+      - model: authentik_providers_oauth2.oauth2provider
+        id: llm-proxy-oauth-provider
+        state: present
+        identifiers:
+          name: llm-proxy
+        attrs:
+          name: llm-proxy
+          client_type: confidential
+          client_id: llm-proxy
+          client_secret: !Env [LITELLM_OAUTH_CLIENT_SECRET, ""]
+          grant_types:
+            - authorization_code
+            - refresh_token
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+            - !KeyOf llm-proxy-role-scope
+          redirect_uris:
+            - matching_mode: strict
+              url: https://llm-proxy.vasary.org/sso/callback
+          sub_mode: user_email
+          issuer_mode: per_provider
+      - model: authentik_core.application
+        id: llm-proxy-application
+        state: present
+        identifiers:
+          slug: llm-proxy
+        attrs:
+          name: LiteLLM
+          slug: llm-proxy
+          provider: !KeyOf llm-proxy-oauth-provider
+          policy_engine_mode: any
+          meta_launch_url: https://llm-proxy.vasary.org/ui
+          open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: llm-proxy-admins-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf llm-proxy-application
+          group: !KeyOf llm-proxy-admins-group
+          order: 0
+        attrs:
+          target: !KeyOf llm-proxy-application
+          group: !KeyOf llm-proxy-admins-group
+          order: 0

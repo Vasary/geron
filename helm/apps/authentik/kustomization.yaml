@@ -7,6 +7,7 @@ resources:
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
   - librechat-blueprint.yaml
+  - llm-proxy-blueprint.yaml
   - outline-blueprint.yaml
   - paperless-blueprint.yaml
   - postgres-backup.yaml

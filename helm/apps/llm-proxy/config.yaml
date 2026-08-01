@@ -7,6 +7,9 @@ data:
   config.yaml: |
     general_settings:
       master_key: os.environ/LITELLM_MASTER_KEY
+      store_model_in_db: true
+      ui_access_mode: admin_only
+      default_team_disabled: true
     litellm_settings:
       drop_params: true
       set_verbose: false
