@@ -34,6 +34,7 @@ patches:
                 fi
                 sleep 5
               done
+              export RCLONE_CONFIG=/tmp/rclone.conf
               export RCLONE_CONFIG_BACKUP_TYPE=sftp
               export RCLONE_CONFIG_BACKUP_HOST="$SFTP_HOST"
               export RCLONE_CONFIG_BACKUP_PORT="$SFTP_PORT"
