@@ -7,19 +7,31 @@ data:
   settings.yaml: |
     title: Vasary Cluster
     description: Cluster welcome board
+    theme: dark
+    color: zinc
     language: en
     target: _blank
     hideVersion: true
     disableIndexing: true
+    showStats: true
     statusStyle: dot
-    headerStyle: boxedWidgets
+    headerStyle: clean
+    cardBlur: xs
+    quicklaunch:
+      searchDescriptions: true
+      provider: google
+      showSearchSuggestions: true
+      hideVisitURL: false
     layout:
+      Quick Links:
+        style: row
+        columns: 6
       Platform:
         style: row
         columns: 4
       AI:
         style: row
-        columns: 3
+        columns: 2
       Documents:
         style: row
         columns: 4
@@ -32,9 +44,12 @@ data:
       Finance:
         style: row
         columns: 2
+      Cluster Status:
+        style: row
+        columns: 5
       Observability:
         style: row
-        columns: 3
+        columns: 2
 
   kubernetes.yaml: |
     mode: cluster
@@ -45,6 +60,11 @@ data:
     {}
 
   widgets.yaml: |
+    - search:
+        provider: google
+        focus: true
+        showSearchSuggestions: true
+        target: _blank
     - kubernetes:
         cluster:
           show: true
@@ -77,6 +97,34 @@ data:
             - href: https://github.com/gethomepage/homepage/releases
 
   services.yaml: |
+    - Quick Links:
+        - Google:
+            icon: google.png
+            href: https://www.google.com/
+            description: Web search
+        - Gmail:
+            icon: gmail.png
+            href: https://mail.google.com/
+            description: Mail
+        - LinkedIn:
+            icon: linkedin.png
+            href: https://www.linkedin.com/
+            description: Professional network
+        - Cloudflare Zero Trust:
+            icon: cloudflare.png
+            href: https://one.dash.cloudflare.com/
+            description: Access, tunnels, policies
+        - Cloudflare DNS:
+            icon: cloudflare.png
+            href: https://dash.cloudflare.com/?to=/:account/:zone/dns
+            description: DNS dashboard
+        - Pi-hole:
+            icon: pi-hole.png
+            href: https://dns.cfv3.org/
+            description: Local DNS filtering
+            siteMonitor: https://dns.cfv3.org/
+            statusStyle: dot
+
     - Platform:
         - Argo CD:
             icon: argo-cd.png
@@ -125,13 +173,6 @@ data:
             siteMonitor: http://llm-proxy.llm-proxy.svc.cluster.vasary.org:4000/health/liveliness
             namespace: llm-proxy
             app: llm-proxy
-            statusStyle: dot
-        - MCP Services:
-            icon: kubernetes.png
-            href: https://chat.vasary.org/
-            description: Memory, Paperless, MikroTik, Pi-hole MCP
-            namespace: mcp
-            podSelector: ""
             statusStyle: dot
 
     - Documents:
@@ -247,8 +288,57 @@ data:
                   label: EUR / oz
                   format: float
 
-    - Observability:
-        - Node Disk:
+    - Cluster Status:
+        - Nodes Ready:
+            icon: kubernetes.png
+            href: https://grafana.vasary.org/
+            description: Ready Kubernetes nodes
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=count(kube_node_status_condition%7Bcondition%3D%22Ready%22%2Cstatus%3D%22true%22%7D)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: ready
+                  format: number
+        - Pods Pending:
+            icon: kubernetes.png
+            href: https://prometheus.vasary.org/
+            description: Pods pending, failed, or unknown
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=sum(kube_pod_status_phase%7Bphase%3D~%22Pending%7CFailed%7CUnknown%22%7D)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: pods
+                  format: number
+        - Deployments Unavailable:
+            icon: alertmanager.png
+            href: https://prometheus.vasary.org/
+            description: Unavailable deployment replicas
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=sum(kube_deployment_status_replicas_unavailable)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: replicas
+                  format: number
+        - PVC Storage:
+            icon: mdi-harddisk
+            href: https://grafana.vasary.org/
+            description: Persistent volume claim usage
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20sum(kubelet_volume_stats_used_bytes)%20/%20sum(kubelet_volume_stats_capacity_bytes)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: used
+                  format: float
+                  suffix: "%"
+        - Node Filesystems:
             icon: prometheus.png
             href: https://grafana.vasary.org/
             description: Node filesystem usage from Prometheus
@@ -261,28 +351,17 @@ data:
                   label: used
                   format: float
                   suffix: "%"
-        - PVC Disk:
-            icon: kubernetes.png
+
+    - Observability:
+        - Grafana Storage:
+            icon: grafana.png
             href: https://grafana.vasary.org/
-            description: Persistent volume claim usage
-            widget:
-              type: customapi
-              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20sum(kubelet_volume_stats_used_bytes)%20/%20sum(kubelet_volume_stats_capacity_bytes)
-              refreshInterval: 30000
-              mappings:
-                - field: data.result.0.value.1
-                  label: used
-                  format: float
-                  suffix: "%"
-        - Workloads Down:
-            icon: alertmanager.png
+            description: Detailed disk, PVC, and node dashboards
+            siteMonitor: https://grafana.vasary.org/
+            statusStyle: dot
+        - Prometheus Targets:
+            icon: prometheus.png
             href: https://prometheus.vasary.org/
-            description: Desired replicas without availability
-            widget:
-              type: customapi
-              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=sum(kube_deployment_spec_replicas%20%3E%200%20and%20on(namespace,deployment)%20kube_deployment_status_replicas_available%20%3C%20kube_deployment_spec_replicas)
-              refreshInterval: 30000
-              mappings:
-                - field: data.result.0.value.1
-                  label: affected
-                  format: number
+            description: PromQL, targets, and alerts
+            siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/-/healthy
+            statusStyle: dot
