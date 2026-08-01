@@ -46,7 +46,7 @@ data:
         columns: 4
       Cluster Status:
         style: row
-        columns: 4
+        columns: 6
 
   kubernetes.yaml: |
     mode: cluster
@@ -65,18 +65,6 @@ data:
         focus: true
         showSearchSuggestions: true
         target: _blank
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: cluster.vasary.org
-        nodes:
-          show: false
-          cpu: true
-          memory: true
-          showLabel: true
     - datetime:
         text_size: xl
         format:
@@ -253,6 +241,32 @@ data:
             statusStyle: dot
 
     - Cluster Status:
+        - CPU Usage:
+            icon: mdi-cpu-64-bit
+            href: https://grafana.vasary.org/
+            description: Cluster CPU usage
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20(1%20-%20avg(rate(node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B5m%5D)))
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: used
+                  format: float
+                  suffix: "%"
+        - RAM Usage:
+            icon: mdi-memory
+            href: https://grafana.vasary.org/
+            description: Cluster memory usage
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20(1%20-%20(sum(node_memory_MemAvailable_bytes)%20/%20sum(node_memory_MemTotal_bytes)))
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: used
+                  format: float
+                  suffix: "%"
         - Nodes Ready:
             icon: kubernetes.png
             href: https://grafana.vasary.org/
