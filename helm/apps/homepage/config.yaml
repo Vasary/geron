@@ -23,27 +23,27 @@ data:
       showSearchSuggestions: true
       hideVisitURL: false
     layout:
+      Finance:
+        style: row
+        columns: 2
       Quick Links:
         style: row
         columns: 6
       Platform:
         style: row
-        columns: 4
+        columns: 6
       AI:
         style: row
-        columns: 2
+        columns: 4
       Documents:
         style: row
-        columns: 4
+        columns: 6
       Media:
         style: row
-        columns: 3
+        columns: 4
       Apps:
         style: row
-        columns: 2
-      Finance:
-        style: row
-        columns: 2
+        columns: 4
       Cluster Status:
         style: row
         columns: 5
@@ -73,7 +73,7 @@ data:
           showLabel: true
           label: cluster.vasary.org
         nodes:
-          show: true
+          show: false
           cpu: true
           memory: true
           showLabel: true
@@ -97,6 +97,41 @@ data:
             - href: https://github.com/gethomepage/homepage/releases
 
   services.yaml: |
+    - Finance:
+        - USD Rates:
+            icon: mdi-currency-usd
+            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
+            description: Daily keyless FX snapshot
+            widget:
+              type: customapi
+              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
+              refreshInterval: 3600000
+              mappings:
+                - field: usd.eur
+                  label: EUR
+                  format: float
+                - field: usd.kgs
+                  label: KGS
+                  format: float
+                - field: usd.rub
+                  label: RUB
+                  format: float
+        - Gold:
+            icon: mdi-gold
+            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
+            description: XAU quoted in USD
+            widget:
+              type: customapi
+              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
+              refreshInterval: 3600000
+              mappings:
+                - field: xau.usd
+                  label: USD / oz
+                  format: float
+                - field: xau.eur
+                  label: EUR / oz
+                  format: float
+
     - Quick Links:
         - Google:
             icon: google.png
@@ -120,9 +155,9 @@ data:
             description: DNS dashboard
         - Pi-hole:
             icon: pi-hole.png
-            href: https://dns.cfv3.org/
+            href: https://dns.cfv3.org/admin/login
             description: Local DNS filtering
-            siteMonitor: https://dns.cfv3.org/
+            siteMonitor: https://dns.cfv3.org/admin/login
             statusStyle: dot
 
     - Platform:
@@ -252,41 +287,6 @@ data:
             namespace: coins-inventory
             app: coins-inventory
             statusStyle: dot
-
-    - Finance:
-        - USD Rates:
-            icon: mdi-currency-usd
-            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
-            description: Daily keyless FX snapshot
-            widget:
-              type: customapi
-              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
-              refreshInterval: 3600000
-              mappings:
-                - field: usd.eur
-                  label: EUR
-                  format: float
-                - field: usd.kgs
-                  label: KGS
-                  format: float
-                - field: usd.rub
-                  label: RUB
-                  format: float
-        - Gold:
-            icon: mdi-gold
-            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
-            description: XAU quoted in USD
-            widget:
-              type: customapi
-              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
-              refreshInterval: 3600000
-              mappings:
-                - field: xau.usd
-                  label: USD / oz
-                  format: float
-                - field: xau.eur
-                  label: EUR / oz
-                  format: float
 
     - Cluster Status:
         - Nodes Ready:
