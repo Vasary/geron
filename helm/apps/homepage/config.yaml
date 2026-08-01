@@ -28,7 +28,7 @@ data:
         columns: 2
       Quick Links:
         style: row
-        columns: 7
+        columns: 9
       Platform:
         style: row
         columns: 6
@@ -47,9 +47,6 @@ data:
       Cluster Status:
         style: row
         columns: 5
-      Observability:
-        style: row
-        columns: 2
 
   kubernetes.yaml: |
     mode: cluster
@@ -58,6 +55,9 @@ data:
 
   docker.yaml: |
     {}
+
+  bookmarks.yaml: |
+    []
 
   widgets.yaml: |
     - search:
@@ -132,6 +132,14 @@ data:
             icon: linkedin.png
             href: https://www.linkedin.com/
             description: Professional network
+        - GitHub:
+            icon: github.png
+            href: https://github.com/
+            description: Code and repositories
+        - YouTube:
+            icon: youtube.png
+            href: https://www.youtube.com/
+            description: Video
         - Cloudflare Zero Trust:
             icon: cloudflare.png
             href: https://one.dash.cloudflare.com/
@@ -156,33 +164,27 @@ data:
     - Platform:
         - Argo CD:
             icon: argo-cd.png
-            href: https://argocd.vasary.org/
+            href: https://vasary.org/
             description: GitOps control plane
-            siteMonitor: https://argocd.vasary.org/
+            siteMonitor: http://argocd-server.argocd.svc.cluster.vasary.org
             statusStyle: dot
         - Authentik:
             icon: authentik.png
             href: https://auth.vasary.org/
             description: SSO and access policies
-            siteMonitor: https://auth.vasary.org/
-            namespace: authentik
-            app: authentik
+            siteMonitor: http://authentik-server.authentik.svc.cluster.vasary.org
             statusStyle: dot
         - Grafana:
             icon: grafana.png
             href: https://grafana.vasary.org/
             description: Metrics and dashboards
-            siteMonitor: https://grafana.vasary.org/
-            namespace: monitoring
-            app: grafana
+            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.vasary.org
             statusStyle: dot
         - Prometheus:
             icon: prometheus.png
             href: https://prometheus.vasary.org/
             description: Metrics backend
             siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/-/healthy
-            namespace: monitoring
-            app: prometheus
             statusStyle: dot
 
     - AI:
@@ -191,16 +193,12 @@ data:
             href: https://chat.vasary.org/
             description: Chat UI via LiteLLM
             siteMonitor: https://chat.vasary.org/
-            namespace: librechat
-            app: librechat
             statusStyle: dot
         - LiteLLM:
             icon: openai.png
             href: https://llm-proxy.vasary.org/ui
             description: LLM gateway and model access
-            siteMonitor: http://llm-proxy.llm-proxy.svc.cluster.vasary.org:4000/health/liveliness
-            namespace: llm-proxy
-            app: llm-proxy
+            siteMonitor: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/health/liveliness
             statusStyle: dot
 
     - Documents:
@@ -209,32 +207,24 @@ data:
             href: https://docs.vasary.org/
             description: Documents and archive
             siteMonitor: https://docs.vasary.org/
-            namespace: paperless
-            app: paperless
             statusStyle: dot
         - Outline:
             icon: outline.png
             href: https://outline.vasary.org/
             description: Knowledge base
             siteMonitor: https://outline.vasary.org/
-            namespace: outline
-            app: outline
             statusStyle: dot
         - Seafile:
             icon: seafile.png
             href: https://seafile.vasary.org/
             description: File sync and sharing
             siteMonitor: https://seafile.vasary.org/
-            namespace: seafile
-            app: seafile
             statusStyle: dot
         - Stirling PDF:
             icon: stirling-pdf.png
             href: https://stirling-pdf.vasary.org/
             description: PDF tools
-            siteMonitor: https://stirling-pdf.vasary.org/
-            namespace: stirling-pdf
-            app: stirling-pdf
+            siteMonitor: http://stirling-pdf.stirling-pdf.svc.cluster.vasary.org/login
             statusStyle: dot
 
     - Media:
@@ -243,24 +233,18 @@ data:
             href: https://immich.vasary.org/
             description: Photos and videos
             siteMonitor: https://immich.vasary.org/
-            namespace: immich
-            app: immich
             statusStyle: dot
         - Jellyfin:
             icon: jellyfin.png
             href: https://jellyfin.vasary.org/
             description: Media library
-            siteMonitor: https://jellyfin.vasary.org/
-            namespace: media
-            app: jellyfin
+            siteMonitor: http://jellyfin.media.svc.cluster.vasary.org/health
             statusStyle: dot
         - Seasonvar:
             icon: mdi-television-classic
             href: https://seasonvar.vasary.org/
             description: Protected streaming helper
-            siteMonitor: https://seasonvar.vasary.org/
-            namespace: media
-            app: seasonvar
+            siteMonitor: http://seasonvar.media.svc.cluster.vasary.org/health
             statusStyle: dot
 
     - Apps:
@@ -269,16 +253,12 @@ data:
             href: https://key.vasary.org/
             description: Password vault
             siteMonitor: https://key.vasary.org/
-            namespace: vaultwarden
-            app: vaultwarden
             statusStyle: dot
         - Coins Inventory:
             icon: mdi-coins
             href: https://coins-inventory.vasary.org/
             description: Collection inventory
-            siteMonitor: https://coins-inventory.vasary.org/
-            namespace: coins-inventory
-            app: coins-inventory
+            siteMonitor: http://coins-inventory.coins-inventory.svc.cluster.vasary.org/api/maintenance/health
             statusStyle: dot
 
     - Cluster Status:
@@ -344,17 +324,3 @@ data:
                   label: used
                   format: float
                   suffix: "%"
-
-    - Observability:
-        - Grafana Storage:
-            icon: grafana.png
-            href: https://grafana.vasary.org/
-            description: Detailed disk, PVC, and node dashboards
-            siteMonitor: https://grafana.vasary.org/
-            statusStyle: dot
-        - Prometheus Targets:
-            icon: prometheus.png
-            href: https://prometheus.vasary.org/
-            description: PromQL, targets, and alerts
-            siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/-/healthy
-            statusStyle: dot
