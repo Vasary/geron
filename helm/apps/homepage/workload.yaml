@@ -45,10 +45,6 @@ spec:
               subPath: services.yaml
               readOnly: true
             - name: config
-              mountPath: /app/config/bookmarks.yaml
-              subPath: bookmarks.yaml
-              readOnly: true
-            - name: config
               mountPath: /app/config/kubernetes.yaml
               subPath: kubernetes.yaml
               readOnly: true

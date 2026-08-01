@@ -28,7 +28,7 @@ data:
         columns: 2
       Quick Links:
         style: row
-        columns: 6
+        columns: 7
       Platform:
         style: row
         columns: 6
@@ -82,19 +82,6 @@ data:
         format:
           timeStyle: short
           dateStyle: medium
-
-  bookmarks.yaml: |
-    - News:
-        - Hacker News:
-            - href: https://news.ycombinator.com/
-        - Kubernetes Blog:
-            - href: https://kubernetes.io/blog/
-        - CNCF Blog:
-            - href: https://www.cncf.io/blog/
-        - LiteLLM Releases:
-            - href: https://github.com/BerriAI/litellm/releases
-        - Homepage Releases:
-            - href: https://github.com/gethomepage/homepage/releases
 
   services.yaml: |
     - Finance:
@@ -158,6 +145,12 @@ data:
             href: https://dns.cfv3.org/admin/login
             description: Local DNS filtering
             siteMonitor: https://dns.cfv3.org/admin/login
+            statusStyle: dot
+        - NAS:
+            icon: mdi-nas
+            href: https://nas.cfv3.org/
+            description: Network storage
+            siteMonitor: https://nas.cfv3.org/
             statusStyle: dot
 
     - Platform:
