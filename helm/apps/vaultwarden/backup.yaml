@@ -3,6 +3,8 @@ kind: CronJob
 metadata:
   name: vaultwarden-backup
   namespace: vaultwarden
+  labels:
+    geron.io/sftp-backup: "true"
 spec:
   schedule: "15 3 * * *"
   timeZone: Europe/Berlin
@@ -60,45 +62,6 @@ spec:
                   memory: 128Mi
                 limits:
                   memory: 512Mi
-            - name: sftp-upload
-              image: rclone/rclone:1.68
-              imagePullPolicy: IfNotPresent
-              securityContext:
-                runAsNonRoot: true
-                runAsUser: 1000
-                runAsGroup: 1000
-                allowPrivilegeEscalation: false
-                capabilities:
-                  drop:
-                    - ALL
-              envFrom:
-                - secretRef:
-                    name: sftp-backup-credentials
-              command:
-                - /bin/sh
-                - -ec
-                - |
-                  while [ ! -f /backup-work/.done ]; do
-                    if [ -f /backup-work/.failed ]; then
-                      exit 1
-                    fi
-                    sleep 5
-                  done
-                  export RCLONE_CONFIG_BACKUP_TYPE=sftp
-                  export RCLONE_CONFIG_BACKUP_HOST="$SFTP_HOST"
-                  export RCLONE_CONFIG_BACKUP_PORT="$SFTP_PORT"
-                  export RCLONE_CONFIG_BACKUP_USER="$SFTP_USER"
-                  export RCLONE_CONFIG_BACKUP_PASS="$(rclone obscure "$SFTP_PASSWORD")"
-                  rclone copy /backup-work backup:/ --create-empty-src-dirs --stats-one-line
-              volumeMounts:
-                - name: backup-work
-                  mountPath: /backup-work
-              resources:
-                requests:
-                  cpu: 50m
-                  memory: 64Mi
-                limits:
-                  memory: 256Mi
           volumes:
             - name: data
               persistentVolumeClaim:

@@ -79,7 +79,8 @@ This cluster depends on a few services outside Kubernetes:
   - Legacy PVC storage (`nfs`): `/mnt/blaze/k8s/pvc`
   - General PVC storage (`archive-nfs`): `/mnt/archive/kubernetes`
   - NVMe local PVC storage (`local-path-nvme`): `/var/mnt/local-path-nvme`
-  - Backup storage: `/mnt/archive/backups`
+- SFTP backup server `10.10.0.4:2022`
+  - Kubernetes backup jobs authenticate with `sftp-backup-credentials`.
 - Local DNS/Pi-hole at `10.10.0.2`
   - Used by Talos DNS/NTP settings and external-dns.
 - Default gateway on `10.10.0.1`.
@@ -92,22 +93,28 @@ This cluster depends on a few services outside Kubernetes:
 - SOPS age key at `~/.config/sops/age/keys.txt`
   - Required to decrypt and apply secrets.
 
-The NFS backup storage class creates subdirectories under
-`10.10.10.4:/mnt/archive/backups` using the namespace, PVC name, and PV name.
-
 ## Backups
 
-Database backups are plain Kubernetes `CronJob` resources that write compressed
-dumps to the `backup-nfs` storage class.
+Backups are plain Kubernetes `CronJob` resources. Jobs write dump/export data to
+an `emptyDir` work directory and a shared `rclone` sidecar uploads the result to
+the SFTP backup server.
 
 - Authentik PostgreSQL
 - Immich PostgreSQL
+- LLM Proxy PostgreSQL
 - Outline PostgreSQL
+- Paperless PostgreSQL and document export
 - Seasonvar PostgreSQL
 - Seafile MariaDB
+- Vaultwarden SQLite and data archive
 
-The jobs run daily, keep successful and failed job history in Kubernetes, and
-delete dump files older than 120 hours from their backup directory.
+The reusable uploader lives in
+`helm/apps/components/sftp-backup-uploader`. Backup CronJobs opt in with the
+`geron.io/sftp-backup: "true"` label and must provide a `backup-work` volume.
+
+The SFTP directory layout follows the application name, for example
+`paperless/postgres`, `paperless/export-<timestamp>`, `vaultwarden`, and
+`seafile`.
 
 ## Common Commands
 
