@@ -178,7 +178,7 @@ data:
             icon: grafana.png
             href: https://grafana.vasary.org/
             description: Metrics and dashboards
-            siteMonitor: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.vasary.org
+            siteMonitor: https://grafana.vasary.org/
             statusStyle: dot
         - Prometheus:
             icon: prometheus.png
@@ -192,7 +192,7 @@ data:
             icon: librechat.png
             href: https://chat.vasary.org/
             description: Chat UI via LiteLLM
-            siteMonitor: https://chat.vasary.org/
+            siteMonitor: http://librechat.librechat.svc.cluster.vasary.org:3080/health
             statusStyle: dot
         - LiteLLM:
             icon: openai.png

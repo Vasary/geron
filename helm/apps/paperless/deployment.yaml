@@ -54,6 +54,10 @@ spec:
               value: deu
             - name: PAPERLESS_OCR_LANGUAGES
               value: rus eng deu ukr kir
+            - name: PAPERLESS_TASK_WORKERS
+              value: '1'
+            - name: PAPERLESS_THREADS_PER_WORKER
+              value: '1'
             - name: PAPERLESS_CONSUMER_AUTO_IMPORT
               value: 'true'
             - name: PAPERLESS_CONSUMER_POLLING
