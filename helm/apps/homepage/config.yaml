@@ -13,7 +13,7 @@ data:
     target: _blank
     hideVersion: true
     disableIndexing: true
-    showStats: true
+    showStats: false
     statusStyle: dot
     headerStyle: clean
     cardBlur: xs
