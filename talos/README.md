@@ -30,6 +30,8 @@ make apply
 make apply-try
 make bootstrap
 make health
+make upgrade
+make upgrade-k8s
 make dashboard
 ```
 
@@ -53,6 +55,10 @@ After install, use `make apply-try` to apply authenticated config with Talos try
 `make dashboard` opens an authenticated interactive terminal UI and works after Talos is installed/configured. In maintenance mode use `make disks`, `make status`, and `make apply`; the dashboard command does not support the insecure maintenance API.
 
 Use `make reboot` to drain and reboot the installed node. Use `make shutdown` to drain and power it off. The `reboot-force` and `shutdown-force` targets skip graceful draining.
+
+Use `make upgrade` to interactively upgrade the installed Talos node. It asks for the target Talos version, confirms it, and runs `talosctl upgrade --image ghcr.io/siderolabs/installer:<version> --wait --drain=false`. Drain is disabled for this single-node cluster because workloads have no other node to move to during eviction.
+
+Use `make upgrade-k8s` to interactively upgrade Kubernetes through Talos. It asks for the target Kubernetes version, prints `talosctl upgrade-k8s --dry-run --to <version>`, confirms it, and then runs the upgrade. Talos OS and Kubernetes upgrades are separate operations.
 
 After the node installs and reboots, run `make bootstrap`. The kubeconfig will be written to `secrets/kubeconfig`.
 

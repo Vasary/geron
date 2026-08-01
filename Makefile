@@ -19,6 +19,8 @@ help:
 		'Examples:' \
 		'  make talos config' \
 		'  make talos apply-try' \
+		'  make talos upgrade' \
+		'  make talos upgrade-k8s' \
 		'  make talos reboot' \
 		'  make helm validate' \
 		'  make helm deploy' \

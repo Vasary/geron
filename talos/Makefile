@@ -4,7 +4,7 @@ CONFIG ?= cluster.ini
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check netcheck status secrets config validate apply apply-try apply-no-reboot apply-auth apply-auth-confirm bootstrap kubeconfig install-configs disks disks-auth dashboard health reboot reboot-force shutdown shutdown-force talosconfig talosconfig-install clean-manifests
+.PHONY: help check netcheck status secrets config validate apply apply-try apply-no-reboot apply-auth apply-auth-confirm bootstrap kubeconfig install-configs disks disks-auth dashboard health upgrade upgrade-k8s reboot reboot-force shutdown shutdown-force talosconfig talosconfig-install clean-manifests
 
 help:
 	@printf '%s\n' \
@@ -25,6 +25,8 @@ help:
 		'  make install-configs  Install talosconfig and kubeconfig into home' \
 		'  make dashboard        Open talosctl dashboard' \
 		'  make health           Run talosctl health' \
+		'  make upgrade          Interactively upgrade Talos OS on the node' \
+		'  make upgrade-k8s      Interactively upgrade Kubernetes via Talos' \
 		'  make reboot           Drain and reboot the Talos node' \
 		'  make reboot-force     Reboot the Talos node without drain' \
 		'  make shutdown         Drain and shut down the Talos node' \
@@ -95,6 +97,12 @@ dashboard:
 
 health:
 	@playbooks/talos.sh "$(CONFIG)" health
+
+upgrade:
+	@playbooks/upgrade.sh "$(CONFIG)"
+
+upgrade-k8s:
+	@playbooks/upgrade-k8s.sh "$(CONFIG)"
 
 reboot:
 	@playbooks/node-action.sh "$(CONFIG)" reboot
