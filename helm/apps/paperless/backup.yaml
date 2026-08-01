@@ -196,7 +196,7 @@ spec:
                   stamp="$(date -u +%Y%m%dT%H%M%SZ)"
                   target_dir="/backup-work/paperless/export-$stamp"
                   mkdir -p "$target_dir"
-                  document_exporter --no-progress-bar "$target_dir"
+                  python manage.py document_exporter --no-progress-bar "$target_dir"
                   ) || { touch /backup-work/.failed; exit 1; }
                   touch /backup-work/.done
               volumeMounts:
