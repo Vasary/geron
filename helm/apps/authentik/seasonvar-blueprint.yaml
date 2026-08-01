@@ -23,6 +23,13 @@ data:
           name: seasonvar-users
         attrs:
           name: seasonvar-users
+      - model: authentik_core.group
+        id: homepage-users-group
+        state: present
+        identifiers:
+          name: homepage-users
+        attrs:
+          name: homepage-users
       - model: authentik_providers_proxy.proxyprovider
         id: seasonvar-proxy-provider
         state: present
@@ -46,6 +53,29 @@ data:
             - matching_mode: strict
               url: https://seasonvar.vasary.org?X-authentik-auth-callback=true
               redirect_uri_type: authorization
+      - model: authentik_providers_proxy.proxyprovider
+        id: homepage-proxy-provider
+        state: present
+        identifiers:
+          name: homepage
+        attrs:
+          name: homepage
+          mode: forward_single
+          grant_types:
+            - authorization_code
+          external_host: https://home.vasary.org
+          internal_host: http://homepage.homepage.svc.cluster.vasary.org
+          internal_host_ssl_validation: true
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          cookie_domain: vasary.org
+          redirect_uris:
+            - matching_mode: strict
+              url: https://home.vasary.org/outpost.goauthentik.io/callback?X-authentik-auth-callback=true
+              redirect_uri_type: authorization
+            - matching_mode: strict
+              url: https://home.vasary.org?X-authentik-auth-callback=true
+              redirect_uri_type: authorization
       - model: authentik_core.application
         id: seasonvar-application
         state: present
@@ -58,6 +88,18 @@ data:
           policy_engine_mode: any
           meta_launch_url: https://seasonvar.vasary.org/
           open_in_new_tab: true
+      - model: authentik_core.application
+        id: homepage-application
+        state: present
+        identifiers:
+          slug: homepage
+        attrs:
+          name: Homepage
+          slug: homepage
+          provider: !KeyOf homepage-proxy-provider
+          policy_engine_mode: any
+          meta_launch_url: https://home.vasary.org/
+          open_in_new_tab: true
       - model: authentik_policies.policybinding
         id: seasonvar-users-policy-binding
         state: present
@@ -69,6 +111,17 @@ data:
           target: !KeyOf seasonvar-application
           group: !KeyOf seasonvar-users-group
           order: 0
+      - model: authentik_policies.policybinding
+        id: homepage-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf homepage-application
+          group: !KeyOf homepage-users-group
+          order: 0
+        attrs:
+          target: !KeyOf homepage-application
+          group: !KeyOf homepage-users-group
+          order: 0
       - model: authentik_outposts.outpost
         id: authentik-embedded-outpost
         state: present
@@ -77,3 +130,4 @@ data:
         attrs:
           providers:
             - !KeyOf seasonvar-proxy-provider
+            - !KeyOf homepage-proxy-provider

@@ -13,6 +13,7 @@ resources:
   - external-dns.yaml
   - external-secrets.yaml
   - github-runner-geron.yaml
+  - homepage.yaml
   - immich.yaml
   - jellyfin.yaml
   - local-path-provisioner.yaml

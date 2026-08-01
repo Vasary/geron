@@ -1,0 +1,288 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: homepage
+data:
+  settings.yaml: |
+    title: Vasary Cluster
+    description: Cluster welcome board
+    language: en
+    target: _blank
+    hideVersion: true
+    disableIndexing: true
+    statusStyle: dot
+    headerStyle: boxedWidgets
+    layout:
+      Platform:
+        style: row
+        columns: 4
+      AI:
+        style: row
+        columns: 3
+      Documents:
+        style: row
+        columns: 4
+      Media:
+        style: row
+        columns: 3
+      Apps:
+        style: row
+        columns: 2
+      Finance:
+        style: row
+        columns: 2
+      Observability:
+        style: row
+        columns: 3
+
+  kubernetes.yaml: |
+    mode: cluster
+    ingress: true
+    traefik: true
+
+  docker.yaml: |
+    {}
+
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: cluster.vasary.org
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - datetime:
+        text_size: xl
+        format:
+          timeStyle: short
+          dateStyle: medium
+
+  bookmarks.yaml: |
+    - News:
+        - Hacker News:
+            - href: https://news.ycombinator.com/
+        - Kubernetes Blog:
+            - href: https://kubernetes.io/blog/
+        - CNCF Blog:
+            - href: https://www.cncf.io/blog/
+        - LiteLLM Releases:
+            - href: https://github.com/BerriAI/litellm/releases
+        - Homepage Releases:
+            - href: https://github.com/gethomepage/homepage/releases
+
+  services.yaml: |
+    - Platform:
+        - Argo CD:
+            icon: argo-cd.png
+            href: https://argocd.vasary.org/
+            description: GitOps control plane
+            siteMonitor: https://argocd.vasary.org/
+            statusStyle: dot
+        - Authentik:
+            icon: authentik.png
+            href: https://auth.vasary.org/
+            description: SSO and access policies
+            siteMonitor: https://auth.vasary.org/
+            namespace: authentik
+            app: authentik
+            statusStyle: dot
+        - Grafana:
+            icon: grafana.png
+            href: https://grafana.vasary.org/
+            description: Metrics and dashboards
+            siteMonitor: https://grafana.vasary.org/
+            namespace: monitoring
+            app: grafana
+            statusStyle: dot
+        - Prometheus:
+            icon: prometheus.png
+            href: https://prometheus.vasary.org/
+            description: Metrics backend
+            siteMonitor: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/-/healthy
+            namespace: monitoring
+            app: prometheus
+            statusStyle: dot
+
+    - AI:
+        - LibreChat:
+            icon: librechat.png
+            href: https://chat.vasary.org/
+            description: Chat UI via LiteLLM
+            siteMonitor: https://chat.vasary.org/
+            namespace: librechat
+            app: librechat
+            statusStyle: dot
+        - LiteLLM:
+            icon: openai.png
+            href: https://llm-proxy.vasary.org/ui
+            description: LLM gateway and model access
+            siteMonitor: http://llm-proxy.llm-proxy.svc.cluster.vasary.org:4000/health/liveliness
+            namespace: llm-proxy
+            app: llm-proxy
+            statusStyle: dot
+        - MCP Services:
+            icon: kubernetes.png
+            href: https://chat.vasary.org/
+            description: Memory, Paperless, MikroTik, Pi-hole MCP
+            namespace: mcp
+            podSelector: ""
+            statusStyle: dot
+
+    - Documents:
+        - Paperless:
+            icon: paperless-ngx.png
+            href: https://docs.vasary.org/
+            description: Documents and archive
+            siteMonitor: https://docs.vasary.org/
+            namespace: paperless
+            app: paperless
+            statusStyle: dot
+        - Outline:
+            icon: outline.png
+            href: https://outline.vasary.org/
+            description: Knowledge base
+            siteMonitor: https://outline.vasary.org/
+            namespace: outline
+            app: outline
+            statusStyle: dot
+        - Seafile:
+            icon: seafile.png
+            href: https://seafile.vasary.org/
+            description: File sync and sharing
+            siteMonitor: https://seafile.vasary.org/
+            namespace: seafile
+            app: seafile
+            statusStyle: dot
+        - Stirling PDF:
+            icon: stirling-pdf.png
+            href: https://stirling-pdf.vasary.org/
+            description: PDF tools
+            siteMonitor: https://stirling-pdf.vasary.org/
+            namespace: stirling-pdf
+            app: stirling-pdf
+            statusStyle: dot
+
+    - Media:
+        - Immich:
+            icon: immich.png
+            href: https://immich.vasary.org/
+            description: Photos and videos
+            siteMonitor: https://immich.vasary.org/
+            namespace: immich
+            app: immich
+            statusStyle: dot
+        - Jellyfin:
+            icon: jellyfin.png
+            href: https://jellyfin.vasary.org/
+            description: Media library
+            siteMonitor: https://jellyfin.vasary.org/
+            namespace: media
+            app: jellyfin
+            statusStyle: dot
+        - Seasonvar:
+            icon: mdi-television-classic
+            href: https://seasonvar.vasary.org/
+            description: Protected streaming helper
+            siteMonitor: https://seasonvar.vasary.org/
+            namespace: media
+            app: seasonvar
+            statusStyle: dot
+
+    - Apps:
+        - Vaultwarden:
+            icon: vaultwarden.png
+            href: https://key.vasary.org/
+            description: Password vault
+            siteMonitor: https://key.vasary.org/
+            namespace: vaultwarden
+            app: vaultwarden
+            statusStyle: dot
+        - Coins Inventory:
+            icon: mdi-coins
+            href: https://coins-inventory.vasary.org/
+            description: Collection inventory
+            siteMonitor: https://coins-inventory.vasary.org/
+            namespace: coins-inventory
+            app: coins-inventory
+            statusStyle: dot
+
+    - Finance:
+        - USD Rates:
+            icon: mdi-currency-usd
+            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
+            description: Daily keyless FX snapshot
+            widget:
+              type: customapi
+              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json
+              refreshInterval: 3600000
+              mappings:
+                - field: usd.eur
+                  label: EUR
+                  format: float
+                - field: usd.kgs
+                  label: KGS
+                  format: float
+                - field: usd.rub
+                  label: RUB
+                  format: float
+        - Gold:
+            icon: mdi-gold
+            href: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
+            description: XAU quoted in USD
+            widget:
+              type: customapi
+              url: https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/xau.json
+              refreshInterval: 3600000
+              mappings:
+                - field: xau.usd
+                  label: USD / oz
+                  format: float
+                - field: xau.eur
+                  label: EUR / oz
+                  format: float
+
+    - Observability:
+        - Node Disk:
+            icon: prometheus.png
+            href: https://grafana.vasary.org/
+            description: Node filesystem usage from Prometheus
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20(1%20-%20(sum(node_filesystem_avail_bytes%7Bfstype!~%22tmpfs%7Coverlay%7Csquashfs%22,mountpoint!~%22/run.*%7C/var/lib/kubelet/pods.*%22%7D)%20/%20sum(node_filesystem_size_bytes%7Bfstype!~%22tmpfs%7Coverlay%7Csquashfs%22,mountpoint!~%22/run.*%7C/var/lib/kubelet/pods.*%22%7D)))
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: used
+                  format: float
+                  suffix: "%"
+        - PVC Disk:
+            icon: kubernetes.png
+            href: https://grafana.vasary.org/
+            description: Persistent volume claim usage
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=100%20*%20sum(kubelet_volume_stats_used_bytes)%20/%20sum(kubelet_volume_stats_capacity_bytes)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: used
+                  format: float
+                  suffix: "%"
+        - Workloads Down:
+            icon: alertmanager.png
+            href: https://prometheus.vasary.org/
+            description: Desired replicas without availability
+            widget:
+              type: customapi
+              url: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.vasary.org:9090/api/v1/query?query=sum(kube_deployment_spec_replicas%20%3E%200%20and%20on(namespace,deployment)%20kube_deployment_status_replicas_available%20%3C%20kube_deployment_spec_replicas)
+              refreshInterval: 30000
+              mappings:
+                - field: data.result.0.value.1
+                  label: affected
+                  format: number
