@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: ghcr.io/actions/actions-runner-controller-charts
     chart: gha-runner-scale-set
-    targetRevision: "*"
+    targetRevision: 0.14.2
     helm:
       releaseName: geron
       values: |
