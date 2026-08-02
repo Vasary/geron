@@ -108,8 +108,8 @@ spec:
               while true; do
                 unmount_if_stale music /nas/music
                 unmount_if_stale movies /nas/movies
-                mount_share music 10.10.10.4:/mnt/archive/media/music /nas/music
-                mount_share movies 10.10.10.4:/mnt/archive/media/movies /nas/movies
+                mount_share music 10.10.0.4:/mnt/archive/media/music /nas/music
+                mount_share movies 10.10.0.4:/mnt/archive/media/movies /nas/movies
                 sleep 30
               done
           volumeMounts:
