@@ -39,6 +39,7 @@ spec:
               mountPath: /cache
             - name: nas-media
               mountPath: /nas
+              readOnly: true
               mountPropagation: HostToContainer
             - name: seasonvar-media
               mountPath: /seasonvar
