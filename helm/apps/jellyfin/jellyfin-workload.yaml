@@ -35,10 +35,9 @@ spec:
               mountPath: /config
             - name: cache
               mountPath: /cache
-            - name: music
-              mountPath: /nas/music
-            - name: movies
-              mountPath: /nas/movies
+            - name: nas-media
+              mountPath: /nas
+              mountPropagation: HostToContainer
             - name: seasonvar-media
               mountPath: /seasonvar
           readinessProbe:
@@ -61,6 +60,66 @@ spec:
               memory: 512Mi
             limits:
               memory: 4Gi
+        - name: archive-mounter
+          image: registry.k8s.io/sig-storage/nfsplugin:v4.13.4
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command:
+            - /usr/bin/sh
+            - -ceu
+            - |
+              mkdir -p /nas/music /nas/movies
+
+              mount_share() {
+                name="$1"
+                source="$2"
+                target="$3"
+
+                if findmnt -rn --target "$target" >/dev/null 2>&1; then
+                  return
+                fi
+
+                if timeout 10s mount -t nfs -o nfsvers=4.1,soft,timeo=50,retrans=2,noatime "$source" "$target"; then
+                  echo "mounted $name from $source"
+                else
+                  echo "archive $name is unavailable, keeping $target empty"
+                fi
+              }
+
+              unmount_if_stale() {
+                name="$1"
+                target="$2"
+
+                if ! findmnt -rn --target "$target" >/dev/null 2>&1; then
+                  return
+                fi
+
+                if timeout 10s ls "$target" >/dev/null 2>&1; then
+                  return
+                fi
+
+                echo "archive $name is stale, unmounting $target"
+                timeout 10s umount -l "$target" || true
+              }
+
+              while true; do
+                unmount_if_stale music /nas/music
+                unmount_if_stale movies /nas/movies
+                mount_share music 10.10.10.4:/mnt/archive/media/music /nas/music
+                mount_share movies 10.10.10.4:/mnt/archive/media/movies /nas/movies
+                sleep 30
+              done
+          volumeMounts:
+            - name: nas-media
+              mountPath: /nas
+              mountPropagation: Bidirectional
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -68,17 +127,7 @@ spec:
         - name: cache
           persistentVolumeClaim:
             claimName: jellyfin-cache
-        - name: music
-          # Temporary NAS outage fallback. Restore NFS:
-          # nfs:
-          #   server: 10.10.0.4
-          #   path: /mnt/archive/media/music
-          emptyDir: {}
-        - name: movies
-          # Temporary NAS outage fallback. Restore NFS:
-          # nfs:
-          #   server: 10.10.0.4
-          #   path: /mnt/archive/media/movies
+        - name: nas-media
           emptyDir: {}
         - name: seasonvar-media
           persistentVolumeClaim:
