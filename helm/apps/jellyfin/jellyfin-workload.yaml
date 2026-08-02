@@ -17,6 +17,8 @@ spec:
       labels:
         app.kubernetes.io/name: jellyfin
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       securityContext:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
