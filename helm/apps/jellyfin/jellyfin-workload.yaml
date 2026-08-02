@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: jellyfin
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
@@ -82,7 +82,7 @@ spec:
                   return
                 fi
 
-                if timeout 10s mount -t nfs -o nfsvers=4.1,soft,timeo=50,retrans=2,noatime "$source" "$target"; then
+                if timeout 10s mount -t nfs -o nfsvers=4.1,soft,timeo=50,retrans=2,noatime,ro "$source" "$target"; then
                   echo "mounted $name from $source"
                 else
                   echo "archive $name is unavailable, keeping $target empty"
