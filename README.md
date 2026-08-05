@@ -9,8 +9,9 @@ application manifests for the services running on the node.
 - `talos/` contains Talos Linux configuration helpers for the bare-metal node.
 - `helm/bootstrap/` installs and configures Argo CD.
 - `helm/cluster/` is the root Argo CD application entry point.
-- `helm/apps/` contains Argo CD `Application` objects and per-app manifests.
-- `helm/projects/` defines Argo CD projects.
+- `helm/argocd/` contains Argo CD projects and `Application` objects.
+- `helm/platform/` contains namespaces, shared components, and cluster-level config.
+- `helm/workloads/` contains local per-service Kubernetes manifests.
 - `helm/secrets/*.sops.yaml` stores encrypted Kubernetes secrets.
 
 Git is the source of truth for the cluster. Prefer changing manifests here and
@@ -107,7 +108,7 @@ the SFTP backup server.
 - Vaultwarden SQLite and data archive
 
 The reusable uploader lives in
-`helm/apps/components/sftp-backup-uploader`. Backup CronJobs opt in with the
+`helm/platform/components/sftp-backup-uploader`. Backup CronJobs opt in with the
 `geron.io/sftp-backup: "true"` label and must provide a `backup-work` volume.
 
 The SFTP directory layout follows the application name, for example
@@ -177,7 +178,7 @@ part of the GitOps state unless explicitly encrypted and committed.
 
 - Do not apply Kubernetes cluster changes manually unless there is a reason to
   bypass GitOps temporarily.
-- After changing manifests under `helm/apps`, commit and push so Argo CD can
+- After changing manifests under `helm/argocd`, `helm/platform`, or `helm/workloads`, commit and push so Argo CD can
   reconcile from Git.
 - Services that already have OIDC/SSO should not also receive Cloudflare public
   ForwardAuth unless explicitly desired.

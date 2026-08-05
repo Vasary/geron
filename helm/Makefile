@@ -88,7 +88,7 @@ deploy: validate
 deploy-secrets:
 	@command -v sops >/dev/null
 	@test -f "$(SOPS_AGE_KEY_FILE)" || { printf 'Missing SOPS age key: %s\n' "$(SOPS_AGE_KEY_FILE)" >&2; exit 1; }
-	@kubectl apply -k apps/namespaces
+	@kubectl apply -k platform/namespaces
 	@set -e; \
 	for secret in secrets/*.sops.yaml; do \
 		[ -e "$$secret" ] || { printf '%s\n' 'No SOPS secrets found in helm/secrets/*.sops.yaml'; exit 1; }; \
@@ -98,7 +98,7 @@ deploy-secrets:
 
 authentik-blueprints:
 	@command -v kubectl >/dev/null
-	@kubectl apply -k apps/authentik
+	@kubectl apply -k workloads/authentik
 	@kubectl -n authentik exec deploy/authentik-worker -- ak apply_blueprint "$(AUTHENTIK_BLUEPRINT_PATH)"
 
 argocd-password:

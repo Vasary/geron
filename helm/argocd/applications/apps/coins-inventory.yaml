@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: coins-inventory
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: applications
+  sources:
+    - repoURL: https://github.com/Vasary/geron.git
+      targetRevision: master
+      path: helm/workloads/coins-inventory
+    - repoURL: https://vasary-lab.github.io/coins-inventory
+      chart: coins-inventory
+      targetRevision: 1.2.5
+      helm:
+        releaseName: coins-inventory
+        values: |
+          replicaCount: 1
+
+          image:
+            pullPolicy: Always
+
+          podAnnotations:
+            secret.reloader.stakater.com/reload: coins-inventory-config
+
+          service:
+            type: ClusterIP
+            port: 80
+
+          ingress:
+            enabled: false
+
+          livenessProbe:
+            httpGet:
+              path: /api/maintenance/health
+              port: http
+
+          readinessProbe:
+            httpGet:
+              path: /api/maintenance/health
+              port: http
+
+          autoscaling:
+            enabled: false
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: coins-inventory
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

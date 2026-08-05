@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: echo-server
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: demo
+  source:
+    repoURL: https://github.com/Vasary/geron.git
+    targetRevision: master
+    path: helm/workloads/echo-server
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: echo-server
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
