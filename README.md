@@ -57,7 +57,6 @@ Applications:
 - Seafile.
 - Stirling PDF.
 - Echo server for testing ingress/auth routing.
-- GitHub Actions runner controller and runner scale set.
 - Cloudflared tunnel deployment.
 
 AI platform:
@@ -89,7 +88,6 @@ This cluster depends on a few services outside Kubernetes:
   - Cloudflare tunnel token for `cloudflared`.
 - GitHub
   - Argo CD reads this repository.
-  - Actions runner controller uses GitHub runner credentials.
 - SOPS age key at `~/.config/sops/age/keys.txt`
   - Required to decrypt and apply secrets.
 
@@ -156,7 +154,6 @@ Helm/Argo CD:
   bootstrap password.
 - `make helm authentik-password` resets the live Authentik admin password and
   updates the encrypted secret.
-- `make helm github-runner-token` updates the encrypted GitHub runner token.
 
 Useful kubectl checks:
 

@@ -14,7 +14,7 @@ AUTHENTIK_BLUEPRINT_PATH ?= /blueprints/mounted/cm-authentik-blueprint-llm-proxy
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets authentik-blueprints argocd-password authentik-bootstrap-password authentik-password github-runner-token
+.PHONY: help validate deploy deploy-secrets authentik-blueprints argocd-password authentik-bootstrap-password authentik-password
 
 help:
 	@printf '%s\n' \
@@ -26,7 +26,6 @@ help:
 		'  make argocd-password Generate encrypted break-glass Argo CD admin password' \
 		'  make authentik-bootstrap-password Generate encrypted Authentik bootstrap admin password' \
 		'  make authentik-password Reset live Authentik admin password and update bootstrap secret' \
-		'  make github-runner-token Generate encrypted GitHub runner token secret' \
 		'' \
 		'Variables:' \
 		'  GIT_ORIGIN=$(GIT_ORIGIN)' \
@@ -110,6 +109,3 @@ authentik-bootstrap-password:
 
 authentik-password:
 	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-authentik-admin-password.sh "$(AUTHENTIK_SECRET_FILE)" "$(AUTHENTIK_ADMIN_USER)"
-
-github-runner-token:
-	@SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" bash scripts/set-github-runner-token.sh secrets/github-runner-auth.sops.yaml
