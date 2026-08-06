@@ -8,7 +8,7 @@ metadata:
 spec:
   schedule: "40 3 * * *"
   timeZone: Europe/Berlin
-  suspend: true
+  suspend: false
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
