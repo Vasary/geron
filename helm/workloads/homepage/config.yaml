@@ -131,13 +131,13 @@ data:
             href: https://dash.cloudflare.com/?to=/:account/:zone/dns
         - Pi-hole:
             icon: pi-hole.png
-            href: https://dns.cfv3.org/admin/login
-            siteMonitor: https://dns.cfv3.org/admin/login
+            href: https://dns.vasary.org/admin/login
+            siteMonitor: https://dns.vasary.org/admin/login
             statusStyle: dot
         - NAS:
             icon: mdi-nas
-            href: https://nas.cfv3.org/
-            siteMonitor: https://nas.cfv3.org/
+            href: https://nas.vasary.org/
+            siteMonitor: https://nas.vasary.org/
             statusStyle: dot
 
     - Platform:
