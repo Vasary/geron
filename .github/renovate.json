@@ -6,7 +6,7 @@
   "labels": ["dependencies", "helm"],
   "enabledManagers": ["argocd"],
   "argocd": {
-    "managerFilePatterns": ["/^helm/apps/[^/]+\\.ya?ml$/"]
+    "managerFilePatterns": ["/^helm/argocd/applications/.+\\.ya?ml$/"]
   },
   "packageRules": [
     {
@@ -19,7 +19,7 @@
     {
       "description": "Keep this repository scoped to Helm chart versions only",
       "matchManagers": ["argocd"],
-      "matchDatasources": ["docker", "git-tags"],
+      "matchDatasources": ["git-tags"],
       "enabled": false
     }
   ]
