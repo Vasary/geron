@@ -3,21 +3,38 @@
   "extends": ["config:recommended"],
   "timezone": "Europe/Berlin",
   "dependencyDashboard": true,
-  "labels": ["dependencies", "helm"],
-  "enabledManagers": ["argocd"],
+  "labels": ["dependencies"],
+  "enabledManagers": ["argocd", "kubernetes"],
   "argocd": {
     "managerFilePatterns": ["/^helm/argocd/applications/.+\\.ya?ml$/"]
+  },
+  "kubernetes": {
+    "managerFilePatterns": ["/^helm/(workloads|platform)/.+\\.ya?ml$/"]
   },
   "packageRules": [
     {
       "description": "Group Argo CD Helm chart updates",
       "matchManagers": ["argocd"],
       "matchDatasources": ["helm"],
+      "addLabels": ["helm"],
       "groupName": "helm charts",
       "automerge": false
     },
     {
-      "description": "Keep this repository scoped to Helm chart versions only",
+      "description": "Group Kubernetes container image updates",
+      "matchManagers": ["kubernetes"],
+      "matchDatasources": ["docker"],
+      "addLabels": ["docker"],
+      "groupName": "container images",
+      "automerge": false
+    },
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Ignore Argo CD git tag revisions",
       "matchManagers": ["argocd"],
       "matchDatasources": ["git-tags"],
       "enabled": false
