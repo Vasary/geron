@@ -5,7 +5,7 @@ metadata:
   namespace: coins-inventory
 spec:
   kubernetesConfig:
-    image: quay.io/opstree/redis:v7.0.15
+    image: quay.io/opstree/redis:v8.6.2
     imagePullPolicy: IfNotPresent
     redisSecret:
       name: coins-inventory-config
