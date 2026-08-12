@@ -22,7 +22,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: prepare-config-dir
-          image: busybox:1.37
+          image: busybox:1.38
           command:
             - sh
             - -c
