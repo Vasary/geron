@@ -54,6 +54,8 @@ spec:
               value: deu
             - name: PAPERLESS_OCR_LANGUAGES
               value: rus eng deu ukr kir
+            - name: PAPERLESS_OCR_USER_ARGS
+              value: '{"continue_on_soft_render_error": true}'
             - name: PAPERLESS_TASK_WORKERS
               value: '1'
             - name: PAPERLESS_THREADS_PER_WORKER
