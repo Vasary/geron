@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frigate-config
+  namespace: media
+data:
+  config.yml: |
+    mqtt:
+      enabled: false
+
+    tls:
+      enabled: false
+
+    auth:
+      enabled: false
+
+    proxy:
+      separator: "|"
+      header_map:
+        user: x-authentik-username
+        role: x-authentik-groups
+        role_map:
+          admin:
+            - frigate-admins
+          viewer:
+            - frigate-viewers
+      default_role: viewer
+
+    cameras: {}

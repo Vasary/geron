@@ -5,6 +5,10 @@ components:
   - ../../platform/components/deployment-history-limit
 resources:
   - database.yaml
+  - frigate-config.yaml
+  - frigate-storage.yaml
+  - frigate-workload.yaml
+  - frigate-routing.yaml
   - jellyfin-storage.yaml
   - postgres-backup.yaml
   - jellyfin-workload.yaml

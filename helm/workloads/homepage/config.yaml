@@ -139,6 +139,12 @@ data:
             href: https://nas.vasary.org/
             siteMonitor: https://nas.vasary.org/
             statusStyle: dot
+        - Frigate:
+            icon: frigate.png
+            href: https://frigate.vasary.org/
+            description: Camera NVR
+            siteMonitor: http://frigate.media.svc.cluster.vasary.org
+            statusStyle: dot
 
     - Platform:
         - Argo CD:
