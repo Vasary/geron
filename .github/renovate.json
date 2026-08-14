@@ -5,6 +5,9 @@
   "dependencyDashboard": true,
   "labels": ["dependencies"],
   "enabledManagers": ["argocd", "kubernetes"],
+  "registryAliases": {
+    "docker.getoutline.com": "docker.io"
+  },
   "argocd": {
     "managerFilePatterns": ["/^helm/argocd/applications/.+\\.ya?ml$/"]
   },

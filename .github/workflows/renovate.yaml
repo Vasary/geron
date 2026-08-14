@@ -27,3 +27,12 @@ jobs:
           RENOVATE_PLATFORM: github
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           RENOVATE_REQUIRE_CONFIG: required
+          RENOVATE_HOST_RULES: |
+            [
+              {
+                "hostType": "docker",
+                "matchHost": "ghcr.io",
+                "username": "${{ github.repository_owner }}",
+                "password": "${{ secrets.RENOVATE_TOKEN }}"
+              }
+            ]
