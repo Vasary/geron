@@ -29,13 +29,16 @@ spec:
           blueprints:
             configMaps:
               - authentik-blueprint-argocd
+              - authentik-blueprint-frigate
               - authentik-blueprint-grafana
+              - authentik-blueprint-homepage
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
               - authentik-blueprint-librechat
               - authentik-blueprint-llm-proxy
               - authentik-blueprint-outline
               - authentik-blueprint-paperless
+              - authentik-blueprint-proxy-outpost
               - authentik-blueprint-seafile
               - authentik-blueprint-seasonvar
               - authentik-blueprint-stirling-pdf

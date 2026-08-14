@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-proxy-outpost
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  proxy-outpost.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-proxy-outpost
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_outposts.outpost
+        id: authentik-embedded-outpost
+        state: present
+        identifiers:
+          name: authentik Embedded Outpost
+        attrs:
+          providers:
+            - !Find [authentik_providers_proxy.proxyprovider, [name, seasonvar]]
+            - !Find [authentik_providers_proxy.proxyprovider, [name, homepage]]
+            - !Find [authentik_providers_proxy.proxyprovider, [name, frigate]]

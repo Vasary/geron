@@ -6,7 +6,9 @@ components:
 resources:
   - argocd-blueprint.yaml
   - database.yaml
+  - frigate-blueprint.yaml
   - grafana-blueprint.yaml
+  - homepage-blueprint.yaml
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
   - librechat-blueprint.yaml
@@ -14,6 +16,7 @@ resources:
   - outline-blueprint.yaml
   - paperless-blueprint.yaml
   - postgres-backup.yaml
+  - proxy-outpost-blueprint.yaml
   - redis-storage.yaml
   - redis-workload.yaml
   - seafile-blueprint.yaml
