@@ -12,7 +12,7 @@ data:
     # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
     version: 1
     metadata:
-      name: vasary-homepage-proxy
+      name: vasary-homepage-oauth
       labels:
         blueprints.goauthentik.io/instantiate: "true"
     entries:
@@ -23,29 +23,31 @@ data:
           name: homepage-users
         attrs:
           name: homepage-users
-      - model: authentik_providers_proxy.proxyprovider
-        id: homepage-proxy-provider
+      - model: authentik_providers_oauth2.oauth2provider
+        id: homepage-oauth-provider
         state: present
         identifiers:
           name: homepage
         attrs:
           name: homepage
-          mode: forward_single
+          client_type: confidential
+          client_id: homepage
+          client_secret: !Env [HOMEPAGE_OAUTH_CLIENT_SECRET, ""]
           grant_types:
             - authorization_code
-          external_host: https://home.vasary.org
-          internal_host: http://homepage.homepage.svc.cluster.vasary.org
-          internal_host_ssl_validation: true
-          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+            - refresh_token
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
-          cookie_domain: vasary.org
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
           redirect_uris:
             - matching_mode: strict
-              url: https://home.vasary.org/outpost.goauthentik.io/callback?X-authentik-auth-callback=true
-              redirect_uri_type: authorization
-            - matching_mode: strict
-              url: https://home.vasary.org?X-authentik-auth-callback=true
-              redirect_uri_type: authorization
+              url: https://home.vasary.org/api/auth/callback/homepage-oidc
+          sub_mode: user_email
+          issuer_mode: per_provider
       - model: authentik_core.application
         id: homepage-application
         state: present
@@ -54,7 +56,7 @@ data:
         attrs:
           name: Homepage
           slug: homepage
-          provider: !KeyOf homepage-proxy-provider
+          provider: !KeyOf homepage-oauth-provider
           policy_engine_mode: any
           meta_launch_url: https://home.vasary.org/
           open_in_new_tab: true
@@ -69,3 +71,8 @@ data:
           target: !KeyOf homepage-application
           group: !KeyOf homepage-users-group
           order: 0
+      - model: authentik_providers_proxy.proxyprovider
+        id: homepage-legacy-proxy-provider
+        state: absent
+        identifiers:
+          name: homepage

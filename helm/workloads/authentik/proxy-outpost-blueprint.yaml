@@ -24,5 +24,4 @@ data:
         attrs:
           providers:
             - !Find [authentik_providers_proxy.proxyprovider, [name, seasonvar]]
-            - !Find [authentik_providers_proxy.proxyprovider, [name, homepage]]
             - !Find [authentik_providers_proxy.proxyprovider, [name, frigate]]
