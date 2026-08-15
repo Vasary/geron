@@ -225,6 +225,12 @@ data:
             description: Media library
             siteMonitor: http://jellyfin.media.svc.cluster.vasary.org/health
             statusStyle: dot
+        - Frigate:
+            icon: frigate.png
+            href: https://frigate.vasary.org/
+            description: Camera NVR
+            siteMonitor: http://frigate.media.svc.cluster.vasary.org
+            statusStyle: dot
         - Seasonvar:
             icon: mdi-television-classic
             href: https://seasonvar.vasary.org/
