@@ -63,11 +63,6 @@ spec:
                 secretKeyRef:
                   name: freshrss-postgres-local-app
                   key: host
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: freshrss-postgres-local-app
-                  key: port
             - name: DB_BASE
               valueFrom:
                 secretKeyRef:
@@ -91,7 +86,6 @@ spec:
                 --db-base $(DB_BASE)
                 --db-host $(DB_HOST)
                 --db-password $(DB_PASSWORD)
-                --db-port $(DB_PORT)
                 --db-type pgsql
                 --db-user $(DB_USER)
                 --default-user vasary
