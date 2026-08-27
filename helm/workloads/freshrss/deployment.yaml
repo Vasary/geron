@@ -115,20 +115,17 @@ spec:
             - name: extensions
               mountPath: /var/www/FreshRSS/extensions
           startupProbe:
-            httpGet:
-              path: /i/
+            tcpSocket:
               port: http
             failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
-            httpGet:
-              path: /i/
+            tcpSocket:
               port: http
             periodSeconds: 15
             timeoutSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /i/
+            tcpSocket:
               port: http
             initialDelaySeconds: 120
             periodSeconds: 30
