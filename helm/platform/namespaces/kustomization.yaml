@@ -9,6 +9,7 @@ resources:
   - echo-server.yaml
   - external-dns.yaml
   - external-secrets.yaml
+  - freshrss.yaml
   - homepage.yaml
   - immich.yaml
   - librechat.yaml

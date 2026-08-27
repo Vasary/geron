@@ -6,6 +6,7 @@ components:
 resources:
   - argocd-blueprint.yaml
   - database.yaml
+  - freshrss-blueprint.yaml
   - frigate-blueprint.yaml
   - grafana-blueprint.yaml
   - homepage-blueprint.yaml

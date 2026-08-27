@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freshrss
+  namespace: freshrss
+  labels:
+    app.kubernetes.io/name: freshrss
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: freshrss
+  template:
+    metadata:
+      annotations:
+        secret.reloader.stakater.com/reload: freshrss-secrets
+      labels:
+        app.kubernetes.io/name: freshrss
+    spec:
+      securityContext:
+        fsGroup: 33
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: freshrss
+          image: freshrss/freshrss:1.29.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: TZ
+              value: Europe/Berlin
+            - name: CRON_MIN
+              value: '7,37'
+            - name: TRUSTED_PROXY
+              value: 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+            - name: OIDC_ENABLED
+              value: '1'
+            - name: OIDC_PROVIDER_METADATA_URL
+              value: https://auth.vasary.org/application/o/freshrss/.well-known/openid-configuration
+            - name: OIDC_CLIENT_ID
+              value: freshrss
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-secrets
+                  key: OIDC_CLIENT_SECRET
+            - name: OIDC_CLIENT_CRYPTO_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-secrets
+                  key: OIDC_CLIENT_CRYPTO_KEY
+            - name: OIDC_REMOTE_USER_CLAIM
+              value: preferred_username
+            - name: OIDC_SCOPES
+              value: openid email profile
+            - name: OIDC_X_FORWARDED_HEADERS
+              value: X-Forwarded-Port X-Forwarded-Proto X-Forwarded-Host
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-postgres-local-app
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-postgres-local-app
+                  key: port
+            - name: DB_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-postgres-local-app
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-postgres-local-app
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-postgres-local-app
+                  key: password
+            - name: FRESHRSS_INSTALL
+              value: |-
+                --api-enabled
+                --auth-type http_auth
+                --base-url https://rss.vasary.org
+                --db-base $(DB_BASE)
+                --db-host $(DB_HOST)
+                --db-password $(DB_PASSWORD)
+                --db-port $(DB_PORT)
+                --db-type pgsql
+                --db-user $(DB_USER)
+                --default-user vasary
+                --language en
+            - name: ADMIN_EMAIL
+              value: vasary@vasary.org
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-secrets
+                  key: ADMIN_PASSWORD
+            - name: ADMIN_API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: freshrss-secrets
+                  key: ADMIN_API_PASSWORD
+            - name: FRESHRSS_USER
+              value: |-
+                --api-password $(ADMIN_API_PASSWORD)
+                --email $(ADMIN_EMAIL)
+                --language en
+                --password $(ADMIN_PASSWORD)
+                --user vasary
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/FreshRSS/data
+            - name: extensions
+              mountPath: /var/www/FreshRSS/extensions
+          startupProbe:
+            httpGet:
+              path: /i/
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /i/
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /i/
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: freshrss-data
+        - name: extensions
+          persistentVolumeClaim:
+            claimName: freshrss-extensions

@@ -30,6 +30,7 @@ spec:
             configMaps:
               - authentik-blueprint-argocd
               - authentik-blueprint-frigate
+              - authentik-blueprint-freshrss
               - authentik-blueprint-grafana
               - authentik-blueprint-homepage
               - authentik-blueprint-immich

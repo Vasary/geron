@@ -1,0 +1,14 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: freshrss-postgres-local
+  namespace: freshrss
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: freshrss
+      owner: freshrss
+  storage:
+    storageClass: local-path
+    size: 6Gi

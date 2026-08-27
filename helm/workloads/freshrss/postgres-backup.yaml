@@ -1,0 +1,158 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: freshrss-postgres-backup
+  namespace: freshrss
+  labels:
+    geron.io/sftp-backup: "true"
+spec:
+  schedule: "45 3 * * *"
+  timeZone: Europe/Berlin
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: pg-dump
+              image: postgres:18-trixie
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: freshrss-postgres-local-app
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: freshrss-postgres-local-app
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: freshrss-postgres-local-app
+                      key: dbname
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: freshrss-postgres-local-app
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: freshrss-postgres-local-app
+                      key: password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  (
+                  target_dir=/backup-work/freshrss/postgres
+                  mkdir -p "$target_dir"
+                  pg_dump --clean --if-exists --no-owner --no-privileges | gzip > "$target_dir/freshrss-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+                  ) || { touch /backup-work/.failed; exit 1; }
+                  touch /backup-work/.done
+              volumeMounts:
+                - name: backup-work
+                  mountPath: /backup-work
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backup-work
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: freshrss-data-backup
+  namespace: freshrss
+  labels:
+    geron.io/sftp-backup: "true"
+spec:
+  schedule: "20 4 * * *"
+  timeZone: Europe/Berlin
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 33
+            runAsGroup: 33
+            fsGroup: 33
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: data-archive
+              image: alpine:3.23
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  (
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  target_dir=/backup-work/freshrss/files
+                  mkdir -p "$target_dir"
+                  tar -czf "$target_dir/freshrss-files-$stamp.tar.gz" -C /backup-src .
+                  ) || { touch /backup-work/.failed; exit 1; }
+                  touch /backup-work/.done
+              volumeMounts:
+                - name: data
+                  mountPath: /backup-src/data
+                  readOnly: true
+                - name: extensions
+                  mountPath: /backup-src/extensions
+                  readOnly: true
+                - name: backup-work
+                  mountPath: /backup-work
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 256Mi
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: freshrss-data
+            - name: extensions
+              persistentVolumeClaim:
+                claimName: freshrss-extensions
+            - name: backup-work
+              emptyDir: {}

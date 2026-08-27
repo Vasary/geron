@@ -5,6 +5,7 @@ resources:
   - coins-inventory.yaml
   - echo-server.yaml
   - frigate.yaml
+  - freshrss.yaml
   - immich.yaml
   - jellyfin.yaml
   - outline.yaml
