@@ -251,6 +251,12 @@ data:
             description: Collection inventory
             siteMonitor: http://coins-inventory.coins-inventory.svc.cluster.vasary.org/api/maintenance/health
             statusStyle: dot
+        - FreshRSS:
+            icon: freshrss.png
+            href: https://rss.vasary.org/
+            description: RSS reader
+            siteMonitor: http://freshrss.freshrss.svc.cluster.vasary.org
+            statusStyle: dot
 
     - Cluster Status:
         - CPU Usage:
