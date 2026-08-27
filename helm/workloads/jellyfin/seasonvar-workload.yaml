@@ -47,6 +47,13 @@ spec:
                   key: dbname
             - name: DATABASE_URL
               value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@seasonvar-postgres-local-rw.media.svc.cluster.vasary.org:5432/$(POSTGRES_DB)?sslmode=disable
+            - name: JELLYFIN_URL
+              value: http://jellyfin.media.svc.cluster.vasary.org
+            - name: JELLYFIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seasonvar-jellyfin
+                  key: JELLYFIN_API_KEY
             - name: LIBRARY_PATH
               value: /library
             - name: PUBLIC_URL
