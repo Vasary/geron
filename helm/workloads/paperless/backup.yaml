@@ -109,7 +109,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: document-exporter
-              image: ghcr.io/paperless-ngx/paperless-ngx:3.1.0
+              image: ghcr.io/paperless-ngx/paperless-ngx:3.1.1
               imagePullPolicy: IfNotPresent
               env:
                 - name: USERMAP_UID
