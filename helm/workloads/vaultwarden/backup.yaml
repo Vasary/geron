@@ -20,7 +20,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: vaultwarden-backup
-              image: vaultwarden/server:1.37.2
+              image: vaultwarden/server:1.37.3
               imagePullPolicy: IfNotPresent
               command:
                 - /bin/sh
