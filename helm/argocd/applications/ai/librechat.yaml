@@ -75,7 +75,10 @@ spec:
             mcpServers:
               memory:
                 type: streamable-http
+                requiresOAuth: false
                 url: http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp
+                headers:
+                  Authorization: "Bearer ${MCP_MEMORY_API_KEY}"
                 timeout: 60000
               paperless:
                 type: streamable-http
