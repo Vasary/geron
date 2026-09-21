@@ -2,7 +2,7 @@ machine:
   kubelet:
     nodeIP:
       validSubnets:
-        - 10.10.0.0/24
+        - 192.168.178.0/24
 
 cluster:
   allowSchedulingOnControlPlanes: true
@@ -10,4 +10,4 @@ cluster:
     dnsDomain: cluster.vasary.org
   etcd:
     advertisedSubnets:
-      - 10.10.0.0/24
+      - 192.168.178.0/24

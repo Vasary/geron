@@ -23,7 +23,7 @@ spec:
         registry: noop
         extraArgs:
           annotation-filter: geron.io/dns-scope=internal
-          pihole-server: http://10.10.0.2
+          pihole-server: http://192.168.178.3
           pihole-api-version: "6"
         env:
           - name: EXTERNAL_DNS_PIHOLE_PASSWORD
