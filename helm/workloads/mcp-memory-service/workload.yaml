@@ -14,6 +14,8 @@ spec:
       app.kubernetes.io/name: mcp-memory-service
   template:
     metadata:
+      annotations:
+        secret.reloader.stakater.com/reload: mcp-memory-api-key
       labels:
         app.kubernetes.io/name: mcp-memory-service
     spec:
@@ -25,6 +27,13 @@ spec:
             - name: http
               containerPort: 8765
           env:
+            - name: MCP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mcp-memory-api-key
+                  key: MCP_API_KEY
+            - name: MCP_ALLOW_ANONYMOUS_ACCESS
+              value: "false"
             - name: MCP_STREAMABLE_HTTP_MODE
               value: "1"
             - name: MCP_SSE_HOST
