@@ -45,6 +45,11 @@ fi
 require_adjacent_minor_upgrade "Talos" "$current_version" "$version"
 
 image="ghcr.io/siderolabs/installer:${version}"
+read -r target_major target_minor target_patch < <(semver_parts "$version")
+if (( target_major > 1 || target_minor >= 14 )); then
+  # Empty schematic: this cluster has no system extensions.
+  image="factory.talos.dev/metal-installer/376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba:${version}"
+fi
 
 printf '\nThis will upgrade Talos on %s (%s) using:\n  %s\n' "$NODE_NAME" "$NODE_IP" "$image"
 printf 'The node will reboot during the upgrade.\n'
