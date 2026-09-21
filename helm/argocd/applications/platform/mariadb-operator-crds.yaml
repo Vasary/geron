@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://helm.mariadb.com/mariadb-operator
     chart: mariadb-operator-crds
-    targetRevision: 26.6.0
+    targetRevision: 26.10.1
     helm:
       releaseName: mariadb-operator-crds
   destination:
