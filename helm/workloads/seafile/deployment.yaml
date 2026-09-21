@@ -47,7 +47,7 @@ spec:
               mountPath: /oauth-config
       containers:
         - name: seafile
-          image: seafileltd/seafile-mc:13.0.25
+          image: seafileltd/seafile-mc:13.0.28
           imagePullPolicy: IfNotPresent
           command:
             - /usr/bin/python3
