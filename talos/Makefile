@@ -1,10 +1,11 @@
 SHELL := bash
 
 CONFIG ?= cluster.ini
+PATCH ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help check netcheck status secrets config validate apply apply-try apply-no-reboot apply-auth apply-auth-confirm bootstrap kubeconfig install-configs disks disks-auth dashboard health upgrade upgrade-k8s reboot reboot-force shutdown shutdown-force talosconfig talosconfig-install clean-manifests
+.PHONY: help check netcheck status secrets config validate apply apply-try apply-no-reboot apply-patch apply-auth apply-auth-confirm bootstrap kubeconfig install-configs disks disks-auth dashboard health upgrade upgrade-k8s reboot reboot-force shutdown shutdown-force talosconfig talosconfig-install clean-manifests
 
 help:
 	@printf '%s\n' \
@@ -20,6 +21,7 @@ help:
 		'  make apply            Apply control plane config to the node in maintenance mode' \
 		'  make apply-try        Apply authenticated config in try mode with auto-rollback' \
 		'  make apply-no-reboot  Apply authenticated config without reboot' \
+		'  make apply-patch      Apply PATCH to live config without regeneration or reboot' \
 		'  make bootstrap        Bootstrap the single-node control plane' \
 		'  make kubeconfig       Merge Kubernetes kubeconfig into ~/.kube/config' \
 		'  make install-configs  Install talosconfig and kubeconfig into home' \
@@ -35,7 +37,8 @@ help:
 		'  make talosconfig-install  Install talosconfig into ~/.talos/config' \
 		'' \
 		'Variables:' \
-		'  CONFIG=cluster.ini    Path to cluster ini file'
+		'  CONFIG=cluster.ini    Path to cluster ini file' \
+		'  PATCH=path.yaml       Patch path relative to talos/ (or absolute)'
 
 check:
 	@playbooks/check.sh "$(CONFIG)"
@@ -69,6 +72,10 @@ apply-no-reboot: config
 		--endpoints "$$(awk -F= '/^[[:space:]]*endpoint_ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
 		--nodes "$$(awk -F= '/^[[:space:]]*ip[[:space:]]*=/{gsub(/[[:space:]]/, "", $$2); print $$2}' "$(CONFIG)")" \
 		apply-config --mode no-reboot --file manifests/controlplane.yaml
+
+apply-patch:
+	@test -n "$(PATCH)" || { printf '%s\n' 'Set PATCH to a machine config patch file.' >&2; exit 1; }
+	@bash playbooks/patch.sh "$(CONFIG)" "$(PATCH)"
 
 apply-auth:
 	@printf 'Deprecated: use make apply-try instead.\n'
