@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vikunja-config
+  namespace: vikunja
+data:
+  config.yml: |
+    service:
+      publicurl: https://todo.vasary.org
+      timezone: Europe/Berlin
+      enableregistration: false
+    auth:
+      local:
+        enabled: false
+      openid:
+        enabled: true
+        providers:
+          authentik:
+            name: Authentik
+            authurl: https://auth.vasary.org/application/o/vikunja/
+            logouturl: https://auth.vasary.org/application/o/vikunja/end-session/
+            clientid: vikunja
+            scope: openid profile email
+            forceuserinfo: true
+    files:
+      basepath: /app/vikunja/files

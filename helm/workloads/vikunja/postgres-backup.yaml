@@ -1,0 +1,152 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vikunja-postgres-backup
+  namespace: vikunja
+  labels:
+    geron.io/sftp-backup: "true"
+spec:
+  schedule: "35 3 * * *"
+  timeZone: Europe/Berlin
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: pg-dump
+              image: postgres:18-trixie
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: vikunja-postgres-local-app
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: vikunja-postgres-local-app
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: vikunja-postgres-local-app
+                      key: dbname
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: vikunja-postgres-local-app
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: vikunja-postgres-local-app
+                      key: password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  (
+                  target_dir=/backup-work/vikunja/postgres
+                  mkdir -p "$target_dir"
+                  pg_dump --clean --if-exists --no-owner --no-privileges | gzip > "$target_dir/vikunja-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+                  ) || { touch /backup-work/.failed; exit 1; }
+                  touch /backup-work/.done
+              volumeMounts:
+                - name: backup-work
+                  mountPath: /backup-work
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backup-work
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vikunja-files-backup
+  namespace: vikunja
+  labels:
+    geron.io/sftp-backup: "true"
+spec:
+  schedule: "15 4 * * *"
+  timeZone: Europe/Berlin
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: files-archive
+              image: alpine:3.24
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  (
+                  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+                  target_dir=/backup-work/vikunja/files
+                  mkdir -p "$target_dir"
+                  tar -czf "$target_dir/vikunja-files-$stamp.tar.gz" -C /backup-src .
+                  ) || { touch /backup-work/.failed; exit 1; }
+                  touch /backup-work/.done
+              volumeMounts:
+                - name: files
+                  mountPath: /backup-src/files
+                  readOnly: true
+                - name: backup-work
+                  mountPath: /backup-work
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  memory: 256Mi
+          volumes:
+            - name: files
+              persistentVolumeClaim:
+                claimName: vikunja-files
+            - name: backup-work
+              emptyDir: {}

@@ -1,0 +1,14 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: vikunja-postgres-local
+  namespace: vikunja
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: vikunja
+      owner: vikunja
+  storage:
+    storageClass: local-path
+    size: 6Gi

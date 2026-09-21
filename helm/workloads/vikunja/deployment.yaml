@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vikunja
+  namespace: vikunja
+  labels:
+    app.kubernetes.io/name: vikunja
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vikunja
+  template:
+    metadata:
+      annotations:
+        secret.reloader.stakater.com/reload: vikunja-secrets
+      labels:
+        app.kubernetes.io/name: vikunja
+    spec:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: vikunja
+          image: vikunja/vikunja:2.5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3456
+          env:
+            - name: VIKUNJA_DATABASE_TYPE
+              value: postgres
+            - name: VIKUNJA_DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-postgres-local-app
+                  key: host
+            - name: VIKUNJA_DATABASE_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-postgres-local-app
+                  key: dbname
+            - name: VIKUNJA_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-postgres-local-app
+                  key: username
+            - name: VIKUNJA_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-postgres-local-app
+                  key: password
+            - name: VIKUNJA_DATABASE_SSLMODE
+              value: disable
+            - name: VIKUNJA_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-secrets
+                  key: VIKUNJA_SERVICE_SECRET
+            - name: VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: vikunja-secrets
+                  key: VIKUNJA_OAUTH_CLIENT_SECRET
+          volumeMounts:
+            - name: config
+              mountPath: /etc/vikunja
+              readOnly: true
+            - name: files
+              mountPath: /app/vikunja/files
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: vikunja-config
+        - name: files
+          persistentVolumeClaim:
+            claimName: vikunja-files

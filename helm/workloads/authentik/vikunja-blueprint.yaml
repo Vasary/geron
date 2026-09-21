@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-vikunja
+  namespace: authentik
+  labels:
+    app.kubernetes.io/name: authentik
+    app.kubernetes.io/component: blueprint
+    blueprints.goauthentik.io/instantiate: "true"
+data:
+  vikunja.yaml: |
+    # yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+    version: 1
+    metadata:
+      name: vasary-vikunja-oauth
+      labels:
+        blueprints.goauthentik.io/instantiate: "true"
+    entries:
+      - model: authentik_core.group
+        id: vikunja-users-group
+        state: present
+        identifiers:
+          name: vikunja-users
+        attrs:
+          name: vikunja-users
+      - model: authentik_providers_oauth2.scopemapping
+        id: vikunja-email-scope
+        state: present
+        identifiers:
+          name: vikunja-email-verified
+        attrs:
+          name: vikunja-email-verified
+          scope_name: email
+          description: Email scope for Vikunja with verified email claim
+          expression: |
+            return {
+                "email": request.user.email,
+                "email_verified": True,
+            }
+      - model: authentik_providers_oauth2.oauth2provider
+        id: vikunja-oauth-provider
+        state: present
+        identifiers:
+          name: vikunja
+        attrs:
+          name: vikunja
+          client_type: confidential
+          client_id: vikunja
+          client_secret: !Env [VIKUNJA_OAUTH_CLIENT_SECRET, ""]
+          grant_types:
+            - authorization_code
+            - refresh_token
+          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, openid]]
+            - !KeyOf vikunja-email-scope
+            - !Find [authentik_providers_oauth2.scopemapping, [scope_name, profile]]
+          redirect_uris:
+            - matching_mode: strict
+              url: https://todo.vasary.org/auth/openid/authentik
+          sub_mode: user_email
+          issuer_mode: per_provider
+      - model: authentik_core.application
+        id: vikunja-application
+        state: present
+        identifiers:
+          slug: vikunja
+        attrs:
+          name: Vikunja
+          slug: vikunja
+          provider: !KeyOf vikunja-oauth-provider
+          policy_engine_mode: any
+          meta_launch_url: https://todo.vasary.org/
+          open_in_new_tab: true
+      - model: authentik_policies.policybinding
+        id: vikunja-users-policy-binding
+        state: present
+        identifiers:
+          target: !KeyOf vikunja-application
+          group: !KeyOf vikunja-users-group
+          order: 0
+        attrs:
+          target: !KeyOf vikunja-application
+          group: !KeyOf vikunja-users-group
+          order: 0

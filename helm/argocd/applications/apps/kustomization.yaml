@@ -12,4 +12,5 @@ resources:
   - paperless.yaml
   - seafile.yaml
   - stirling-pdf.yaml
+  - vikunja.yaml
   - vaultwarden.yaml

@@ -28,4 +28,5 @@ resources:
   - seafile.yaml
   - stirling-pdf.yaml
   - traefik.yaml
+  - vikunja.yaml
   - vaultwarden.yaml
