@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: docker.io/doobidoo/mcp-memory-service:11.13.0-slim
+          image: docker.io/doobidoo/mcp-memory-service:11.14.0-slim
           imagePullPolicy: Always
           ports:
             - name: http
