@@ -40,7 +40,13 @@ patches:
               export RCLONE_CONFIG_BACKUP_PORT="$SFTP_PORT"
               export RCLONE_CONFIG_BACKUP_USER="$SFTP_USER"
               export RCLONE_CONFIG_BACKUP_PASS="$(rclone obscure "$SFTP_PASSWORD")"
-              rclone copy /backup-work backup:/ --create-empty-src-dirs --stats-one-line
+              if rclone copy /backup-work backup:/ --create-empty-src-dirs --stats-one-line \
+                --contimeout 10s --timeout 1m --retries 1 --low-level-retries 1; then
+                echo "Backup uploaded successfully"
+              else
+                echo "WARNING: backup upload failed; completing job without a remote backup" >&2
+                echo "WARNING: temporary backup files will be lost when this pod is removed" >&2
+              fi
           volumeMounts:
             - name: backup-work
               mountPath: /backup-work

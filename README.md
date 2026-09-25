@@ -184,3 +184,15 @@ part of the GitOps state unless explicitly encrypted and committed.
   ForwardAuth unless explicitly desired.
 - MariaDB Operator must use `clusterName: cluster.vasary.org`; the cluster does
   not use the default `cluster.local` DNS domain.
+
+### Best-effort backup uploads
+
+SFTP upload failures are logged as warnings and complete the backup Job successfully,
+including when the NAS is offline. A successful Job therefore does not guarantee a
+remote backup: check the `sftp-upload` logs for `Backup uploaded successfully`.
+Unsent files live in `emptyDir` and are lost when the pod is removed; a later run
+creates a new backup rather than retrying the previous one. Failures reported by
+the backup producer still fail the Job.
+
+Existing Jobs retain their original commands; the upload policy affects new Jobs.
+Previously failed Jobs may keep Argo CD degraded until CronJob history cleanup.
