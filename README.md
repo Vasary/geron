@@ -194,5 +194,9 @@ Unsent files live in `emptyDir` and are lost when the pod is removed; a later ru
 creates a new backup rather than retrying the previous one. Failures reported by
 the backup producer still fail the Job.
 
+Vikunja backup credentials are stored in
+`helm/secrets/sftp-backup-vikunja.sops.yaml`, encrypted with SOPS and using the
+same SFTP settings as the other applications. Apply them with `make -C helm
+deploy-secrets` (secrets are not automatically decrypted by Argo CD).
 Existing Jobs retain their original commands; the upload policy affects new Jobs.
 Previously failed Jobs may keep Argo CD degraded until CronJob history cleanup.
