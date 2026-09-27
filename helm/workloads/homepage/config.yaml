@@ -139,7 +139,6 @@ data:
         - Frigate:
             icon: frigate.png
             href: https://frigate.vasary.org/
-            description: Camera NVR
             siteMonitor: http://frigate.media.svc.cluster.vasary.org
             statusStyle: dot
 
