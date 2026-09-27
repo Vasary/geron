@@ -39,3 +39,10 @@ The hardware dashboard keeps UID `homelab-hardware-talos`, so provisioning updat
 the manually imported dashboard if it has that UID. An import with a different UID
 remains a separate dashboard.
 
+
+## Loading behavior
+
+The dashboard collector runs as a native init sidecar and completes its initial
+file sync before Grafana starts. It then continues watching ConfigMaps. Grafana
+polls dashboard files every 30 seconds; dashboard reload API calls are disabled
+so this workflow does not depend on the local admin password.

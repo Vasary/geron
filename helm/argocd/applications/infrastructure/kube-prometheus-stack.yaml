@@ -22,6 +22,16 @@ spec:
               enabled: true
               label: grafana_dashboard
               labelValue: "1"
+              # Populate files before Grafana starts; keep watching for Git updates.
+              initDashboards: true
+              restartPolicy: Always
+              skipReload: true
+              startupProbe:
+                httpGet:
+                  path: /healthz
+                  port: 8080
+                periodSeconds: 5
+                failureThreshold: 60
               provider:
                 disableDelete: false
                 allowUiUpdates: false
