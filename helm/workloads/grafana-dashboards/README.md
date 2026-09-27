@@ -46,3 +46,15 @@ The dashboard collector runs as a native init sidecar and completes its initial
 file sync before Grafana starts. It then continues watching ConfigMaps. Grafana
 polls dashboard files every 30 seconds; dashboard reload API calls are disabled
 so this workflow does not depend on the local admin password.
+
+## Thermal throttle duration
+
+The node-exporter thermal-duration sidecar reads Linux
+package_throttle_total_time_ms from read-only host sysfs every 15 seconds.
+It exports node_cpu_package_throttle_seconds_total through the textfile collector
+using an atomic file replacement on a shared in-memory volume. Each physical
+package is read once, rather than summing duplicate per-CPU counters.
+Failed or unsupported reads remove the metric file instead of reporting zero.
+Throttle Time shows the counter increase over 15 minutes; allow two Prometheus
+scrapes after rollout before expecting a value. The collector runs without root
+or additional capabilities and does not change CPU settings.

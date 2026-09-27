@@ -13,7 +13,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 39,
-  "version": 6,
+  "version": 7,
   "refresh": "30s",
   "time": {
     "from": "now-6h",
@@ -620,7 +620,7 @@
       "gridPos": {
         "x": 0,
         "y": 12,
-        "w": 20,
+        "w": 16,
         "h": 7
       },
       "fieldConfig": {
@@ -708,7 +708,7 @@
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 20,
+        "x": 16,
         "y": 12,
         "w": 4,
         "h": 7
@@ -785,6 +785,77 @@
           "editorMode": "code",
           "expr": "sum by (instance) (increase(node_cpu_package_throttles_total{job=\"node-exporter\", instance=\"192.168.178.10:9100\"}[15m]))",
           "legendFormat": "Events / 15m",
+          "instant": true,
+          "range": false,
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Throttle Time",
+      "description": "CPU package thermal throttling duration over the last 15 minutes, in seconds. Each package is counted once. No data means the duration collector is unavailable; increase() extrapolates between samples.",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 12,
+        "w": 4,
+        "h": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "noValue": "No data",
+          "mappings": [],
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "text": {
+          "titleSize": 12,
+          "valueSize": 28
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (instance) (increase(node_cpu_package_throttle_seconds_total{job=\"node-exporter\", instance=\"192.168.178.10:9100\"}[15m]))",
+          "legendFormat": "Seconds / 15m",
           "instant": true,
           "range": false,
           "format": "time_series"

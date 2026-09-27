@@ -166,6 +166,64 @@ spec:
             retention: 14d
             scrapeInterval: 30s
             evaluationInterval: 30s
+        prometheus-node-exporter:
+          extraArgs:
+            - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run/containerd/.+|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+            - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs|erofs)$
+            - --collector.textfile.directory=/textfile
+          sidecarVolumeMount:
+            - name: thermal-textfile
+              mountPath: /textfile
+              readOnly: false
+          sidecars:
+            - name: thermal-duration
+              image: busybox:1.38
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -eu
+                  collect() (
+                    set -eu
+                    seen=" "
+                    printf '# HELP node_cpu_package_throttle_seconds_total CPU package thermal throttling time since boot.\n'
+                    printf '# TYPE node_cpu_package_throttle_seconds_total counter\n'
+                    for cpu in /host/sys/devices/system/cpu/cpu[0-9]*; do
+                      counter="$cpu/thermal_throttle/package_throttle_total_time_ms"
+                      [ -f "$counter" ] || continue
+                      package=$(cat "$cpu/topology/physical_package_id")
+                      case "$package" in ''|*[!0-9]*) exit 1 ;; esac
+                      case "$seen" in *" $package "*) continue ;; esac
+                      millis=$(cat "$counter")
+                      case "$millis" in ''|*[!0-9]*) exit 1 ;; esac
+                      awk -v package="$package" -v millis="$millis" 'BEGIN { printf "node_cpu_package_throttle_seconds_total{package=\"%s\"} %.3f\n", package, millis / 1000 }'
+                      seen="$seen$package "
+                    done
+                    [ "$seen" != " " ]
+                  )
+                  while true; do
+                    if collect > /textfile/thermal.prom.tmp; then
+                      mv /textfile/thermal.prom.tmp /textfile/thermal.prom
+                    else
+                      rm -f /textfile/thermal.prom /textfile/thermal.prom.tmp
+                      echo "Cannot read CPU thermal throttle duration" >&2
+                    fi
+                    sleep 15
+                  done
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 5m
+                  memory: 8Mi
+                limits:
+                  memory: 32Mi
+              volumeMounts:
+                - name: sys
+                  mountPath: /host/sys
+                  readOnly: true
         kubeEtcd:
           enabled: true
           service:
