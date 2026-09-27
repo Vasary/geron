@@ -1,0 +1,27 @@
+{{- $uids := dict -}}
+{{- range $path, $_ := .Files.Glob "dashboards/*.json" }}
+{{- $raw := $.Files.Get $path -}}
+{{- $dashboard := mustFromJson $raw -}}
+{{- $uid := required (printf "%s: dashboard uid is required" $path) $dashboard.uid -}}
+{{- $_ := required (printf "%s: dashboard title is required" $path) $dashboard.title -}}
+{{- if hasKey $uids $uid -}}
+{{- fail (printf "%s: duplicate dashboard uid %s" $path $uid) -}}
+{{- end -}}
+{{- $_ := set $uids $uid true -}}
+{{- if $dashboard.__inputs -}}
+{{- fail (printf "%s: __inputs requires interactive import; use real datasource UIDs and remove __inputs" $path) -}}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-{{ $path | sha256sum | trunc 16 }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: grafana-dashboards
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+data:
+  {{ base $path | quote }}: |-
+{{ $raw | indent 4 }}
+{{ end }}

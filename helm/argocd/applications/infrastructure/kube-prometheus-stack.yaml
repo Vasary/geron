@@ -17,6 +17,16 @@ spec:
         fullnameOverride: kube-prometheus-stack
         grafana:
           enabled: true
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              provider:
+                disableDelete: false
+                allowUiUpdates: false
+            datasources:
+              uid: prometheus
           envValueFrom:
             GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
               secretKeyRef:

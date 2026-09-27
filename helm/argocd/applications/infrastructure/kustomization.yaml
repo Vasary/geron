@@ -4,6 +4,7 @@ resources:
   - cert-manager-config.yaml
   - cloudflared.yaml
   - external-dns.yaml
+  - grafana-dashboards.yaml
   - homepage.yaml
   - kube-prometheus-stack.yaml
   - metallb-config.yaml

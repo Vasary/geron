@@ -200,3 +200,9 @@ same SFTP settings as the other applications. Apply them with `make -C helm
 deploy-secrets` (secrets are not automatically decrypted by Argo CD).
 Existing Jobs retain their original commands; the upload policy affects new Jobs.
 Previously failed Jobs may keep Argo CD degraded until CronJob history cleanup.
+
+## Grafana dashboards
+
+Add JSON files to [the dashboards directory](helm/workloads/grafana-dashboards/dashboards/)
+and Argo CD will provision them in Grafana. See the
+[dashboard workflow](helm/workloads/grafana-dashboards/README.md).
