@@ -35,6 +35,7 @@ spec:
               - authentik-blueprint-homepage
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
+              - authentik-blueprint-kino
               - authentik-blueprint-librechat
               - authentik-blueprint-llm-proxy
               - authentik-blueprint-outline
