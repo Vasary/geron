@@ -1,0 +1,70 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: kino-auth
+  namespace: media
+spec:
+  forwardAuth:
+    address: http://authentik-server.authentik.svc.cluster.vasary.org/outpost.goauthentik.io/auth/traefik
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-Authentik-Username
+      - X-Authentik-Groups
+      - X-Authentik-Email
+      - X-Authentik-Name
+      - X-Authentik-Uid
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kino-stream
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: kino-stream-vasary-tls
+      hosts:
+        - kino-stream.vasary.org
+  rules:
+    - host: kino-stream.vasary.org
+      http:
+        paths:
+          - path: /stream/
+            pathType: Prefix
+            backend:
+              service:
+                name: kino
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kino
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.middlewares: media-kino-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: kino-vasary-tls
+      hosts:
+        - kino.vasary.org
+  rules:
+    - host: kino.vasary.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kino
+                port:
+                  name: http

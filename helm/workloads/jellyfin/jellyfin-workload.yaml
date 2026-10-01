@@ -43,6 +43,8 @@ spec:
               mountPropagation: HostToContainer
             - name: seasonvar-media
               mountPath: /seasonvar
+            - name: kino-media
+              mountPath: /kino
           readinessProbe:
             httpGet:
               path: /health
@@ -135,6 +137,9 @@ spec:
         - name: seasonvar-media
           persistentVolumeClaim:
             claimName: seasonvar-media
+        - name: kino-media
+          persistentVolumeClaim:
+            claimName: kino-media
 ---
 apiVersion: v1
 kind: Service

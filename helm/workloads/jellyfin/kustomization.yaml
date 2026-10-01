@@ -8,6 +8,10 @@ resources:
   - jellyfin-storage.yaml
   - postgres-backup.yaml
   - jellyfin-workload.yaml
+  - kino-storage.yaml
+  - kino-workload.yaml
+  - kino-jobs.yaml
+  - kino-routing.yaml
   - seasonvar-storage.yaml
   - seasonvar-workload.yaml
   - seasonvar-jobs.yaml

@@ -12,6 +12,7 @@ resources:
   - homepage-blueprint.yaml
   - immich-blueprint.yaml
   - jellyfin-blueprint.yaml
+  - kino-blueprint.yaml
   - librechat-blueprint.yaml
   - llm-proxy-blueprint.yaml
   - outline-blueprint.yaml

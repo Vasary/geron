@@ -12,3 +12,18 @@ spec:
   storage:
     storageClass: local-path
     size: 1Gi
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: kino-postgres-local
+  namespace: media
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: kino
+      owner: kino
+  storage:
+    storageClass: local-path
+    size: 1Gi

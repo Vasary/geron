@@ -83,3 +83,89 @@ spec:
           volumes:
             - name: backup-work
               emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kino-postgres-backup
+  namespace: media
+  labels:
+    geron.io/sftp-backup: "true"
+spec:
+  schedule: "50 3 * * *"
+  timeZone: Europe/Berlin
+  suspend: false
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          restartPolicy: OnFailure
+          containers:
+            - name: pg-dump
+              image: postgres:18-trixie
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              env:
+                - name: PGHOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: kino-postgres-local-app
+                      key: host
+                - name: PGPORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: kino-postgres-local-app
+                      key: port
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: kino-postgres-local-app
+                      key: dbname
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: kino-postgres-local-app
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: kino-postgres-local-app
+                      key: password
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  (
+                  target_dir=/backup-work/kino
+                  mkdir -p "$target_dir"
+                  pg_dump --clean --if-exists --no-owner --no-privileges | gzip > "$target_dir/kino-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+                  ) || { touch /backup-work/.failed; exit 1; }
+                  touch /backup-work/.done
+              volumeMounts:
+                - name: backup-work
+                  mountPath: /backup-work
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+          volumes:
+            - name: backup-work
+              emptyDir: {}
