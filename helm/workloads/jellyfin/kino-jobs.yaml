@@ -29,8 +29,8 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/kino-go:latest
-              imagePullPolicy: IfNotPresent
+              image: ghcr.io/vasary/go-kino:latest
+              imagePullPolicy: Always
               args:
                 - sync
               env:
@@ -64,7 +64,7 @@ spec:
                       name: seasonvar-jellyfin
                       key: JELLYFIN_API_KEY
                 - name: LIBRARY_PATH
-                  value: /library
+                  value: /kino
                 - name: PUBLIC_URL
                   value: https://kino-stream.vasary.org
                 - name: KINOGO_BASE_URL
@@ -87,7 +87,7 @@ spec:
                   value: Europe/Berlin
               volumeMounts:
                 - name: library
-                  mountPath: /library
+                  mountPath: /kino
               resources:
                 requests:
                   cpu: 100m
@@ -108,7 +108,7 @@ metadata:
     app.kubernetes.io/name: kino
     app.kubernetes.io/component: generate
 spec:
-  schedule: "45 * * * *"
+  schedule: "*/5 * * * *"
   timeZone: Europe/Berlin
   suspend: false
   concurrencyPolicy: Forbid
@@ -130,8 +130,8 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/kino-go:latest
-              imagePullPolicy: IfNotPresent
+              image: ghcr.io/vasary/go-kino:latest
+              imagePullPolicy: Always
               args:
                 - generate
               env:
@@ -165,14 +165,14 @@ spec:
                       name: seasonvar-jellyfin
                       key: JELLYFIN_API_KEY
                 - name: LIBRARY_PATH
-                  value: /library
+                  value: /kino
                 - name: PUBLIC_URL
                   value: https://kino-stream.vasary.org
                 - name: TZ
                   value: Europe/Berlin
               volumeMounts:
                 - name: library
-                  mountPath: /library
+                  mountPath: /kino
               resources:
                 requests:
                   cpu: 100m

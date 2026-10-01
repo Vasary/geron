@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: kino
+        app.kubernetes.io/component: server
     spec:
       imagePullSecrets:
         - name: ghcr-vasary
@@ -24,8 +25,8 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: kino
-          image:  ghcr.io/vasary/go-kino:latest
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/vasary/go-kino:latest
+          imagePullPolicy: Always
           args:
             - serve
           ports:
@@ -62,7 +63,7 @@ spec:
                   name: seasonvar-jellyfin
                   key: JELLYFIN_API_KEY
             - name: LIBRARY_PATH
-              value: /library
+              value: /kino
             - name: PUBLIC_URL
               value: https://kino-stream.vasary.org
             - name: SERVER_ADDRESS
@@ -87,7 +88,7 @@ spec:
               value: Europe/Berlin
           volumeMounts:
             - name: library
-              mountPath: /library
+              mountPath: /kino
           readinessProbe:
             httpGet:
               path: /health
@@ -121,6 +122,7 @@ metadata:
 spec:
   selector:
     app.kubernetes.io/name: kino
+    app.kubernetes.io/component: server
   ports:
     - name: http
       port: 80
