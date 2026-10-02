@@ -29,7 +29,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/go-kino:v0.1.7
+              image: ghcr.io/vasary/go-kino:v0.1.8
               imagePullPolicy: Always
               args:
                 - sync
@@ -130,7 +130,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/go-kino:v0.1.7
+              image: ghcr.io/vasary/go-kino:v0.1.8
               imagePullPolicy: Always
               args:
                 - reprocess-all
@@ -227,7 +227,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/go-kino:v0.1.7
+              image: ghcr.io/vasary/go-kino:v0.1.8
               imagePullPolicy: Always
               args:
                 - generate
