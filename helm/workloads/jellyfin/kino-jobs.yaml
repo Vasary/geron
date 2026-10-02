@@ -29,7 +29,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/go-kino:v0.1.2
+              image: ghcr.io/vasary/go-kino:v0.1.3
               imagePullPolicy: Always
               args:
                 - sync
@@ -70,7 +70,7 @@ spec:
                 - name: KINOGO_BASE_URL
                   value: https://kinogo.online
                 - name: CATALOG_URL
-                  value: /filmy/
+                  value: /novinki/
                 - name: CATALOG_PAGES
                   value: "1"
                 - name: SYNC_WORKERS
@@ -130,7 +130,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
           containers:
             - name: kino
-              image: ghcr.io/vasary/go-kino:v0.1.2
+              image: ghcr.io/vasary/go-kino:v0.1.3
               imagePullPolicy: Always
               args:
                 - generate
