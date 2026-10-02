@@ -5,6 +5,25 @@ metadata:
 spec:
   template:
     spec:
+      containers:
+        - name: dex
+          command:
+            - /bin/sh
+            - -c
+            - |
+              (
+                last_mtime=""
+                while true; do
+                  current_mtime="$(stat -c %Y /tmp/dex.yaml 2>/dev/null || true)"
+                  if [ -n "$current_mtime" ] && [ "$current_mtime" != "$last_mtime" ]; then
+                    last_mtime="$current_mtime"
+                    grep -q "argocd://auth/callback" /tmp/dex.yaml 2>/dev/null || \
+                      sed -i "s|  - http://localhost:8085/auth/callback|  - http://localhost:8085/auth/callback\\n  - argocd://auth/callback|" /tmp/dex.yaml
+                  fi
+                  sleep 0.2
+                done
+              ) &
+              exec /shared/argocd-dex rundex
       initContainers:
         - name: wait-for-authentik
           image: curlimages/curl:8.11.1
