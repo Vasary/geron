@@ -7,24 +7,44 @@ spec:
     spec:
       containers:
         - name: dex
+          env:
+            - name: PATH
+              value: /shared:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           command:
             - /bin/sh
             - -c
             - |
-              (
-                last_mtime=""
-                while true; do
-                  current_mtime="$(stat -c %Y /tmp/dex.yaml 2>/dev/null || true)"
-                  if [ -n "$current_mtime" ] && [ "$current_mtime" != "$last_mtime" ]; then
-                    last_mtime="$current_mtime"
-                    grep -q "argocd://auth/callback" /tmp/dex.yaml 2>/dev/null || \
-                      sed -i "s|  - http://localhost:8085/auth/callback|  - http://localhost:8085/auth/callback\\n  - argocd://auth/callback|" /tmp/dex.yaml
-                  fi
-                  sleep 0.2
-                done
-              ) &
               exec /shared/argocd-dex rundex
       initContainers:
+        - name: copy-dex-wrapper
+          image: ghcr.io/dexidp/dex:v2.45.0
+          command:
+            - sh
+            - -c
+            - |
+              cp /usr/local/bin/dex /shared/dex-real
+              printf '%s\n' \
+                '#!/bin/sh' \
+                'if [ "$1" = "serve" ] && [ -n "$2" ]; then' \
+                '  grep -q "argocd://auth/callback" "$2" 2>/dev/null || \' \
+                '    sed -i "s|  - http://localhost:8085/auth/callback|  - http://localhost:8085/auth/callback\\n  - argocd://auth/callback|" "$2"' \
+                'fi' \
+                'exec /shared/dex-real "$@"' \
+                >/shared/dex
+              chmod 0755 /shared/dex /shared/dex-real
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - mountPath: /shared
+              name: static-files
         - name: wait-for-authentik
           image: curlimages/curl:8.11.1
           command:
