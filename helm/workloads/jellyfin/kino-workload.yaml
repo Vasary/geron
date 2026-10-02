@@ -25,7 +25,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: kino
-          image: ghcr.io/vasary/go-kino:latest
+          image: ghcr.io/vasary/go-kino:v0.1.0
           imagePullPolicy: Always
           args:
             - serve
