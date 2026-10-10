@@ -66,7 +66,7 @@ spec:
             limits:
               memory: 4Gi
         - name: archive-mounter
-          image: registry.k8s.io/sig-storage/nfsplugin:v4.13.4
+          image: registry.k8s.io/sig-storage/nfsplugin:v4.13.5
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
