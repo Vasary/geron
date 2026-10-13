@@ -10,6 +10,7 @@ data:
       store_model_in_db: true
       ui_access_mode: admin_only
       default_team_disabled: true
+      disable_env_credential_login: true
     litellm_settings:
       drop_params: true
       set_verbose: false
