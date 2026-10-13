@@ -47,7 +47,7 @@ spec:
               mountPath: /oauth-config
       containers:
         - name: seafile
-          image: seafileltd/seafile-mc:13.0.28
+          image: seafileltd/seafile-mc:14.0.9
           imagePullPolicy: IfNotPresent
           command:
             - /usr/bin/python3
@@ -101,8 +101,16 @@ spec:
               value: 'false'
             - name: ENABLE_SEAFILE_AI
               value: 'false'
-            - name: ENABLE_FACE_RECOGNITION
+            - name: ENABLE_SEAFDAV
               value: 'false'
+            - name: SEAFDAV_WORKERS
+              value: '5'
+            - name: ENABLE_METADATA_MANAGEMENT
+              value: 'False'
+            - name: INNER_METADATA_SERVER_URL
+              value: http://seafile-md-server:8084
+            - name: CSRF_TRUSTED_ORIGINS
+              value: https://seafile.vasary.org
             - name: MD_FILE_COUNT_LIMIT
               value: '100000'
             - name: INIT_SEAFILE_ADMIN_EMAIL
