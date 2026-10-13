@@ -38,6 +38,7 @@ spec:
               - authentik-blueprint-kino
               - authentik-blueprint-librechat
               - authentik-blueprint-llm-proxy
+              - authentik-blueprint-openhands
               - authentik-blueprint-outline
               - authentik-blueprint-paperless
               - authentik-blueprint-proxy-outpost

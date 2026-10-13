@@ -21,6 +21,7 @@ resources:
   - metallb-system.yaml
   - monitoring.yaml
   - nfs-csi.yaml
+  - openhands.yaml
   - outline.yaml
   - paperless.yaml
   - redis-operator.yaml

@@ -7,3 +7,4 @@ resources:
   - mcp-mikrotik.yaml
   - mcp-paperless.yaml
   - mcp-pihole.yaml
+  - openhands.yaml

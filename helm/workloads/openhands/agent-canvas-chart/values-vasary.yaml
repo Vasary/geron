@@ -1,0 +1,116 @@
+fullnameOverride: openhands
+
+image:
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  automountServiceAccountToken: false
+
+rbac:
+  enabled: false
+  clusterAdmin: false
+  namespaces: []
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: openhands-openhands-auth@kubernetescrd
+  hosts:
+    - host: openhands.vasary.org
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: openhands-vasary-tls
+      hosts:
+        - openhands.vasary.org
+
+persistence:
+  enabled: true
+  mounts:
+    - mountPath: /home/openhands/.openhands
+      subPath: openhands
+  size: 20Gi
+  storageClassName: local-path-nvme
+  accessModes:
+    - ReadWriteOnce
+
+extraVolumes:
+  - name: workspace
+    emptyDir:
+      sizeLimit: 20Gi
+
+extraVolumeMounts:
+  - name: workspace
+    mountPath: /home/openhands/workspace
+
+config:
+  port: 8000
+  agentServerPort: 18000
+  automationPort: 18001
+  automationDbUrl: ""
+  extraEnv:
+    - name: LLM_BASE_URL
+      value: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/v1
+    - name: LLM_MODEL
+      value: gpt-4o-mini
+    - name: LLM_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: openhands-secrets
+          key: LLM_API_KEY
+    - name: LLM_TIMEOUT
+      value: "300"
+    - name: LLM_NUM_RETRIES
+      value: "3"
+    - name: MAX_CONCURRENT_AGENTS
+      value: "3"
+    - name: AGENT_TIMEOUT_SECONDS
+      value: "14400"
+    - name: WORKSPACE_BASE
+      value: /home/openhands/workspace
+
+llmSecret:
+  create: true
+  name: openhands-secrets
+  llmApiKey: change-me
+
+podSecurityContext:
+  fsGroup: 10001
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+    ephemeral-storage: 1Gi
+  limits:
+    cpu: "4"
+    memory: 8Gi
+    ephemeral-storage: 24Gi
+
+auth:
+  forwardAuth:
+    enabled: true
+    address: http://authentik-server.authentik.svc.cluster.vasary.org/outpost.goauthentik.io/auth/traefik
+
+networkPolicy:
+  enabled: false

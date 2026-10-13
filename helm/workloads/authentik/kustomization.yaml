@@ -16,6 +16,7 @@ resources:
   - librechat-blueprint.yaml
   - llm-proxy-blueprint.yaml
   - outline-blueprint.yaml
+  - openhands-blueprint.yaml
   - paperless-blueprint.yaml
   - postgres-backup.yaml
   - proxy-outpost-blueprint.yaml
