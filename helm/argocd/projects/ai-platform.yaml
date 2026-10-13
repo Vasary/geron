@@ -14,6 +14,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: librechat
       server: https://kubernetes.default.svc
+    - namespace: openhands
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ''
       kind: Namespace
