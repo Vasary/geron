@@ -22,28 +22,17 @@ Vasary values.
 
 ## LLM Secret
 
-The chart creates a placeholder Secret:
+The LLM API key is stored in the SOPS-encrypted secret:
 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: openhands-secrets
-  namespace: openhands
-stringData:
-  LLM_API_KEY: change-me
+```text
+helm/secrets/openhands.sops.yaml
 ```
 
-Replace it with the real LiteLLM key before relying on agents:
+Apply it with the repo's standard secret flow:
 
 ```sh
-kubectl -n openhands create secret generic openhands-secrets \
-  --from-literal=LLM_API_KEY='<real key>' \
-  --dry-run=client -o yaml | kubectl apply -f -
+make -C helm deploy-secrets
 ```
-
-For long-term GitOps, replace the generated placeholder with a SOPS-encrypted
-secret under `helm/secrets/` and disable `llmSecret.create`.
 
 Change the model in:
 

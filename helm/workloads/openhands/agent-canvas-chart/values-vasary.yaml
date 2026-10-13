@@ -80,7 +80,7 @@ config:
       value: /home/openhands/workspace
 
 llmSecret:
-  create: true
+  create: false
   name: openhands-secrets
   llmApiKey: change-me
 
