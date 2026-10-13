@@ -84,6 +84,11 @@ llmSecret:
   name: openhands-secrets
   llmApiKey: change-me
 
+secrets:
+  sessionApiKey:
+    existingSecret: openhands-secrets
+    key: sessionApiKey
+
 podSecurityContext:
   fsGroup: 10001
   runAsNonRoot: true
