@@ -9,7 +9,7 @@ metadata:
 spec:
   schedule: "15 * * * *"
   timeZone: Europe/Berlin
-  suspend: false
+  suspend: true
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -110,7 +110,7 @@ metadata:
 spec:
   schedule: "0 8,17 * * *"
   timeZone: Europe/Berlin
-  suspend: false
+  suspend: true
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -207,7 +207,7 @@ metadata:
 spec:
   schedule: "*/5 * * * *"
   timeZone: Europe/Berlin
-  suspend: false
+  suspend: true
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
