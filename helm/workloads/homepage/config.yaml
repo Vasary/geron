@@ -191,12 +191,6 @@ data:
             description: LLM gateway and model access
             siteMonitor: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/health/liveliness
             statusStyle: dot
-        - OpenHands:
-            icon: openai.png
-            href: https://openhands.vasary.org/
-            description: Agent Canvas
-            siteMonitor: http://openhands.openhands.svc.cluster.vasary.org:8000/alive
-            statusStyle: dot
 
     - Documents:
         - Paperless:
