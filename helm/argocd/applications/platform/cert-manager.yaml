@@ -16,6 +16,10 @@ spec:
       values: |
         crds:
           enabled: true
+        # ACME records are public; internal AdGuard rewrites hide them.
+        extraArgs:
+          - --dns01-recursive-nameservers-only
+          - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
         prometheus:
           enabled: true
           servicemonitor:
