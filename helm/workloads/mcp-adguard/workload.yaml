@@ -17,32 +17,47 @@ spec:
       labels:
         app.kubernetes.io/name: mcp-adguard
     spec:
+      initContainers:
+        - name: install-mcp
+          image: supercorp/supergateway:4.2.0@sha256:61ffc26bf72b0b252a3aba926ff67b9d78e7181d19905f1f9c8fc6b7f6c3ad3d
+          command:
+            - npm
+          args:
+            - install
+            - --prefix=/opt/mcp
+            - --ignore-scripts
+            - --no-audit
+            - --no-fund
+            - '@fcannizzaro/mcp-adguard-home@1.0.6'
+          volumeMounts:
+            - name: mcp-package
+              mountPath: /opt/mcp
       containers:
         - name: server
-          image: knucklessg1/adguard-home-agent:0.17.0-mcp@sha256:33381e1b49fd19c66e10be47eb560ccc8f3389f8044b6055d5beb9f2d8ba5429
+          image: supercorp/supergateway:4.2.0@sha256:61ffc26bf72b0b252a3aba926ff67b9d78e7181d19905f1f9c8fc6b7f6c3ad3d
           args:
-            - --transport=streamable-http
+            - --stdio
+            - node /opt/mcp/node_modules/@fcannizzaro/mcp-adguard-home/dist/index.mjs
+            - --outputTransport=streamableHttp
+            - --stateful
             - --host=0.0.0.0
             - --port=8000
-            - --auth-type=static
-            - --static-tokens-ref=env://MCP_STATIC_TOKENS
-            - --token-audience=https://mcp-adguard.vasary.org/mcp
-            - --tls-terminated
-            - --trusted-proxy-cidrs=10.244.0.0/24
-            - --allowed-hosts=mcp-adguard.vasary.org
-          command:
-            - adguard-mcp
+            - --healthEndpoint=/healthz
+          volumeMounts:
+            - name: mcp-package
+              mountPath: /opt/mcp
+              readOnly: true
           ports:
             - name: http
               containerPort: 8000
           env:
             - name: TZ
               value: Europe/Berlin
-            - name: MCP_STATIC_TOKENS
+            - name: SUPERGATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: adguard-configuration
-                  key: mcp_tokens
+                  key: mcp_api_key
             - name: ADGUARD_URL
               valueFrom:
                 secretKeyRef:
@@ -59,12 +74,14 @@ spec:
                   name: adguard-configuration
                   key: password
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: http
             periodSeconds: 15
             timeoutSeconds: 5
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
               port: http
             initialDelaySeconds: 30
             periodSeconds: 30
@@ -75,6 +92,9 @@ spec:
               memory: 128Mi
             limits:
               memory: 512Mi
+      volumes:
+        - name: mcp-package
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

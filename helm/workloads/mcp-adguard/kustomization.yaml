@@ -4,4 +4,3 @@ components:
   - ../../platform/components/deployment-history-limit
 resources:
   - workload.yaml
-  - ingress.yaml
