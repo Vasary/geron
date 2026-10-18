@@ -126,11 +126,6 @@ data:
         - Cloudflare DNS:
             icon: cloudflare.png
             href: https://dash.cloudflare.com/?to=/:account/:zone/dns
-        - Pi-hole:
-            icon: pi-hole.png
-            href: https://dns.vasary.org/admin/login
-            siteMonitor: https://dns.vasary.org/admin/login
-            statusStyle: dot
         - NAS:
             icon: mdi-nas
             href: https://nas.vasary.org/

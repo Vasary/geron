@@ -67,7 +67,6 @@ AI platform:
 - MCP memory service: `http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp`
 - MCP Paperless: `http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp`
 - MCP MikroTik: `http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp`
-- MCP Pi-hole: `http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/sse`
 
 LibreChat connects the MCP endpoints declaratively from `librechat.yaml`.
 
@@ -81,8 +80,8 @@ This cluster depends on a few services outside Kubernetes:
   - NVMe local PVC storage (`local-path-nvme`): `/var/mnt/local-path-nvme`
 - SFTP backup server `10.10.0.4:2022`
   - Kubernetes backup jobs authenticate with `sftp-backup-credentials`.
-- Local DNS/Pi-hole at `10.10.0.2`
-  - Used by Talos DNS/NTP settings and external-dns.
+- AdGuard Home at `192.168.178.3`
+  - ExternalDNS manages internal DNS records through the AdGuard webhook provider.
 - Default gateway on `10.10.0.1`.
 - Cloudflare
   - DNS-01 ACME challenges for certificates.

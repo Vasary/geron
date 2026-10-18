@@ -6,4 +6,3 @@ resources:
   - mcp-memory-service.yaml
   - mcp-mikrotik.yaml
   - mcp-paperless.yaml
-  - mcp-pihole.yaml

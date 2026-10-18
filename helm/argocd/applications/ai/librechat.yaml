@@ -69,7 +69,6 @@ spec:
                 - mcp-memory-service.mcp.svc.cluster.vasary.org:8765
                 - mcp-paperless.mcp.svc.cluster.vasary.org:3101
                 - mcp-mikrotik.mcp.svc.cluster.vasary.org:3105
-                - mcp-pihole.mcp.svc.cluster.vasary.org:3100
                 - coins-inventory.coins-inventory.svc.cluster.vasary.org:80
 
             mcpServers:
@@ -87,10 +86,6 @@ spec:
               mikrotik:
                 type: streamable-http
                 url: http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp
-                timeout: 60000
-              pihole:
-                type: sse
-                url: http://mcp-pihole.mcp.svc.cluster.vasary.org:3100/sse
                 timeout: 60000
               coins-inventory:
                 type: streamable-http
