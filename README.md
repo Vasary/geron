@@ -67,8 +67,18 @@ AI platform:
 - MCP memory service: `http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp`
 - MCP Paperless: `http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp`
 - MCP MikroTik: `http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp`
+- MCP AdGuard Home: `https://mcp-adguard.vasary.org/mcp` (internal DNS)
 
 LibreChat connects the MCP endpoints declaratively from `librechat.yaml`.
+
+The AdGuard MCP uses `knucklessg1/adguard-home-agent` with credentials from
+`helm/secrets/mcp-adguard.sops.yaml` in the `mcp` namespace. Apply encrypted
+secrets with `make -C helm deploy-secrets` before syncing the application.
+LibreChat authenticates with `MCP_ADGUARD_API_KEY` from its encrypted secret.
+The MCP listener trusts TLS termination by Traefik from pod CIDR `10.244.0.0/24`;
+update this boundary if the cluster pod network changes.
+ExternalDNS owns the Ingress DNS rewrite rules; preserve these and other existing
+rules when changing AdGuard filtering rules through MCP.
 
 ## External Dependencies
 

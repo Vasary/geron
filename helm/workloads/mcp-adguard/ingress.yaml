@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-adguard
+  namespace: mcp
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    geron.io/dns-scope: internal
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: mcp-adguard-vasary-tls
+      hosts:
+        - mcp-adguard.vasary.org
+  rules:
+    - host: mcp-adguard.vasary.org
+      http:
+        paths:
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: mcp-adguard
+                port:
+                  name: http

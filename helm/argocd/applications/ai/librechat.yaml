@@ -66,12 +66,20 @@ spec:
 
             mcpSettings:
               allowedAddresses:
+                - mcp-adguard.vasary.org:443
                 - mcp-memory-service.mcp.svc.cluster.vasary.org:8765
                 - mcp-paperless.mcp.svc.cluster.vasary.org:3101
                 - mcp-mikrotik.mcp.svc.cluster.vasary.org:3105
                 - coins-inventory.coins-inventory.svc.cluster.vasary.org:80
 
             mcpServers:
+              adguard:
+                type: streamable-http
+                requiresOAuth: false
+                url: https://mcp-adguard.vasary.org/mcp
+                headers:
+                  Authorization: "Bearer ${MCP_ADGUARD_API_KEY}"
+                timeout: 60000
               memory:
                 type: streamable-http
                 requiresOAuth: false
