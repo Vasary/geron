@@ -54,6 +54,11 @@ spec:
                 secretKeyRef:
                   name: seasonvar-jellyfin
                   key: JELLYFIN_API_KEY
+            - name: JELLYFIN_LIBRARY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: seasonvar-jellyfin
+                  key: JELLYFIN_LIBRARY_ID
             - name: LIBRARY_PATH
               value: /library
             - name: PUBLIC_URL
