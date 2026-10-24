@@ -22,7 +22,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: outline
-          image: docker.getoutline.com/outlinewiki/outline:1.11.0
+          image: docker.getoutline.com/outlinewiki/outline:1.12.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
