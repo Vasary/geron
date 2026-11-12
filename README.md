@@ -50,7 +50,6 @@ Core platform:
 Applications:
 
 - Authentik for SSO and OAuth/OIDC integration.
-- LibreChat for the LLM and MCP workspace, with Authentik OIDC login.
 - Grafana and Prometheus for monitoring.
 - Immich.
 - Jellyfin and Seasonvar.
@@ -63,13 +62,10 @@ Applications:
 AI platform:
 
 - Argo CD project: `ai-platform`
-- LibreChat: https://chat.vasary.org
 - MCP memory service: `http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp`
 - MCP Paperless: `http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp`
 - MCP MikroTik: `http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp`
 - MCP AdGuard Home: `http://mcp-adguard.mcp.svc.cluster.vasary.org:3100/mcp`
-
-LibreChat connects the MCP endpoints declaratively from `librechat.yaml`.
 
 The AdGuard MCP uses `@fcannizzaro/mcp-adguard-home@1.0.6` through
 `supercorp/supergateway:4.2.0` on an internal ClusterIP Service, without Ingress.
@@ -77,8 +73,7 @@ An init container installs the pinned MCP package into an ephemeral volume;
 starting a new pod requires access to the npm registry.
 Credentials and the gateway API key are stored in `helm/secrets/mcp-adguard.sops.yaml`
 in the `mcp` namespace. Apply encrypted secrets with `make -C helm deploy-secrets`
-before syncing the application. LibreChat authenticates with `MCP_ADGUARD_API_KEY`
-from its encrypted secret.
+before syncing the application.
 ExternalDNS owns the Ingress DNS rewrite rules; preserve these and other existing
 rules when changing AdGuard filtering rules through MCP.
 
@@ -205,10 +200,6 @@ Unsent files live in `emptyDir` and are lost when the pod is removed; a later ru
 creates a new backup rather than retrying the previous one. Failures reported by
 the backup producer still fail the Job.
 
-Vikunja backup credentials are stored in
-`helm/secrets/sftp-backup-vikunja.sops.yaml`, encrypted with SOPS and using the
-same SFTP settings as the other applications. Apply them with `make -C helm
-deploy-secrets` (secrets are not automatically decrypted by Argo CD).
 Existing Jobs retain their original commands; the upload policy affects new Jobs.
 Previously failed Jobs may keep Argo CD degraded until CronJob history cleanup.
 

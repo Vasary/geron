@@ -131,11 +131,6 @@ data:
             href: https://nas.vasary.org/
             siteMonitor: https://nas.vasary.org/
             statusStyle: dot
-        - Frigate:
-            icon: frigate.png
-            href: https://frigate.vasary.org/
-            siteMonitor: http://frigate.media.svc.cluster.vasary.org
-            statusStyle: dot
 
     - Platform:
         - Argo CD:
@@ -174,12 +169,6 @@ data:
             statusStyle: dot
 
     - AI:
-        - LibreChat:
-            icon: librechat.png
-            href: https://chat.vasary.org/
-            description: Chat UI via LiteLLM
-            siteMonitor: http://librechat.librechat.svc.cluster.vasary.org:3080/health
-            statusStyle: dot
         - LiteLLM:
             icon: openai.png
             href: https://llm-proxy.vasary.org/ui
@@ -226,12 +215,6 @@ data:
             description: Media library
             siteMonitor: http://jellyfin.media.svc.cluster.vasary.org/health
             statusStyle: dot
-        - Frigate:
-            icon: frigate.png
-            href: https://frigate.vasary.org/
-            description: Camera NVR
-            siteMonitor: http://frigate.media.svc.cluster.vasary.org
-            statusStyle: dot
         - Seasonvar:
             icon: mdi-television-classic
             href: https://seasonvar.vasary.org/
@@ -240,12 +223,6 @@ data:
             statusStyle: dot
 
     - Apps:
-        - Vikunja:
-            icon: vikunja.png
-            href: https://todo.vasary.org/
-            description: Tasks and projects
-            siteMonitor: http://vikunja.vikunja.svc.cluster.vasary.org
-            statusStyle: dot
         - Vaultwarden:
             icon: vaultwarden.png
             href: https://key.vasary.org/
@@ -257,10 +234,4 @@ data:
             href: https://coins-inventory.vasary.org/
             description: Collection inventory
             siteMonitor: http://coins-inventory.coins-inventory.svc.cluster.vasary.org/api/maintenance/health
-            statusStyle: dot
-        - FreshRSS:
-            icon: freshrss.png
-            href: https://rss.vasary.org/
-            description: RSS reader
-            siteMonitor: http://freshrss.freshrss.svc.cluster.vasary.org
             statusStyle: dot

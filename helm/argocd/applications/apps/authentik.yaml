@@ -29,14 +29,11 @@ spec:
           blueprints:
             configMaps:
               - authentik-blueprint-argocd
-              - authentik-blueprint-frigate
-              - authentik-blueprint-freshrss
               - authentik-blueprint-grafana
               - authentik-blueprint-homepage
               - authentik-blueprint-immich
               - authentik-blueprint-jellyfin
               - authentik-blueprint-kino
-              - authentik-blueprint-librechat
               - authentik-blueprint-llm-proxy
               - authentik-blueprint-outline
               - authentik-blueprint-paperless
@@ -44,7 +41,6 @@ spec:
               - authentik-blueprint-seafile
               - authentik-blueprint-seasonvar
               - authentik-blueprint-stirling-pdf
-              - authentik-blueprint-vikunja
               - authentik-blueprint-vaultwarden
 
           postgresql:

@@ -9,10 +9,8 @@ resources:
   - echo-server.yaml
   - external-dns.yaml
   - external-secrets.yaml
-  - freshrss.yaml
   - homepage.yaml
   - immich.yaml
-  - librechat.yaml
   - llm-proxy.yaml
   - local-path-storage.yaml
   - mariadb-operator.yaml
@@ -28,5 +26,4 @@ resources:
   - seafile.yaml
   - stirling-pdf.yaml
   - traefik.yaml
-  - vikunja.yaml
   - vaultwarden.yaml

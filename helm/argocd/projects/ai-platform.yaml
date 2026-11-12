@@ -6,13 +6,11 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
-  description: LibreChat, MCP, and agent platform services
+  description: MCP and agent platform services
   sourceRepos:
     - '*'
   destinations:
     - namespace: mcp
-      server: https://kubernetes.default.svc
-    - namespace: librechat
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ''
