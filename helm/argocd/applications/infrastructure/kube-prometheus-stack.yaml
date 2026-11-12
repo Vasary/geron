@@ -221,13 +221,11 @@ spec:
                         prefix=${name_file%_name}
                         constraint=$(cat "$name_file")
                         case "$constraint" in ''|*[!a-zA-Z0-9_-]*) exit 1 ;; esac
-                        if [ -f "${prefix}_power_limit_uw" ]; then
-                          value=$(cat "${prefix}_power_limit_uw")
+                        if [ -f "${prefix}_power_limit_uw" ] && value=$(cat "${prefix}_power_limit_uw" 2>/dev/null); then
                           case "$value" in ''|*[!0-9]*) exit 1 ;; esac
                           awk -v package="$package" -v constraint="$constraint" -v value="$value" 'BEGIN { printf "node_cpu_package_power_limit_watts{package=\"%s\",constraint=\"%s\"} %.6f\n", package, constraint, value / 1000000 }'
                         fi
-                        if [ -f "${prefix}_time_window_us" ]; then
-                          value=$(cat "${prefix}_time_window_us")
+                        if [ -f "${prefix}_time_window_us" ] && value=$(cat "${prefix}_time_window_us" 2>/dev/null); then
                           case "$value" in ''|*[!0-9]*) exit 1 ;; esac
                           awk -v package="$package" -v constraint="$constraint" -v value="$value" 'BEGIN { printf "node_cpu_package_power_limit_window_seconds{package=\"%s\",constraint=\"%s\"} %.6f\n", package, constraint, value / 1000000 }'
                         fi
