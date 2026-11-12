@@ -200,12 +200,54 @@ spec:
                     done
                     [ "$seen" != " " ]
                   )
+                  collect_rapl() (
+                    set -eu
+                    found=false
+                    printf '# HELP node_cpu_package_energy_joules_total CPU package energy consumed since boot.\n'
+                    printf '# TYPE node_cpu_package_energy_joules_total counter\n'
+                    printf '# HELP node_cpu_package_power_limit_watts Configured CPU package RAPL power limit.\n'
+                    printf '# TYPE node_cpu_package_power_limit_watts gauge\n'
+                    printf '# HELP node_cpu_package_power_limit_window_seconds Configured CPU package RAPL power-limit time window.\n'
+                    printf '# TYPE node_cpu_package_power_limit_window_seconds gauge\n'
+                    for zone in /host/sys/devices/virtual/powercap/intel-rapl/intel-rapl:[0-9]*; do
+                      [ -f "$zone/energy_uj" ] || continue
+                      package=${zone##*:}
+                      [ "$(cat "$zone/name")" = "package-$package" ] || continue
+                      energy_uj=$(cat "$zone/energy_uj")
+                      case "$package:$energy_uj" in *[!0-9:]*|:*|*:) exit 1 ;; esac
+                      awk -v package="$package" -v value="$energy_uj" 'BEGIN { printf "node_cpu_package_energy_joules_total{package=\"%s\"} %.6f\n", package, value / 1000000 }'
+                      for name_file in "$zone"/constraint_[0-9]*_name; do
+                        [ -f "$name_file" ] || continue
+                        prefix=${name_file%_name}
+                        constraint=$(cat "$name_file")
+                        case "$constraint" in ''|*[!a-zA-Z0-9_-]*) exit 1 ;; esac
+                        if [ -f "${prefix}_power_limit_uw" ]; then
+                          value=$(cat "${prefix}_power_limit_uw")
+                          case "$value" in ''|*[!0-9]*) exit 1 ;; esac
+                          awk -v package="$package" -v constraint="$constraint" -v value="$value" 'BEGIN { printf "node_cpu_package_power_limit_watts{package=\"%s\",constraint=\"%s\"} %.6f\n", package, constraint, value / 1000000 }'
+                        fi
+                        if [ -f "${prefix}_time_window_us" ]; then
+                          value=$(cat "${prefix}_time_window_us")
+                          case "$value" in ''|*[!0-9]*) exit 1 ;; esac
+                          awk -v package="$package" -v constraint="$constraint" -v value="$value" 'BEGIN { printf "node_cpu_package_power_limit_window_seconds{package=\"%s\",constraint=\"%s\"} %.6f\n", package, constraint, value / 1000000 }'
+                        fi
+                      done
+                      found=true
+                    done
+                    [ "$found" = true ]
+                  )
                   while true; do
                     if collect > /textfile/thermal.prom.tmp; then
                       mv /textfile/thermal.prom.tmp /textfile/thermal.prom
                     else
                       rm -f /textfile/thermal.prom /textfile/thermal.prom.tmp
                       echo "Cannot read CPU thermal throttle duration" >&2
+                    fi
+                    if collect_rapl > /textfile/rapl.prom.tmp; then
+                      mv /textfile/rapl.prom.tmp /textfile/rapl.prom
+                    else
+                      rm -f /textfile/rapl.prom /textfile/rapl.prom.tmp
+                      echo "Cannot read Intel RAPL metrics" >&2
                     fi
                     sleep 15
                   done
