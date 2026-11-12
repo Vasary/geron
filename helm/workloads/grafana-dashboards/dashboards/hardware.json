@@ -13,7 +13,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 39,
-  "version": 7,
+  "version": 8,
   "refresh": "30s",
   "time": {
     "from": "now-6h",
@@ -620,7 +620,7 @@
       "gridPos": {
         "x": 0,
         "y": 12,
-        "w": 16,
+        "w": 12,
         "h": 7
       },
       "fieldConfig": {
@@ -700,17 +700,17 @@
     },
     {
       "id": 12,
-      "title": "CPU Throttling",
-      "description": "Thermal throttling events in the last 15 minutes: the CPU slows down to cool itself. Zero is normal. This is a counter increase, not a duration; fractions are rounded for display.",
+      "title": "Throttle Events (15m)",
+      "description": "Number of CPU package thermal-throttling events during the rolling last 15 minutes. This is increase(node_cpu_package_throttles_total[15m]), not a temperature, TjMax, or duration. Prometheus may calculate a fractional increase; the panel rounds it to a whole event.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 16,
+        "x": 12,
         "y": 12,
-        "w": 4,
+        "w": 6,
         "h": 7
       },
       "fieldConfig": {
@@ -793,17 +793,17 @@
     },
     {
       "id": 15,
-      "title": "Throttle Time",
-      "description": "CPU package thermal throttling duration over the last 15 minutes, in seconds. Each package is counted once. No data means the duration collector is unavailable; increase() extrapolates between samples.",
+      "title": "Throttled Time (15m)",
+      "description": "CPU package thermal-throttling time accumulated during the rolling last 15 minutes. The source is a seconds counter derived from Linux package_throttle_total_time_ms; Grafana automatically displays sub-second values as ms. This is not the total since boot. Each package is counted once; increase() handles counter resets and extrapolates between samples.",
       "type": "stat",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
       },
       "gridPos": {
-        "x": 20,
+        "x": 18,
         "y": 12,
-        "w": 4,
+        "w": 6,
         "h": 7
       },
       "fieldConfig": {
