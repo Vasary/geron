@@ -13,7 +13,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 39,
-  "version": 9,
+  "version": 10,
   "refresh": "30s",
   "time": {
     "from": "now-6h",
@@ -873,7 +873,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 19,
+        "y": 26,
         "w": 16,
         "h": 4
       },
@@ -1108,7 +1108,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 19,
+        "y": 26,
         "w": 8,
         "h": 4
       },
@@ -1214,7 +1214,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 23,
+        "y": 30,
         "w": 24,
         "h": 7
       },
@@ -1316,7 +1316,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 30,
+        "y": 37,
         "w": 20,
         "h": 7
       },
@@ -1418,7 +1418,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 30,
+        "y": 37,
         "w": 4,
         "h": 7
       },
@@ -1515,7 +1515,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 37,
+        "y": 19,
         "w": 12,
         "h": 7
       },
@@ -1565,7 +1565,7 @@
       "description": "Percentage of the rolling 15-minute window spent in package thermal throttling. For this single-package host, 1% means 9 seconds throttled during the last 15 minutes.",
       "type": "stat",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "x": 12, "y": 37, "w": 6, "h": 7 },
+      "gridPos": { "x": 12, "y": 19, "w": 6, "h": 7 },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
@@ -1612,7 +1612,7 @@
       "description": "CPU package power derived from the Intel RAPL energy counter (joules per second). PL1 is the long-term limit and PL2 is the short-term limit reported by firmware.",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "x": 18, "y": 37, "w": 6, "h": 7 },
+      "gridPos": { "x": 18, "y": 19, "w": 6, "h": 7 },
       "fieldConfig": {
         "defaults": {
           "unit": "watt",
