@@ -62,7 +62,6 @@ Applications:
 AI platform:
 
 - Argo CD project: `ai-platform`
-- MCP memory service: `http://mcp-memory-service.mcp.svc.cluster.vasary.org:8765/mcp`
 - MCP Paperless: `http://mcp-paperless.mcp.svc.cluster.vasary.org:3101/mcp`
 - MCP MikroTik: `http://mcp-mikrotik.mcp.svc.cluster.vasary.org:3105/mcp`
 - MCP AdGuard Home: `http://mcp-adguard.mcp.svc.cluster.vasary.org:3100/mcp`
