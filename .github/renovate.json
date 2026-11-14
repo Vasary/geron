@@ -20,16 +20,14 @@
       "matchManagers": ["argocd"],
       "matchDatasources": ["helm"],
       "addLabels": ["helm"],
-      "groupName": "helm charts",
-      "automerge": false
+      "groupName": "helm charts"
     },
     {
       "description": "Group Kubernetes container image updates",
       "matchManagers": ["kubernetes"],
       "matchDatasources": ["docker"],
       "addLabels": ["docker"],
-      "groupName": "container images",
-      "automerge": false
+      "groupName": "container images"
     },
     {
       "description": "Keep OpsTree Redis workloads on Redis 7 until the major upgrade is planned",
@@ -48,7 +46,13 @@
     {
       "description": "Automerge non-major updates",
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Require manual merge for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
     },
     {
       "description": "Ignore Argo CD git tag revisions",
