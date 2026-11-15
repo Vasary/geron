@@ -1,5 +1,7 @@
 # Geron
 
+[![Renovate](https://github.com/Vasary/geron/actions/workflows/renovate.yaml/badge.svg)](https://github.com/Vasary/geron/actions/workflows/renovate.yaml)
+
 Geron is the GitOps repository for the `vasary` single-node Kubernetes cluster.
 It contains the Talos machine configuration, Argo CD bootstrap manifests, and
 application manifests for the services running on the node.
