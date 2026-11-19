@@ -139,7 +139,7 @@ spec:
             - name: PAPERLESS_AI_LLM_REQUEST_TIMEOUT
               value: '300'
             - name: PAPERLESS_AI_LLM_EXTRA_PARAMS
-              value: '{"chat_template_kwargs":{"enable_thinking":false}}'
+              value: '{"extra_body":{"chat_template_kwargs":{"enable_thinking":false}}}'
             - name: PAPERLESS_AI_LLM_EMBEDDING_BACKEND
               value: openai-like
             - name: PAPERLESS_AI_LLM_EMBEDDING_MODEL
