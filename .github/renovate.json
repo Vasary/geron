@@ -6,7 +6,7 @@
   "minimumReleaseAge": "1 day",
   "prConcurrentLimit": 5,
   "prHourlyLimit": 5,
-  "platformAutomerge": true,
+  "platformAutomerge": false,
   "rebaseWhen": "auto",
   "enabledManagers": ["argocd", "github-actions", "kubernetes"],
   "registryAliases": {
