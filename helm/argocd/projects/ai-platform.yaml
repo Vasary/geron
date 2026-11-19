@@ -6,11 +6,13 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
-  description: MCP and agent platform services
+  description: MCP, model inference, and agent platform services
   sourceRepos:
     - '*'
   destinations:
     - namespace: mcp
+      server: https://kubernetes.default.svc
+    - namespace: llm-models
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ''

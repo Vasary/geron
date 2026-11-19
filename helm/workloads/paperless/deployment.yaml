@@ -120,6 +120,40 @@ spec:
               value: 'true'
             - name: PAPERLESS_REDIRECT_LOGIN_TO_SSO
               value: 'true'
+            - name: PAPERLESS_AI_ENABLED
+              value: 'true'
+            - name: PAPERLESS_AI_LLM_BACKEND
+              value: openai-like
+            - name: PAPERLESS_AI_LLM_MODEL
+              value: qwen3.5-4b-paperless
+            - name: PAPERLESS_AI_LLM_ENDPOINT
+              value: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/v1
+            - name: PAPERLESS_AI_LLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: PAPERLESS_AI_LLM_API_KEY
+                  optional: true
+            - name: PAPERLESS_AI_LLM_CONTEXT_SIZE
+              value: '8192'
+            - name: PAPERLESS_AI_LLM_REQUEST_TIMEOUT
+              value: '300'
+            - name: PAPERLESS_AI_LLM_EXTRA_PARAMS
+              value: '{"chat_template_kwargs":{"enable_thinking":false}}'
+            - name: PAPERLESS_AI_LLM_EMBEDDING_BACKEND
+              value: openai-like
+            - name: PAPERLESS_AI_LLM_EMBEDDING_MODEL
+              value: jina-v5-small-retrieval
+            - name: PAPERLESS_AI_LLM_EMBEDDING_ENDPOINT
+              value: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/v1
+            - name: PAPERLESS_AI_LLM_EMBEDDING_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: PAPERLESS_AI_LLM_API_KEY
+                  optional: true
+            - name: PAPERLESS_AI_LLM_EMBEDDING_CHUNK_SIZE
+              value: '1024'
           volumeMounts:
             - name: data
               mountPath: /usr/src/paperless/data

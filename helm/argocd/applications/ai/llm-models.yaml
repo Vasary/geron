@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: llm-models
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"
+spec:
+  project: ai-platform
+  source:
+    repoURL: https://github.com/Vasary/geron.git
+    targetRevision: master
+    path: helm/workloads/llm-models
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: llm-models
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+    syncOptions:
+      - CreateNamespace=true

@@ -14,4 +14,23 @@ data:
     litellm_settings:
       drop_params: true
       set_verbose: false
-    model_list: []
+    model_list:
+      - model_name: jina-v5-small-retrieval
+        litellm_params:
+          model: openai/jina-v5-small-retrieval
+          api_base: http://jina-embeddings.llm-models.svc.cluster.vasary.org/v1
+          api_key: no-key
+        model_info:
+          mode: embedding
+          supported_endpoints:
+            - /v1/embeddings
+          enforce_supported_endpoints: true
+      - model_name: qwen3.5-4b-paperless
+        litellm_params:
+          model: openai/qwen3.5-4b-paperless
+          api_base: http://qwen-inference.llm-models.svc.cluster.vasary.org/v1
+          api_key: no-key
+        model_info:
+          mode: chat
+          supported_endpoints:
+            - /v1/chat/completions
