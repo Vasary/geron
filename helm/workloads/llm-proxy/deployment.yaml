@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/name: llm-proxy
   template:
     metadata:
+      annotations:
+        configmap.reloader.stakater.com/reload: llm-proxy-config
       labels:
         app.kubernetes.io/name: llm-proxy
     spec:
