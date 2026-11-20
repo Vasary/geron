@@ -103,7 +103,7 @@ This cluster depends on a few services outside Kubernetes:
 
 Backups are plain Kubernetes `CronJob` resources. Jobs write dump/export data to
 an `emptyDir` work directory and a shared `rclone` sidecar uploads the result to
-the SFTP backup server.
+the configured remote storage.
 
 - Authentik PostgreSQL
 - Immich PostgreSQL
@@ -117,6 +117,52 @@ the SFTP backup server.
 The reusable uploader lives in
 `helm/platform/components/sftp-backup-uploader`. Backup CronJobs opt in with the
 `geron.io/sftp-backup: "true"` label and must provide a `backup-work` volume.
+After a successful upload, the uploader keeps the two newest timestamped backup
+copies in each backup series. Override the limit on a CronJob's Pod template:
+
+```yaml
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            geron.io/backup-retention: "7"
+```
+
+The retention value must be a positive integer. Missing or invalid values use
+the default of `2`.
+
+The Pod template annotation `geron.io/backup-destination` selects exactly one
+storage backend:
+
+- `sftp` (the default) uploads the backup without an additional encryption
+  layer to the existing SFTP server.
+- `google-drive` uploads through an rclone `crypt` remote. File contents, file
+  names, and directory names are encrypted locally before they leave the Pod.
+
+For Google Drive, `geron.io/google-drive-path` optionally selects the directory
+used for encrypted objects and defaults to `geron-backups`:
+
+```yaml
+spec:
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            geron.io/backup-destination: google-drive
+            geron.io/google-drive-path: geron-backups
+            geron.io/backup-retention: "7"
+```
+
+Google Drive mode reads `GOOGLE_DRIVE_CLIENT_ID`,
+`GOOGLE_DRIVE_CLIENT_SECRET`, `GOOGLE_DRIVE_TOKEN`,
+`BACKUP_CRYPT_PASSWORD`, and `BACKUP_CRYPT_SALT` from the existing
+`sftp-backup-credentials` Secret. These values must remain SOPS-encrypted. The
+OAuth token should use the `drive.file` scope so the backup client can access
+only files it created. Keep both crypt secrets in a separate password manager:
+losing either one makes the encrypted backups unrecoverable.
 
 The SFTP directory layout follows the application name, for example
 `paperless/postgres`, `paperless/export-<timestamp>`, `vaultwarden`, and

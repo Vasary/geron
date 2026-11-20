@@ -24,6 +24,19 @@ patches:
           envFrom:
             - secretRef:
                 name: sftp-backup-credentials
+          env:
+            - name: BACKUP_RETENTION_COUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['geron.io/backup-retention']
+            - name: BACKUP_DESTINATION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['geron.io/backup-destination']
+            - name: BACKUP_GOOGLE_DRIVE_PATH
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['geron.io/google-drive-path']
           command:
             - /bin/sh
             - -ec
@@ -35,18 +48,152 @@ patches:
                 sleep 5
               done
               export RCLONE_CONFIG=/tmp/rclone.conf
-              export RCLONE_CONFIG_BACKUP_TYPE=sftp
-              export RCLONE_CONFIG_BACKUP_HOST="$SFTP_HOST"
-              export RCLONE_CONFIG_BACKUP_PORT="$SFTP_PORT"
-              export RCLONE_CONFIG_BACKUP_USER="$SFTP_USER"
-              export RCLONE_CONFIG_BACKUP_PASS="$(rclone obscure "$SFTP_PASSWORD")"
-              if rclone copy /backup-work backup:/ --create-empty-src-dirs --stats-one-line \
-                --contimeout 10s --timeout 1m --retries 1 --low-level-retries 1; then
-                echo "Backup uploaded successfully"
-              else
-                echo "WARNING: backup upload failed; completing job without a remote backup" >&2
-                echo "WARNING: temporary backup files will be lost when this pod is removed" >&2
-              fi
+              retention_count="${BACKUP_RETENTION_COUNT:-2}"
+              case "$retention_count" in
+                ''|*[!0-9]*|0)
+                  echo "WARNING: invalid geron.io/backup-retention value '$retention_count'; using 2" >&2
+                  retention_count=2
+                  ;;
+              esac
+
+              families=/tmp/backup-families
+              : > "$families"
+              find /backup-work -mindepth 1 ! -name '.done' ! -name '.failed' -print |
+                while IFS= read -r local_path; do
+                  relative_path="${local_path#/backup-work/}"
+                  remaining="$relative_path"
+                  parent=
+                  while [ -n "$remaining" ]; do
+                    component="${remaining%%/*}"
+                    if [ "$remaining" = "$component" ]; then
+                      remaining=
+                    else
+                      remaining="${remaining#*/}"
+                    fi
+                    timestamp="$(printf '%s\n' "$component" | sed -n 's/.*\([0-9]\{8\}T[0-9]\{6\}Z\).*/\1/p')"
+                    if [ -n "$timestamp" ]; then
+                      # A timestamped ancestor directory is the backup unit;
+                      # it is handled when find visits that directory itself.
+                      [ "$component" = "${local_path##*/}" ] || break
+                      prefix="${component%%$timestamp*}"
+                      suffix="${component#*$timestamp}"
+                      if [ -d "$local_path" ]; then
+                        kind=directory
+                      else
+                        kind=file
+                      fi
+                      printf '%s\t%s\t%s\t%s\n' "$kind" "$parent" "$prefix" "$suffix" >> "$families"
+                      break
+                    fi
+                    if [ -n "$parent" ]; then
+                      parent="$parent/$component"
+                    else
+                      parent="$component"
+                    fi
+                  done
+                done
+
+              configure_sftp() {
+                if [ -z "${SFTP_HOST:-}" ] || [ -z "${SFTP_PORT:-}" ] || \
+                  [ -z "${SFTP_USER:-}" ] || [ -z "${SFTP_PASSWORD:-}" ]; then
+                  echo "WARNING: SFTP backup credentials are incomplete" >&2
+                  return 1
+                fi
+                export RCLONE_CONFIG_SFTP_TYPE=sftp
+                export RCLONE_CONFIG_SFTP_HOST="$SFTP_HOST"
+                export RCLONE_CONFIG_SFTP_PORT="$SFTP_PORT"
+                export RCLONE_CONFIG_SFTP_USER="$SFTP_USER"
+                export RCLONE_CONFIG_SFTP_PASS="$(rclone obscure "$SFTP_PASSWORD")"
+              }
+
+              configure_google_drive() {
+                if [ -z "${GOOGLE_DRIVE_CLIENT_ID:-}" ] || \
+                  [ -z "${GOOGLE_DRIVE_CLIENT_SECRET:-}" ] || \
+                  [ -z "${GOOGLE_DRIVE_TOKEN:-}" ] || \
+                  [ -z "${BACKUP_CRYPT_PASSWORD:-}" ] || \
+                  [ -z "${BACKUP_CRYPT_SALT:-}" ]; then
+                  echo "WARNING: Google Drive or backup encryption credentials are incomplete" >&2
+                  return 1
+                fi
+                export RCLONE_CONFIG_GDRIVE_TYPE=drive
+                export RCLONE_CONFIG_GDRIVE_CLIENT_ID="$GOOGLE_DRIVE_CLIENT_ID"
+                export RCLONE_CONFIG_GDRIVE_CLIENT_SECRET="$GOOGLE_DRIVE_CLIENT_SECRET"
+                export RCLONE_CONFIG_GDRIVE_TOKEN="$GOOGLE_DRIVE_TOKEN"
+                export RCLONE_CONFIG_GDRIVE_SCOPE=drive.file
+                export RCLONE_CONFIG_GDRIVE_ROOT_FOLDER_ID="${GOOGLE_DRIVE_ROOT_FOLDER_ID:-}"
+                export RCLONE_CONFIG_ENCRYPTED_TYPE=crypt
+                export RCLONE_CONFIG_ENCRYPTED_REMOTE="gdrive:${BACKUP_GOOGLE_DRIVE_PATH:-geron-backups}"
+                export RCLONE_CONFIG_ENCRYPTED_PASSWORD="$(rclone obscure "$BACKUP_CRYPT_PASSWORD")"
+                export RCLONE_CONFIG_ENCRYPTED_PASSWORD2="$(rclone obscure "$BACKUP_CRYPT_SALT")"
+                export RCLONE_CONFIG_ENCRYPTED_FILENAME_ENCRYPTION=standard
+                export RCLONE_CONFIG_ENCRYPTED_DIRECTORY_NAME_ENCRYPTION=true
+              }
+
+              prune_remote() {
+                remote="$1"
+                remote_name="$2"
+                sort -u "$families" | while IFS="$(printf '\t')" read -r kind parent prefix suffix; do
+                  entries=/tmp/backup-entries
+                  : > "$entries"
+                  if [ "$kind" = directory ]; then
+                    list_flag=--dirs-only
+                  else
+                    list_flag=--files-only
+                  fi
+                  rclone lsf "$remote/$parent" --max-depth 1 "$list_flag" 2>/dev/null |
+                    while IFS= read -r entry; do
+                      entry="${entry%/}"
+                      candidate="${entry#"$prefix"}"
+                      [ "$candidate" != "$entry" ] || continue
+                      if [ -n "$suffix" ]; then
+                        candidate="${candidate%"$suffix"}"
+                      fi
+                      printf '%s\n' "$candidate" | sed -n '/^[0-9]\{8\}T[0-9]\{6\}Z$/p' |
+                        while IFS= read -r found_timestamp; do
+                          printf '%s\t%s\n' "$found_timestamp" "$entry" >> "$entries"
+                        done
+                    done
+
+                  sort -r "$entries" | tail -n "+$((retention_count + 1))" |
+                    while IFS="$(printf '\t')" read -r old_timestamp old_entry; do
+                      [ -n "$old_entry" ] || continue
+                      if [ "$kind" = directory ]; then
+                        rclone purge "$remote/$parent/$old_entry"
+                      else
+                        rclone deletefile "$remote/$parent/$old_entry"
+                      fi
+                      echo "Deleted expired backup from $remote_name: $parent/$old_entry"
+                    done
+                done
+              }
+
+              upload_backup() {
+                remote="$1"
+                remote_name="$2"
+                if rclone copy /backup-work "$remote/" --create-empty-src-dirs --stats-one-line \
+                  --exclude '/.done' --exclude '/.failed' \
+                  --contimeout 10s --timeout 1m --retries 1 --low-level-retries 1; then
+                  echo "Backup uploaded successfully to $remote_name"
+                  prune_remote "$remote" "$remote_name" || \
+                    echo "WARNING: backup retention cleanup failed for $remote_name" >&2
+                else
+                  echo "WARNING: backup upload to $remote_name failed" >&2
+                  echo "WARNING: temporary backup files will be lost when this pod is removed" >&2
+                fi
+              }
+
+              destination="${BACKUP_DESTINATION:-sftp}"
+              case "$destination" in
+                sftp)
+                  configure_sftp && upload_backup 'sftp:' SFTP || true
+                  ;;
+                google-drive)
+                  configure_google_drive && upload_backup 'encrypted:' 'encrypted Google Drive' || true
+                  ;;
+                *)
+                  echo "WARNING: unsupported geron.io/backup-destination value '$destination'" >&2
+                  ;;
+              esac
           volumeMounts:
             - name: backup-work
               mountPath: /backup-work

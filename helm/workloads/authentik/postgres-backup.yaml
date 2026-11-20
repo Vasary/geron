@@ -16,6 +16,10 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        metadata:
+          annotations:
+            geron.io/backup-destination: google-drive
+            geron.io/backup-retention: "7"
         spec:
           securityContext:
             runAsNonRoot: true
