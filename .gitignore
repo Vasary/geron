@@ -8,3 +8,4 @@ helm/secrets/*.yaml
 !helm/secrets/*.sops.yaml
 !helm/secrets/kustomization.yaml
 .env
+restored-backups/*

@@ -164,6 +164,29 @@ OAuth token should use the `drive.file` scope so the backup client can access
 only files it created. Keep both crypt secrets in a separate password manager:
 losing either one makes the encrypted backups unrecoverable.
 
+Google Drive shows encrypted object names by design. List backups with their
+decrypted paths through the helper script:
+
+```bash
+nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh
+nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh list
+nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh list outline
+```
+
+With no arguments, the helper starts an interactive browser, loads credentials
+from SOPS into its process environment, and lets you enter service directories
+before downloading a selected file or the current directory with decrypted
+names and contents. Set `BACKUP_RESTORE_DIR` to change the default local
+destination.
+
+Download and decrypt one backup locally:
+
+```bash
+nix shell nixpkgs#rclone -c \
+  helm/scripts/google-drive-backups.sh download \
+  outline/outline-20261120T190726Z.sql.gz ./restored-backups
+```
+
 The SFTP directory layout follows the application name, for example
 `paperless/postgres`, `paperless/export-<timestamp>`, `vaultwarden`, and
 `seafile`.
