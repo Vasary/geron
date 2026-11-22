@@ -8,3 +8,5 @@ resources:
   - jina-service.yaml
   - qwen-deployment.yaml
   - qwen-service.yaml
+  - eurollm-deployment.yaml
+  - eurollm-service.yaml

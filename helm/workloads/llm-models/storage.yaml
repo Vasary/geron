@@ -23,3 +23,16 @@ spec:
   resources:
     requests:
       storage: 6Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: eurollm-model-cache
+  namespace: llm-models
+spec:
+  storageClassName: local-path-nvme
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
