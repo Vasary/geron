@@ -6,7 +6,9 @@ Services:
 - `jina-v5-small-retrieval` provides embeddings for the Paperless-ngx LLM
   index. It has two parallel slots.
 - `eurollm-1.7b-paperless` provides multilingual chat completions for
-  Paperless-ngx in English, German, Russian, and Ukrainian.
+  Paperless-ngx in English, German, Russian, and Ukrainian. Its upstream chat
+  template is mounted explicitly to ensure the assistant generation prompt is
+  present, and responses are capped at 512 tokens.
 - `qwen3.5-4b-paperless` is retained as a disabled fallback with zero replicas.
 
 Model files are downloaded by `llama-server` into persistent NVMe-backed

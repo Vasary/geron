@@ -10,3 +10,4 @@ resources:
   - qwen-service.yaml
   - eurollm-deployment.yaml
   - eurollm-service.yaml
+  - eurollm-chat-template.yaml

@@ -45,6 +45,16 @@ spec:
             - "8080"
             - --ctx-size
             - "4096"
+            - --n-predict
+            - "512"
+            - --temp
+            - "0.1"
+            - --top-p
+            - "0.9"
+            - --min-p
+            - "0.0"
+            - --repeat-penalty
+            - "1.05"
             - --parallel
             - "1"
             - --threads
@@ -62,6 +72,8 @@ spec:
             - --flash-attn
             - on
             - --jinja
+            - --chat-template-file
+            - /etc/eurollm/chat-template.jinja
             - --no-webui
             - --metrics
           env:
@@ -73,6 +85,9 @@ spec:
           volumeMounts:
             - name: model-cache
               mountPath: /models
+            - name: chat-template
+              mountPath: /etc/eurollm
+              readOnly: true
           startupProbe:
             httpGet:
               path: /health
@@ -108,3 +123,6 @@ spec:
         - name: model-cache
           persistentVolumeClaim:
             claimName: eurollm-model-cache
+        - name: chat-template
+          configMap:
+            name: eurollm-chat-template
