@@ -34,12 +34,3 @@ data:
           mode: chat
           supported_endpoints:
             - /v1/chat/completions
-      - model_name: eurollm-1.7b-paperless
-        litellm_params:
-          model: openai/eurollm-1.7b-paperless
-          api_base: http://eurollm-inference.llm-models.svc.cluster.vasary.org/v1
-          api_key: no-key
-        model_info:
-          mode: chat
-          supported_endpoints:
-            - /v1/chat/completions
