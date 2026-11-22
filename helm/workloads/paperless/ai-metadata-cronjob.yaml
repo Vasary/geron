@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-ai-metadata
+  namespace: paperless
+  labels:
+    app.kubernetes.io/name: paperless-ai-metadata
+spec:
+  schedule: "15 9 * * *"
+  timeZone: Europe/Berlin
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 7
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 3600
+      ttlSecondsAfterFinished: 604800
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: paperless-ai-metadata
+        spec:
+          restartPolicy: Never
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: metadata
+              image: ghcr.io/paperless-ngx/paperless-ngx:3.4.2
+              imagePullPolicy: IfNotPresent
+              command:
+                - python
+              args:
+                - /opt/paperless-ai/paperless-ai-metadata.py
+                - process
+                - --limit
+                - "20"
+                - --apply
+                - --model
+                - gemini-free-flash
+              env:
+                - name: PYTHONUNBUFFERED
+                  value: "1"
+                - name: PAPERLESS_URL
+                  value: http://paperless/
+                - name: LITELLM_URL
+                  value: http://llm-proxy.llm-proxy.svc.cluster.vasary.org/v1
+                - name: PAPERLESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-secrets
+                      key: PAPERLESS_METADATA_API_TOKEN
+                - name: LITELLM_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: paperless-secrets
+                      key: PAPERLESS_METADATA_LITELLM_API_KEY
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: "1"
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: script
+                  mountPath: /opt/paperless-ai
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: paperless-ai-metadata-script
+                defaultMode: 0555

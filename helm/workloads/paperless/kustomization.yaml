@@ -11,3 +11,11 @@ resources:
   - service.yaml
   - ingress.yaml
   - backup.yaml
+  - ai-metadata-cronjob.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: paperless-ai-metadata-script
+    namespace: paperless
+    files:
+      - paperless-ai-metadata.py
