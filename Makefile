@@ -25,6 +25,7 @@ help:
 		'  make helm validate' \
 		'  make helm deploy' \
 		'  make helm deploy-secrets' \
+		'  make helm backups' \
 		'' \
 		'Without a nested target, make talos or make helm shows that Makefile help.'
 

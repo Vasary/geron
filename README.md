@@ -168,16 +168,19 @@ Google Drive shows encrypted object names by design. List backups with their
 decrypted paths through the helper script:
 
 ```bash
-nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh
+make helm backups
 nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh list
 nix shell nixpkgs#rclone -c helm/scripts/google-drive-backups.sh list outline
 ```
 
 With no arguments, the helper starts an interactive browser, loads credentials
-from SOPS into its process environment, and lets you enter service directories
-before downloading a selected file or the current directory with decrypted
-names and contents. Set `BACKUP_RESTORE_DIR` to change the default local
-destination.
+from SOPS into its process environment, verifies the required fields and tests
+the Google Drive connection before showing any backups. The browser shows
+directories first, followed by files with their decrypted names, sizes, and
+modification times. Enter an item number to open a directory or download a
+file; use `d` to download the current directory and `u` to go up. After an
+interactive download, the helper can also unpack `tar`, `zip`, `gz`, `bz2`, and
+`xz` archives. Set `BACKUP_RESTORE_DIR` to change the default local destination.
 
 Download and decrypt one backup locally:
 
@@ -186,6 +189,17 @@ nix shell nixpkgs#rclone -c \
   helm/scripts/google-drive-backups.sh download \
   outline/outline-20261120T190726Z.sql.gz ./restored-backups
 ```
+
+Add `--extract` to download, decrypt, and unpack in one non-interactive command:
+
+```bash
+nix shell nixpkgs#rclone -c \
+  helm/scripts/google-drive-backups.sh download \
+  outline/outline-20261120T190726Z.sql.gz ./restored-backups --extract
+```
+
+Downloaded archives are kept alongside the unpacked data. Archive extraction
+rejects entries that would write outside the destination directory.
 
 The SFTP directory layout follows the application name, for example
 `paperless/postgres`, `paperless/export-<timestamp>`, `vaultwarden`, and

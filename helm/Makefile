@@ -11,10 +11,11 @@ ARGOCD_SECRET_FILE ?= secrets/argocd.sops.yaml
 AUTHENTIK_SECRET_FILE ?= secrets/authentik.sops.yaml
 AUTHENTIK_ADMIN_USER ?= akadmin
 AUTHENTIK_BLUEPRINT_PATH ?= /blueprints/mounted/cm-authentik-blueprint-llm-proxy/llm-proxy.yaml
+BACKUP_ARGS ?=
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate deploy deploy-secrets authentik-blueprints argocd-password authentik-bootstrap-password authentik-password
+.PHONY: help validate deploy deploy-secrets backups authentik-blueprints argocd-password authentik-bootstrap-password authentik-password
 
 help:
 	@printf '%s\n' \
@@ -22,6 +23,7 @@ help:
 		'  make validate        Validate Argo CD platform manifests' \
 		'  make deploy          Install Argo CD and bootstrap from git origin' \
 		'  make deploy-secrets  Decrypt and apply SOPS Kubernetes secrets' \
+		'  make backups         Browse and restore encrypted Google Drive backups' \
 		'  make authentik-blueprints Apply Authentik SSO blueprints manually' \
 		'  make argocd-password Generate encrypted break-glass Argo CD admin password' \
 		'  make authentik-bootstrap-password Generate encrypted Authentik bootstrap admin password' \
@@ -37,7 +39,8 @@ help:
 		'  ARGOCD_SECRET_FILE=$(ARGOCD_SECRET_FILE)' \
 		'  AUTHENTIK_SECRET_FILE=$(AUTHENTIK_SECRET_FILE)' \
 		'  AUTHENTIK_ADMIN_USER=$(AUTHENTIK_ADMIN_USER)' \
-		'  AUTHENTIK_BLUEPRINT_PATH=$(AUTHENTIK_BLUEPRINT_PATH)'
+		'  AUTHENTIK_BLUEPRINT_PATH=$(AUTHENTIK_BLUEPRINT_PATH)' \
+		'  BACKUP_ARGS=$(BACKUP_ARGS)'
 
 validate:
 	@command -v kubectl >/dev/null
@@ -95,6 +98,9 @@ deploy-secrets:
 		printf 'Applying %s\n' "$$secret"; \
 		SOPS_AGE_KEY_FILE="$(SOPS_AGE_KEY_FILE)" sops -d "$$secret" | kubectl apply -f -; \
 	done
+
+backups:
+	@nix shell nixpkgs#rclone -c scripts/google-drive-backups.sh $(BACKUP_ARGS)
 
 authentik-blueprints:
 	@command -v kubectl >/dev/null
