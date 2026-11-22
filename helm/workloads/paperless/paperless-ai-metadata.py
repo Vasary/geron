@@ -37,6 +37,16 @@ class FatalApiError(ScriptError):
     """An API error after which the batch must stop immediately."""
 
 
+class UnknownLookupIdError(ScriptError):
+    """The LLM selected an ID that is absent from a Paperless lookup."""
+
+    def __init__(self, field: str, value: int, allowed: set[int]) -> None:
+        self.field = field
+        self.value = value
+        self.allowed = sorted(allowed)
+        super().__init__(f"LLM returned unknown {field}: {value}")
+
+
 class ApiClient:
     def __init__(self, base_url: str, token: str, *, timeout: int = 120) -> None:
         self.base_url = base_url.rstrip("/") + "/"
@@ -81,25 +91,32 @@ class LlmClient:
         self.model = model
         self.timeout = timeout
 
-    def complete(self, prompt: str) -> dict[str, Any]:
+    def complete(
+        self, prompt: str, *, previous_result: dict[str, Any] | None = None,
+        correction: str | None = None,
+    ) -> dict[str, Any]:
+        messages: list[dict[str, str]] = [
+            {
+                "role": "system",
+                "content": (
+                    "You assign metadata to archived documents. Use only facts present in the document. "
+                    "Return one JSON object and no markdown or explanation."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ]
+        if previous_result is not None and correction is not None:
+            messages.extend((
+                {"role": "assistant", "content": json.dumps(previous_result, ensure_ascii=False)},
+                {"role": "user", "content": correction},
+            ))
         payload = {
             "model": self.model,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You assign metadata to archived documents. Use only facts present in the document. "
-                        "Return one JSON object and no markdown or explanation."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
+            "messages": messages,
             "temperature": 0.1,
-            "max_tokens": 1024 if self.model.startswith("gemini") else 256,
+            "max_tokens": 256,
             "response_format": {"type": "json_object"},
         }
-        if self.model.startswith("gemini"):
-            payload["reasoning_effort"] = "low"
         if self.model.startswith("qwen"):
             payload["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
         request = Request(self.url, data=json.dumps(payload, ensure_ascii=False).encode(), method="POST")
@@ -270,6 +287,16 @@ OCR text:
 """
 
 
+def make_lookup_correction(error: UnknownLookupIdError) -> str:
+    return f"""Your previous JSON response was rejected.
+The value {error.value} is not a valid {error.field}.
+Allowed values for {error.field}: {json.dumps(error.allowed)}
+Return the complete corrected JSON object. Change the invalid ID to one of the
+allowed values, or null when none fits. Do not change fields that do not need
+correction. Return JSON only.
+"""
+
+
 def integer_or_none(value: Any, allowed: set[int], field: str) -> int | None:
     if value is None or value == "":
         return None
@@ -278,7 +305,7 @@ def integer_or_none(value: Any, allowed: set[int], field: str) -> int | None:
     except (TypeError, ValueError) as error:
         raise ScriptError(f"LLM returned invalid {field}: {value!r}") from error
     if result not in allowed:
-        raise ScriptError(f"LLM returned unknown {field}: {result}")
+        raise UnknownLookupIdError(field, result, allowed)
     return result
 
 
@@ -478,10 +505,25 @@ def process_documents(args: argparse.Namespace) -> None:
         document_id = int(summary["id"])
         try:
             document = paperless.request("GET", f"api/documents/{document_id}/?full_perms=true")
-            result = llm.complete(make_prompt(document, context, args.text_limit))
-            patch = proposed_patch(
-                document, result, context, ai_tag_id, review_tag_id, sender_field, recipient_field
-            )
+            prompt = make_prompt(document, context, args.text_limit)
+            result = llm.complete(prompt)
+            try:
+                patch = proposed_patch(
+                    document, result, context, ai_tag_id, review_tag_id, sender_field, recipient_field
+                )
+            except UnknownLookupIdError as error:
+                print(
+                    f"[{index}/{len(candidates)}] document #{document_id}: "
+                    f"retrying invalid {error.field}={error.value}"
+                )
+                result = llm.complete(
+                    prompt,
+                    previous_result=result,
+                    correction=make_lookup_correction(error),
+                )
+                patch = proposed_patch(
+                    document, result, context, ai_tag_id, review_tag_id, sender_field, recipient_field
+                )
             print(f"[{index}/{len(candidates)}] document #{document_id}")
             display_plan(document, patch, context)
             if args.apply:
@@ -530,7 +572,7 @@ def parser() -> argparse.ArgumentParser:
     process.add_argument("--llm-url", default=os.environ.get(
         "LITELLM_URL", "https://llm-proxy.vasary.org/v1"
     ))
-    process.add_argument("--model", default="gemini-free-flash")
+    process.add_argument("--model", default="qwen3.5-9b-paperless")
     process.add_argument("--llm-timeout", type=int, default=300)
     process.add_argument("--delay", type=float, default=0.0)
     process.add_argument("--fail-fast", action="store_true")

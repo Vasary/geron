@@ -22,30 +22,31 @@ written:
 python3 helm/workloads/paperless/paperless-ai-metadata.py sync-context --ensure-tags
 ```
 
-Review a dry-run for 20 documents. The script downloads fresh lookup tables
+Review a dry-run for 5 documents. The script downloads fresh lookup tables
 into memory at the start of every run. Documents already carrying the `ai` tag
 are skipped. Every applied document receives both the permanent `ai` processing
-marker and the temporary `Требуется ручная проверка` tag:
+marker and the temporary `Требуется ручная проверка` tag. If the model selects
+an ID outside a current Paperless lookup, the script gives it the allowed IDs
+and makes one corrective retry before rejecting the document:
 
 ```sh
-python3 helm/workloads/paperless/paperless-ai-metadata.py process --limit 20
+python3 helm/workloads/paperless/paperless-ai-metadata.py process --limit 5
 ```
 
-The default model is `gemini-free-flash`. Select another LiteLLM model with
-`--model`, for example `--model gemini-free-standard`.
+The default model is the local `qwen3.5-9b-paperless` served through LiteLLM.
 
 If sender and recipient fields were not detected automatically, provide their
 exact Paperless names:
 
 ```sh
-python3 helm/workloads/paperless/paperless-ai-metadata.py process --limit 20 \
+python3 helm/workloads/paperless/paperless-ai-metadata.py process --limit 5 \
   --sender-field Absender --recipient-field Empfänger
 ```
 
 Apply reviewed changes:
 
 ```sh
-python3 helm/workloads/paperless/paperless-ai-metadata.py process --apply --limit 20
+python3 helm/workloads/paperless/paperless-ai-metadata.py process --apply --limit 5
 ```
 
 Use `--limit 0` only after reviewing a representative dry-run. Proposed and
@@ -59,10 +60,10 @@ Personal documents receive no group access. Documents without an owner receive
 view access for the `Family` group. For letters, Sender and Receiver contain
 human names only; the external organization belongs in Correspondent.
 
-The GitOps CronJob runs every day at 09:15 Europe/Berlin, processes at most 20
-documents with `gemini-free-flash`, and stops immediately on an API error. It
-uses `concurrencyPolicy: Forbid` and does not retry a failed Job, preserving the
-remaining daily free-tier requests for the next scheduled run.
+The GitOps CronJob runs every 15 minutes and processes at most 5 documents with
+the local `qwen3.5-9b-paperless`. It stops immediately on an API error, uses
+`concurrencyPolicy: Forbid`, and does not retry a failed Job. Documents that
+were successfully applied receive the `ai` tag and are skipped by later runs.
 
 ## Ownership and Family access rules
 

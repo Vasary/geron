@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: paperless-ai-metadata
 spec:
-  schedule: "15 9 * * *"
+  schedule: "*/15 * * * *"
   timeZone: Europe/Berlin
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
@@ -40,10 +40,10 @@ spec:
                 - /opt/paperless-ai/paperless-ai-metadata.py
                 - process
                 - --limit
-                - "20"
+                - "5"
                 - --apply
                 - --model
-                - gemini-free-flash
+                - qwen3.5-9b-paperless
               env:
                 - name: PYTHONUNBUFFERED
                   value: "1"
