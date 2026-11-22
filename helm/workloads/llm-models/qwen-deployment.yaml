@@ -48,13 +48,13 @@ spec:
             - --parallel
             - "1"
             - --threads
-            - "8"
+            - "3"
             - --threads-batch
-            - "8"
+            - "3"
             - --batch-size
-            - "2048"
+            - "1024"
             - --ubatch-size
-            - "512"
+            - "256"
             - --cache-type-k
             - q8_0
             - --cache-type-v
@@ -98,6 +98,7 @@ spec:
               cpu: "2"
               memory: 8Gi
             limits:
+              cpu: "3"
               memory: 10Gi
           securityContext:
             allowPrivilegeEscalation: false
