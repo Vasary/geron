@@ -60,12 +60,13 @@ Personal documents receive no group access. Documents without an owner receive
 view access for the `Family` group. For letters, Sender and Receiver contain
 human names only; the external organization belongs in Correspondent.
 
-The GitOps CronJob runs at minute 17 of every hour and processes at most 5
-documents with the local `qwen3.5-9b-paperless`. The conservative schedule and
-the model server's three-thread CPU limit leave a long cooling interval between
-batches. The job stops immediately on an API error, uses `concurrencyPolicy:
-Forbid`, and does not retry a failed Job. Documents that were successfully
-applied receive the `ai` tag and are skipped by later runs.
+The GitOps CronJob is suspended because sustained local inference overheated
+the cluster node. Its retained schedule is minute 17 of every hour, with at
+most 5 documents per run through the local `qwen3.5-9b-paperless`; remove
+`suspend: true` only after safer CPU and thermal limits have been validated.
+The job stops immediately on an API error, uses `concurrencyPolicy: Forbid`,
+and does not retry a failed Job. Documents that were successfully applied
+receive the `ai` tag and are skipped by later runs.
 
 ## Ownership and Family access rules
 
