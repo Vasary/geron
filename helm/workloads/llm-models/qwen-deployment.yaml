@@ -34,11 +34,11 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - --hf-repo
-            - SoAIHQ/Qwen3.5-4B-GGUF
+            - SoAIHQ/Qwen3.5-9B-GGUF
             - --hf-file
-            - Qwen3.5-4B-Q4_K_M.gguf
+            - Qwen3.5-9B-Q4_K_M.gguf
             - --alias
-            - qwen3.5-4b-paperless
+            - qwen3.5-9b-paperless
             - --host
             - 0.0.0.0
             - --port
@@ -96,9 +96,9 @@ spec:
           resources:
             requests:
               cpu: "2"
-              memory: 4Gi
+              memory: 8Gi
             limits:
-              memory: 6Gi
+              memory: 10Gi
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

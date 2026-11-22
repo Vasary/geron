@@ -5,7 +5,7 @@ Services:
 
 - `jina-v5-small-retrieval` provides embeddings for the Paperless-ngx LLM
   index. It has two parallel slots.
-- `qwen3.5-4b-paperless` provides chat completions for Paperless-ngx
+- `qwen3.5-9b-paperless` provides chat completions for Paperless-ngx
   suggestions and document chat. Thinking is disabled by the Paperless client
   to reduce latency and token use.
 
@@ -18,7 +18,7 @@ configured client.
 Create a LiteLLM service-account virtual key restricted to these models:
 
 - `jina-v5-small-retrieval`
-- `qwen3.5-4b-paperless`
+- `qwen3.5-9b-paperless`
 
 Store it as `stringData.PAPERLESS_AI_LLM_API_KEY` in
 `helm/secrets/paperless.sops.yaml` using SOPS. The Paperless secret references
