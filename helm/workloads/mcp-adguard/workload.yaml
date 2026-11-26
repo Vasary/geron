@@ -19,7 +19,7 @@ spec:
     spec:
       initContainers:
         - name: install-mcp
-          image: supercorp/supergateway:4.2.2@sha256:5fd78fb79ffce27812313e5da9b3b3d0bc034267e131961f1140f4a4e0179d3a
+          image: supercorp/supergateway:4.3.0@sha256:1715ae31aaa25792d8751b207428e0297a33e10fc36803a4309c41b420aab558
           command:
             - npm
           args:
@@ -34,7 +34,7 @@ spec:
               mountPath: /opt/mcp
       containers:
         - name: server
-          image: supercorp/supergateway:4.2.2@sha256:5fd78fb79ffce27812313e5da9b3b3d0bc034267e131961f1140f4a4e0179d3a
+          image: supercorp/supergateway:4.3.0@sha256:1715ae31aaa25792d8751b207428e0297a33e10fc36803a4309c41b420aab558
           args:
             - --stdio
             - node /opt/mcp/node_modules/@fcannizzaro/mcp-adguard-home/dist/index.mjs
